@@ -2,8 +2,6 @@
 -- Migracion 0001 - Nucleo del Mail 1 (pedido inicial del cliente)
 -- Solo lo que ese mail pide: peliculas, salas, butacas, funciones,
 -- perfiles de usuario, cupon de bienvenida y la reserva con sus butacas.
--- Todo lo demas (resenas, generos, candy bar, puntos, etc.) llega
--- en migraciones futuras, a medida que aparezcan esos mails.
 -- =========================================================
 
 create extension if not exists pgcrypto;
@@ -86,10 +84,6 @@ create table reserva_butacas (
 
 -- =========================================================
 -- Funcion para generar las butacas de una sala.
--- Version simple del Mail 1: 20 filas (A a T), 3 columnas de
--- 4 + 20 + 4 butacas, todas tipo 'normal'.
--- (La fila accesible y las butacas VIP llegan en mails futuros:
--- ese dia vamos a MODIFICAR esta funcion, no crear una nueva.)
 -- =========================================================
 create or replace function generar_butacas(p_sala_id integer)
 returns void as $$
