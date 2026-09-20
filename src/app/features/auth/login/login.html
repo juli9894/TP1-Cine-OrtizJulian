@@ -1,0 +1,21 @@
+    <div class="login">
+    <h2>Iniciar sesión</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <label>
+        Email
+        <input type="email" formControlName="email" />
+        </label>
+
+        <label>
+        Contraseña
+        <input type="password" formControlName="password" />
+        </label>
+
+        @if (errorMensaje) {
+        <p class="error">{{ errorMensaje }}</p>
+        }
+
+        <button type="submit" [disabled]="form.invalid">Ingresar</button>
+    </form>
+    </div>
