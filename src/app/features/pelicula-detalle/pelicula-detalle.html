@@ -17,6 +17,35 @@
         } @empty {
         <p>Todavía no hay reseñas para esta película.</p>
         }
+
+        @if (authService.usuarioActual()) {
+            <form [formGroup]="formularioResena" (ngSubmit)="enviarResena()">
+                <div class="estrellas">
+                    @for (estrella of [1, 2, 3, 4, 5]; track estrella) {
+                    <button
+                        type="button"
+                        [class.activa]="estrella <= formularioResena.controls.calificacion.value"
+                        (click)="formularioResena.patchValue({ calificacion: estrella })"
+                    >
+                        ★
+                    </button>
+                    }
+                </div>
+
+                <textarea
+                    formControlName="comentario"
+                    placeholder="Contanos qué te pareció (opcional)"
+                ></textarea>
+
+                @if (errorResena()) {
+                <p class="error">{{ errorResena() }}</p>
+                }
+
+                <button type="submit" [disabled]="formularioResena.invalid">Enviar reseña</button>
+            </form>
+        } @else {
+            <p>Iniciá sesión para dejar tu reseña.</p>
+        }
     </section>
     } @else {
     @if (errorMensaje()) {
