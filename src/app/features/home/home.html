@@ -1,0 +1,13 @@
+<section>
+    <h2>Top 3 más vendidas</h2>
+
+    @for (pelicula of top3(); track pelicula.id) {
+        <article>
+        <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
+        <h3>{{ pelicula.titulo }}</h3>
+        <p>{{ pelicula.duracionMinutos }} min</p>
+        </article>
+    } @empty {
+        <p>Todavía no hay películas cargadas.</p>
+    }
+</section>

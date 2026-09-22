@@ -1,0 +1,27 @@
+@if (pelicula(); as p) {
+    <article>
+        <img [src]="p.imagenUrl" [alt]="p.titulo" />
+        <h2>{{ p.titulo }}</h2>
+        <p>{{ p.duracionMinutos }} min</p>
+        <p>{{ p.sinopsis }}</p>
+    </article>
+
+    <section>
+        <h3>Reseñas — promedio: {{ promedio().toFixed(1) }} / 5</h3>
+
+        @for (resena of resenas(); track resena.id) {
+        <article class="resena">
+            <p>{{ resena.calificacion }} / 5</p>
+            <p>{{ resena.comentario }}</p>
+        </article>
+        } @empty {
+        <p>Todavía no hay reseñas para esta película.</p>
+        }
+    </section>
+    } @else {
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    } @else {
+        <p>Cargando...</p>
+    }
+}
