@@ -31,4 +31,36 @@ export class PeliculasService {
 
         return mapearPelicula(data[0]);
     }
+
+    async buscar(texto: string, generoId: number | null): Promise<Pelicula[]> {
+        let idsPermitidos: number[] | null = null;
+
+        if (generoId !== null) {
+            const { data, error } = await this.supabase
+                .from('pelicula_generos')
+                .select('pelicula_id')
+                .eq('genero_id', generoId)
+                .overrideTypes<{ pelicula_id: number }[], { merge: false }>();
+
+            if (error) throw error;
+
+            idsPermitidos = (data ?? []).map((fila) => fila.pelicula_id);
+        }
+
+        let consulta = this.supabase
+            .from('peliculas')
+            .select('*')
+            .ilike('titulo', `%${texto}%`)
+            .order('titulo');
+
+        if (idsPermitidos !== null) {
+            consulta = consulta.in('id', idsPermitidos);
+        }
+
+        const { data, error } = await consulta.overrideTypes<FilaPelicula[], { merge: false }>();
+
+        if (error) throw error;
+
+        return (data ?? []).map(mapearPelicula);
+    }
 }
