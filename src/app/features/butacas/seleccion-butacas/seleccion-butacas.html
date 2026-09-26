@@ -1,0 +1,32 @@
+@if (funcion(); as f) {
+    <div class="info-funcion">
+        <p>{{ f.formato }} — {{ f.idioma }}</p>
+    </div>
+
+    <div class="sala">
+        @for (fila of filas(); track fila[0].id) {
+            <div class="fila">
+                @for (butaca of fila; track butaca.id) {
+                    <button
+                        type="button"
+                        class="butaca"
+                        [class.accesible]="butaca.tipo === 'accesible'"
+                        [class.vip]="butaca.tipo === 'vip'"
+                        [class.ocupada]="idsOcupados().includes(butaca.id)"
+                        [class.seleccionada]="idsSeleccionados().includes(butaca.id)"
+                        [disabled]="idsOcupados().includes(butaca.id)"
+                        (click)="onClickButaca(butaca)"
+                    ></button>
+                }
+            </div>
+        }
+    </div>
+
+    <p>Butacas seleccionadas: {{ idsSeleccionados().length }}</p>
+} @else {
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    } @else {
+        <p>Cargando...</p>
+    }
+}
