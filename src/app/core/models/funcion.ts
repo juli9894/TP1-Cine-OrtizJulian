@@ -29,3 +29,11 @@ export function mapearFuncion(fila: FilaFuncion): Funcion {
         idioma: fila.idioma,
     };
 }
+
+export interface NuevaFuncion {
+    peliculaId: number;
+    salaId: number;
+    horario: string;
+    formato: FormatoFuncion;
+    idioma: IdiomaFuncion;
+}

@@ -1,0 +1,60 @@
+<h2>Crear función</h2>
+
+@if (errorCarga()) {
+    <p class="error">{{ errorCarga() }}</p>
+} @else {
+    <form [formGroup]="formularioFuncion" (ngSubmit)="crearFuncion()">
+        <label>
+            Película
+            <select formControlName="peliculaId">
+                <option value="">Seleccioná una película</option>
+                @for (pelicula of peliculas(); track pelicula.id) {
+                    <option [value]="pelicula.id">{{ pelicula.titulo }}</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Sala
+            <select formControlName="salaId">
+                <option value="">Seleccioná una sala</option>
+                @for (sala of salas(); track sala.id) {
+                    <option [value]="sala.id">{{ sala.nombre }}</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Horario
+            <input type="datetime-local" formControlName="horario" />
+        </label>
+
+        <label>
+            Formato
+            <select formControlName="formato">
+                <option value="2D">2D</option>
+                <option value="3D">3D</option>
+                <option value="4D">4D</option>
+                <option value="5D">5D</option>
+            </select>
+        </label>
+
+        <label>
+            Idioma
+            <select formControlName="idioma">
+                <option value="castellano">Castellano</option>
+                <option value="subtitulada">Subtitulada</option>
+            </select>
+        </label>
+
+        @if (errorFuncion()) {
+            <p class="error">{{ errorFuncion() }}</p>
+        }
+
+        @if (mensajeExito()) {
+            <p class="exito">{{ mensajeExito() }}</p>
+        }
+
+        <button type="submit" [disabled]="formularioFuncion.invalid">Crear función</button>
+    </form>
+}

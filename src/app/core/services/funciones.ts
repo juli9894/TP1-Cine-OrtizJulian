@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { SupabaseClientService } from './supabase-client';
-import { Funcion, FilaFuncion, mapearFuncion } from '../models/funcion';
+import { Funcion, FilaFuncion, mapearFuncion, NuevaFuncion } from '../models/funcion';
 
 @Service()
 export class FuncionesService {
@@ -17,5 +17,19 @@ export class FuncionesService {
         if (!data || data.length === 0) throw new Error('Función no encontrada');
 
         return mapearFuncion(data[0]);
+    }
+
+    async crear(datos: NuevaFuncion): Promise<void> {
+        const { error } = await this.supabase
+            .from('funciones')
+            .insert({
+                pelicula_id: datos.peliculaId,
+                sala_id: datos.salaId,
+                horario: datos.horario,
+                formato: datos.formato,
+                idioma: datos.idioma,
+            });
+
+        if (error) throw error;
     }
 }
