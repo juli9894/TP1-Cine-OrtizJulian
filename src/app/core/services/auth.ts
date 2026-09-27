@@ -47,4 +47,11 @@ export class AuthService {
         const { error } = await this.supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
     }
+
+    async cerrarSesion(): Promise<void> {
+    const { error } = await this.supabase.auth.signOut();
+    if (error) throw error;
+    }
+
+    
 }

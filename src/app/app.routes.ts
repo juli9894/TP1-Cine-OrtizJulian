@@ -6,12 +6,13 @@ import { PeliculaDetalle } from './features/pelicula-detalle/pelicula-detalle';
 import { soloInvitadoGuard } from './core/guards/solo-invitado-guard';
 import { SeleccionButacas} from './features/butacas/seleccion-butacas/seleccion-butacas';
 import { CrearFuncion } from './features/admin/crear-funcion/crear-funcion';
+import { adminGuard } from './core/guards/admin-guard';
 
 export const routes: Routes = [
     { path: 'registro', component: Registro, canActivate: [soloInvitadoGuard] },
     { path: 'login', component: Login, canActivate: [soloInvitadoGuard] },
     { path: 'peliculas/:id', component: PeliculaDetalle },  
     { path: 'funciones/:id/butacas', component: SeleccionButacas },
-    { path: 'admin/funciones/nueva', component: CrearFuncion },
+    { path: 'admin/funciones/nueva', component: CrearFuncion, canMatch: [adminGuard] },
     { path: '', component: Home },
 ];

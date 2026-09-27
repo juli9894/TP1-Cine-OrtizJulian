@@ -1,8 +1,8 @@
 @if (authService.usuarioActual(); as usuario) {
   <p> Hola, {{ usuario.email }}</p>
+  <button (click)="cerrarSesion()">Cerrar sesión</button>
 }@else {
   <p> No estás logueado</p>
 }
-
 
 <router-outlet />

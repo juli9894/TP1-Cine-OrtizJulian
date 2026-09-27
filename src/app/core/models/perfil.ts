@@ -1,3 +1,5 @@
+export type RolUsuario = 'cliente' | 'empleado' | 'admin';
+
 export interface Perfil {
     id: string;
     nombre: string;
@@ -7,6 +9,7 @@ export interface Perfil {
     color_ojos: string | null;
     dias_vacaciones: number | null;
     created_at: string;
+    rol: RolUsuario;
 }
 
 export interface DatosRegistro {

@@ -10,4 +10,8 @@ import { AuthService } from './core/services/auth';
 })
 export class App {
   protected readonly authService = inject(AuthService);
+
+  async cerrarSesion(): Promise<void> {
+    await this.authService.cerrarSesion();
+  }
 }
