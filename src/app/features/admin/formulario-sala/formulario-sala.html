@@ -1,0 +1,14 @@
+<h2>{{ esEdicion() ? 'Editar sala' : 'Nueva sala' }}</h2>
+
+<form [formGroup]="formularioSala" (ngSubmit)="guardar()">
+    <label>
+        Nombre
+        <input type="text" formControlName="nombre" />
+    </label>
+
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
+
+    <button type="submit" [disabled]="formularioSala.invalid">Guardar</button>
+</form>

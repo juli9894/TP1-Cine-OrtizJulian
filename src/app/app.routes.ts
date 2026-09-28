@@ -7,6 +7,8 @@ import { soloInvitadoGuard } from './core/guards/solo-invitado-guard';
 import { SeleccionButacas} from './features/butacas/seleccion-butacas/seleccion-butacas';
 import { CrearFuncion } from './features/admin/crear-funcion/crear-funcion';
 import { adminGuard } from './core/guards/admin-guard';
+import { FormularioSala } from './features/admin/formulario-sala/formulario-sala';
+import { ListaSalas } from './features/admin/lista-salas/lista-salas';
 
 export const routes: Routes = [
     { path: 'registro', component: Registro, canActivate: [soloInvitadoGuard] },
@@ -14,5 +16,8 @@ export const routes: Routes = [
     { path: 'peliculas/:id', component: PeliculaDetalle },  
     { path: 'funciones/:id/butacas', component: SeleccionButacas },
     { path: 'admin/funciones/nueva', component: CrearFuncion, canMatch: [adminGuard] },
-    { path: '', component: Home },
+    { path: 'admin/salas/nueva', component: FormularioSala, canMatch: [adminGuard] },
+    { path: 'admin/salas/:id/editar', component: FormularioSala, canMatch: [adminGuard] },
+    { path: 'admin/salas', component: ListaSalas, canMatch: [adminGuard] },
+    { path: '', component: Home, pathMatch: 'full' },
 ];

@@ -17,4 +17,43 @@ export class SalasService {
 
         return data ?? [];
     }
+
+    async crear(nombre: string): Promise<void> {
+        const { error } = await this.supabase
+            .from('salas')
+            .insert({ nombre });
+
+        if (error) throw error;
+    }
+
+    async actualizar(id: number, nombre: string): Promise<void> {
+        const { error } = await this.supabase
+            .from('salas')
+            .update({ nombre })
+            .eq('id', id);
+
+        if (error) throw error;
+    }
+
+    async eliminar(id: number): Promise<void> {
+        const { error } = await this.supabase
+            .from('salas')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+    }
+
+    async obtenerPorId(id: number): Promise<Sala> {
+        const { data, error } = await this.supabase
+            .from('salas')
+            .select('*')
+            .eq('id', id)
+            .overrideTypes<Sala[], { merge: false }>();
+
+        if (error) throw error;
+        if (!data || data.length === 0) throw new Error('Sala no encontrada');
+
+        return data[0];
+    }
 }
