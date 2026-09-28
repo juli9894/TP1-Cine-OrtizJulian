@@ -19,11 +19,19 @@ export class SalasService {
     }
 
     async crear(nombre: string): Promise<void> {
-        const { error } = await this.supabase
+        const { data, error } = await this.supabase
             .from('salas')
-            .insert({ nombre });
+            .insert({ nombre })
+            .select('id')
+            .single();
 
         if (error) throw error;
+
+        const { error: errorButacas } = await this.supabase.rpc('generar_butacas', {
+            p_sala_id: data.id,
+        });
+
+        if (errorButacas) throw errorButacas;
     }
 
     async actualizar(id: number, nombre: string): Promise<void> {
