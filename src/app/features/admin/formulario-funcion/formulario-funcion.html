@@ -1,9 +1,9 @@
-<h2>Crear función</h2>
+<h2>{{ esEdicion() ? 'Editar función' : 'Nueva función' }}</h2>
 
 @if (errorCarga()) {
     <p class="error">{{ errorCarga() }}</p>
 } @else {
-    <form [formGroup]="formularioFuncion" (ngSubmit)="crearFuncion()">
+    <form [formGroup]="formularioFuncion" (ngSubmit)="guardar()">
         <label>
             Película
             <select formControlName="peliculaId">
@@ -51,10 +51,6 @@
             <p class="error">{{ errorFuncion() }}</p>
         }
 
-        @if (mensajeExito()) {
-            <p class="exito">{{ mensajeExito() }}</p>
-        }
-
-        <button type="submit" [disabled]="formularioFuncion.invalid">Crear función</button>
+        <button type="submit" [disabled]="formularioFuncion.invalid">{{ esEdicion() ? 'Guardar cambios' : 'Crear función' }}</button>
     </form>
 }

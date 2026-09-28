@@ -32,4 +32,36 @@ export class FuncionesService {
 
         if (error) throw error;
     }
+
+    async obtenerTodas(): Promise<Funcion[]> {
+        const { data, error } = await this.supabase
+            .from('funciones')
+            .select('*')
+            .order('horario')
+            .overrideTypes<FilaFuncion[], { merge: false }>();
+
+        if (error) throw error;
+
+        return data.map(mapearFuncion);
+    }
+
+    async actualizar(id: number, datos: NuevaFuncion): Promise<void> {
+        const { error } = await this.supabase
+            .from('funciones')
+            .update({
+                pelicula_id: datos.peliculaId,
+                sala_id: datos.salaId,
+                horario: datos.horario,
+                formato: datos.formato,
+                idioma: datos.idioma,
+            })
+            .eq('id', id);
+
+        if (error) throw error;
+    }
+
+    async eliminar(id: number): Promise<void> {
+        const { error } = await this.supabase.from('funciones').delete().eq('id', id);
+        if (error) throw error;
+    }
 }
