@@ -59,7 +59,7 @@ export class PeliculaDetalle implements OnInit {
       this.resenas.set(await this.resenasService.obtenerResenasDePelicula(peliculaId));
       this.formularioResena.reset();
       this.errorResena.set('');
-    }catch (err) {
+    } catch (err) {
       if (typeof err === 'object' && err !== null && 'code' in err && err.code === '23505') {
         this.errorResena.set('Ya dejaste una reseña para esta película.');
       } else {
