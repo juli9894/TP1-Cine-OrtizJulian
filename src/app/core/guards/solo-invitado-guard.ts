@@ -10,5 +10,5 @@ export const soloInvitadoGuard: CanActivateFn = () => {
         return true;
     }
 
-    return router.navigateByUrl('/');
+    return router.createUrlTree(['/']);
 };

@@ -10,16 +10,16 @@ export const adminGuard: CanMatchFn = async () => {
 
     const usuario = authService.usuarioActual();
     if (usuario === null) {
-        return router.parseUrl('/');
+        return router.createUrlTree(['/']);
     }
 
     try {
         const perfil = await perfilesService.obtenerPorId(usuario.id);
         if (perfil.rol !== 'admin') {
-            return router.parseUrl('/');
+            return router.createUrlTree(['/']);
         }
     } catch {
-        return router.parseUrl('/');
+        return router.createUrlTree(['/']);
     }
 
     return true;
