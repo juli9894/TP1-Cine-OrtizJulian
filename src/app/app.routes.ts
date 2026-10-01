@@ -10,6 +10,8 @@ import { adminGuard } from './core/guards/admin-guard';
 import { FormularioSala } from './features/admin/formulario-sala/formulario-sala';
 import { ListaSalas } from './features/admin/lista-salas/lista-salas';
 import { ListaFunciones } from './features/admin/lista-funciones/lista-funciones';
+import { FormularioPelicula } from './features/admin/formulario-pelicula/formulario-pelicula';
+import { ListaPeliculas } from './features/admin/lista-peliculas/lista-peliculas';
 
 export const routes: Routes = [
     { path: 'registro', component: Registro, canActivate: [soloInvitadoGuard] },
@@ -22,5 +24,8 @@ export const routes: Routes = [
     { path: 'admin/salas/nueva', component: FormularioSala, canMatch: [adminGuard] },
     { path: 'admin/salas/:id/editar', component: FormularioSala, canMatch: [adminGuard] },
     { path: 'admin/salas', component: ListaSalas, canMatch: [adminGuard] },
+    { path: 'admin/peliculas/nueva', component: FormularioPelicula, canMatch: [adminGuard] },
+    { path: 'admin/peliculas/:id/editar', component: FormularioPelicula, canMatch: [adminGuard] },
+    { path: 'admin/peliculas', component: ListaPeliculas, canMatch: [adminGuard] },
     { path: '', component: Home, pathMatch: 'full' },
 ];

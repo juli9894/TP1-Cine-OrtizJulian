@@ -1,10 +1,22 @@
 import { inject, Service } from '@angular/core';
 import { SupabaseClientService } from './supabase-client';
-import { Pelicula, FilaPelicula, mapearPelicula } from '../models/pelicula';
+import { Pelicula, FilaPelicula, NuevaPelicula, mapearPelicula } from '../models/pelicula';
 
 @Service()
 export class PeliculasService {
     private readonly supabase = inject(SupabaseClientService).client;
+
+    async obtenerTodas(): Promise<Pelicula[]> {
+        const { data, error } = await this.supabase
+            .from('peliculas')
+            .select('*')
+            .order('titulo')
+            .overrideTypes<FilaPelicula[], { merge: false }>();
+
+        if (error) throw error;
+
+        return (data ?? []).map(mapearPelicula);
+    }
 
     async obtenerTop3(): Promise<Pelicula[]> {
         const { data, error } = await this.supabase
@@ -62,5 +74,86 @@ export class PeliculasService {
         if (error) throw error;
 
         return (data ?? []).map(mapearPelicula);
+    }
+
+    async obtenerGenerosDe(peliculaId: number): Promise<number[]> {
+        const { data, error } = await this.supabase
+            .from('pelicula_generos')
+            .select('genero_id')
+            .eq('pelicula_id', peliculaId)
+            .overrideTypes<{ genero_id: number }[], { merge: false }>();
+
+        if (error) throw error;
+
+        return (data ?? []).map((fila) => fila.genero_id);
+    }
+
+    async crear(datos: NuevaPelicula, generoIds: number[]): Promise<void> {
+        const { data, error } = await this.supabase
+            .from('peliculas')
+            .insert({
+                titulo: datos.titulo,
+                duracion_minutos: datos.duracionMinutos,
+                sinopsis: datos.sinopsis,
+                imagen_url: datos.imagenUrl,
+                clasificacion: datos.clasificacion,
+            })
+            .select('id')
+            .single();
+
+        if (error) throw error;
+
+        await this.guardarGeneros(data.id, generoIds);
+    }
+
+    async actualizar(id: number, datos: NuevaPelicula, generoIds: number[]): Promise<void> {
+        const { error } = await this.supabase
+            .from('peliculas')
+            .update({
+                titulo: datos.titulo,
+                duracion_minutos: datos.duracionMinutos,
+                sinopsis: datos.sinopsis,
+                imagen_url: datos.imagenUrl,
+                clasificacion: datos.clasificacion,
+            })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        await this.guardarGeneros(id, generoIds);
+    }
+
+    async eliminar(id: number): Promise<void> {
+        const { data, error: errorBusqueda } = await this.supabase
+            .from('funciones')
+            .select('id')
+            .eq('pelicula_id', id)
+            .limit(1);
+
+        if (errorBusqueda) throw errorBusqueda;
+
+        if (data && data.length > 0) {
+            throw new Error('No se puede eliminar: esta película tiene funciones cargadas.');
+        }
+
+        const { error } = await this.supabase.from('peliculas').delete().eq('id', id);
+        if (error) throw error;
+    }
+
+    private async guardarGeneros(peliculaId: number, generoIds: number[]): Promise<void> {
+        const { error: errorBorrado } = await this.supabase
+            .from('pelicula_generos')
+            .delete()
+            .eq('pelicula_id', peliculaId);
+
+        if (errorBorrado) throw errorBorrado;
+
+        if (generoIds.length === 0) return;
+
+        const filas = generoIds.map((generoId) => ({ pelicula_id: peliculaId, genero_id: generoId }));
+
+        const { error: errorInsercion } = await this.supabase.from('pelicula_generos').insert(filas);
+
+        if (errorInsercion) throw errorInsercion;
     }
 }

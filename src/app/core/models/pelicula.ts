@@ -1,3 +1,5 @@
+export type ClasificacionPelicula = 'ATP' | '+13' | '+18';
+
 export interface Pelicula {
     id: number;
     titulo: string;
@@ -5,6 +7,7 @@ export interface Pelicula {
     sinopsis: string;
     imagenUrl: string;
     ventas: number;
+    clasificacion: ClasificacionPelicula;
 }
 
 export interface FilaPelicula {
@@ -14,6 +17,7 @@ export interface FilaPelicula {
     sinopsis: string;
     imagen_url: string;
     ventas: number;
+    clasificacion: ClasificacionPelicula;
 }
 
 export function mapearPelicula(fila: FilaPelicula): Pelicula {
@@ -24,5 +28,14 @@ export function mapearPelicula(fila: FilaPelicula): Pelicula {
         sinopsis: fila.sinopsis,
         imagenUrl: fila.imagen_url,
         ventas: fila.ventas,
+        clasificacion: fila.clasificacion,
     };
+}
+
+export interface NuevaPelicula {
+    titulo: string;
+    duracionMinutos: number;
+    sinopsis: string;
+    imagenUrl: string;
+    clasificacion: ClasificacionPelicula;
 }

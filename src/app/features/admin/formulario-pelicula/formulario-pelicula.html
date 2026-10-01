@@ -1,0 +1,56 @@
+<h2>{{ esEdicion() ? 'Editar película' : 'Nueva película' }}</h2>
+
+@if (errorCarga()) {
+    <p class="error">{{ errorCarga() }}</p>
+} @else {
+    <form [formGroup]="formularioPelicula" (ngSubmit)="guardar()">
+        <label>
+            Título
+            <input type="text" formControlName="titulo" />
+        </label>
+
+        <label>
+            Duración (minutos)
+            <input type="number" formControlName="duracionMinutos" />
+        </label>
+
+        <label>
+            Sinopsis
+            <textarea formControlName="sinopsis"></textarea>
+        </label>
+
+        <label>
+            Imagen de cartelera (URL)
+            <input type="text" formControlName="imagenUrl" />
+        </label>
+
+        <label>
+            Clasificación
+            <select formControlName="clasificacion">
+                <option value="ATP">ATP</option>
+                <option value="+13">+13</option>
+                <option value="+18">+18</option>
+            </select>
+        </label>
+
+        <fieldset>
+            <legend>Géneros</legend>
+            @for (genero of generos(); track genero.id) {
+                <label>
+                    <input
+                        type="checkbox"
+                        [checked]="generosSeleccionados().includes(genero.id)"
+                        (change)="onToggleGenero(genero.id)"
+                    />
+                    {{ genero.nombre }}
+                </label>
+            }
+        </fieldset>
+
+        @if (errorPelicula()) {
+            <p class="error">{{ errorPelicula() }}</p>
+        }
+
+        <button type="submit" [disabled]="formularioPelicula.invalid">{{ esEdicion() ? 'Guardar cambios' : 'Crear película' }}</button>
+    </form>
+}
