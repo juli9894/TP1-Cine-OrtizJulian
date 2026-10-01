@@ -1,0 +1,32 @@
+.tarjetas {
+    display: flex;
+    gap: var(--espacio-4);
+    flex-wrap: wrap;
+}
+
+.tarjetas article {
+    flex: 1 1 220px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    padding: var(--espacio-3);
+}
+
+.tarjetas img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: var(--radio);
+}
+
+.tarjetas h3 {
+    margin: var(--espacio-2) 0 var(--espacio-1);
+    font-size: 1rem;
+}
+
+.tarjetas p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}

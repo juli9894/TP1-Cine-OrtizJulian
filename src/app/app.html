@@ -1,8 +1,16 @@
-@if (authService.usuarioActual(); as usuario) {
-  <p> Hola, {{ usuario.email }}</p>
-  <button (click)="cerrarSesion()">Cerrar sesión</button>
-}@else {
-  <p> No estás logueado</p>
-}
+<header class="barra-superior">
+    <span class="logo">🎬 TP Cine</span>
 
-<router-outlet />
+    @if (authService.usuarioActual(); as usuario) {
+        <div class="sesion">
+            <span>{{ usuario.email }}</span>
+            <button (click)="cerrarSesion()">Cerrar sesión</button>
+        </div>
+    } @else {
+        <span class="sesion-vacia">No estás logueado</span>
+    }
+</header>
+
+<main>
+    <router-outlet />
+</main>
