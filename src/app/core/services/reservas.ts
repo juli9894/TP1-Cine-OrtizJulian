@@ -126,6 +126,14 @@ export class ReservasService {
             if (errorCombos) throw errorCombos;
         }
 
+        if (usuarioId) {
+            const { error: errorPuntos } = await this.supabase.rpc('sumar_puntos', {
+                p_usuario_id: usuarioId,
+                p_puntos: total,
+            });
+            if (errorPuntos) throw errorPuntos;
+        }
+
         return { id: data.id, qrCode: data.qr_code, total };
     }
 }

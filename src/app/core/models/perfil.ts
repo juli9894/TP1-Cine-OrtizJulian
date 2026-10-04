@@ -10,6 +10,7 @@ export interface Perfil {
     dias_vacaciones: number | null;
     created_at: string;
     rol: RolUsuario;
+    saldo_puntos: number;
 }
 
 export interface DatosRegistro {
