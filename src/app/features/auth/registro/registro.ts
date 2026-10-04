@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth';
+import { AuthError } from '@supabase/supabase-js'
 
 @Component({
   imports: [ReactiveFormsModule],
@@ -30,8 +31,12 @@ export class Registro {
 
     try {
       await this.authService.registrarse(this.form.getRawValue());
-    } catch (err) {
-      this.errorMensaje = 'No se pudo completar el registro. Probá de nuevo.';
-    }
+      } catch (err) {
+        if (err instanceof AuthError && err.code === 'user_already_exists') {
+          this.errorMensaje = 'Ese email ya está registrado. Iniciá sesión en su lugar.';
+        } else {
+          this.errorMensaje = 'No se pudo completar el registro. Probá de nuevo.';
+        }
+      }
   }
 }
