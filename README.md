@@ -4,9 +4,9 @@ Aplicación completa para un cine (cartelera, compra de entradas, panel de admin
 
 - **App en producción:** https://tp-1-cine-ortiz-julian.vercel.app
 - **Autor:** Julián Ortiz
-- **Entrega y defensa oral:** 5 de octubre de 2026
+- **Entrega y defensa oral:** 7 de octubre de 2026
 
-> Estado del proyecto al 28/09: en desarrollo activo. La sección [Estado actual](#estado-actual) de más abajo dice, con honestidad, qué está construido y probado y qué todavía falta — se va a completar para la fecha de entrega.
+> Estado del proyecto al 04/10: en desarrollo activo, core funcional de punta a punta (ver [Estado actual](#estado-actual) más abajo). Falta cerrar cancelaciones/crédito, rol de empleado, reportes/estadísticas/auditoría, y terminar PWA + diseño visual antes de la entrega.
 
 ## Stack y arquitectura
 
@@ -31,8 +31,8 @@ src/app/
 │   ├── auth/                 # login, registro
 │   ├── home/                  # cartelera, top 3, buscador
 │   ├── pelicula-detalle/      # ficha + reseñas
-│   ├── butacas/                # selección de butacas en tiempo real
-│   └── admin/                  # panel de administración (salas, funciones)
+│   ├── butacas/                # selección de butacas en tiempo real + checkout + ticket PDF/QR
+│   └── admin/                  # panel de administración (salas, funciones, películas, precios, productos, combos)
 └── app.routes.ts             # rutas + guards
 
 supabase/migrations/          # una migración SQL por cambio de esquema, en orden
@@ -45,33 +45,38 @@ supabase/migrations/          # una migración SQL por cambio de esquema, en ord
 ## Decisiones técnicas y su justificación
 
 - **`CanMatchFn` en vez de `CanActivateFn` para `/admin/*`.** `canActivate` bloquea una ruta ya encontrada; `canMatch` decide si la ruta existe siquiera para ese usuario. Para el panel de admin tiene más sentido conceptual: un usuario sin rol admin no debería ni "saber" que esa ruta existe.
-- **Guards devuelven un `UrlTree` (`router.parseUrl(...)`), no `false` a secas.** Con `canMatch`, devolver `false` solo le dice al Router que esa ruta no matchea, sin garantizar ninguna redirección. Devolver el `UrlTree` fuerza la navegación a una ruta conocida.
+- **Guards devuelven un `UrlTree` (`router.createUrlTree(...)`), no `false` a secas.** Con `canMatch`, devolver `false` solo le dice al Router que esa ruta no matchea, sin garantizar ninguna redirección. Devolver el `UrlTree` fuerza la navegación a una ruta conocida.
 - **Fail-safe / deny by default en `adminGuard`.** Cualquier error al consultar el rol del usuario (perfil inexistente, falla de red) deniega el acceso en vez de dejarlo pasar. Un guard de seguridad nunca debería fallar "abierto".
 - **Validación de horarios con un trigger de Postgres, no solo en el frontend.** Que no haya dos funciones en la misma sala con menos de 30 minutos de diferencia es una regla de negocio crítica; ponerla en un trigger (`before insert or update on funciones`) la hace imposible de saltear, sin importar desde dónde se inserte el dato (la app, el SQL Editor, un futuro endpoint). El trigger se excluye a sí mismo al comparar (`f.id is distinct from new.id`) para que funcione también al editar una función existente.
-- **Manejo de errores con `unknown` y type narrowing progresivo, nunca `any`.** Los errores de Supabase/Postgres se identifican por código (`23505` — dato duplicado, `23503` — referencia rota, `P0001` — error de un trigger propio) verificando de a un paso genuino (`typeof === 'object'` → `!== null` → `'code' in err` → comparar el código) en vez de forzar un cast.
-- **Un solo componente para crear y editar, no dos casi idénticos.** `FormularioSala` y `FormularioFuncion` reciben un `id` opcional (`input<string>()`) y derivan con `computed()` si están en modo edición. Evita duplicar el 90% del formulario por una diferencia de comportamiento chica.
+- **Manejo de errores con `unknown` y type narrowing progresivo, nunca `any`.** Los errores de Supabase/Postgres se identifican por código (`23505` — dato duplicado, `23503` — referencia rota, `P0001` — error de un trigger propio) verificando de a un paso genuino (`typeof === 'object'` → `!== null` → `'code' in err` → comparar el código) en vez de forzar un cast. El mismo criterio se aplicó a un error de Supabase Auth (`user_already_exists`), usando `instanceof AuthError` en vez de un cast.
+- **Un solo componente para crear y editar, no dos casi idénticos.** `FormularioSala`, `FormularioFuncion`, `FormularioPelicula`, `FormularioProducto` y `FormularioCombo` reciben un `id` opcional (`input<string>()`) y derivan con `computed()` si están en modo edición. Evita duplicar el 90% del formulario por una diferencia de comportamiento chica.
 - **Selector de fecha/hora nativo (`input[type="datetime-local"]`), no un date-picker custom.** Cumple el pedido explícito del cliente de evitar selectores confusos o con scroll infinito, sin tener que construir ni mantener un componente propio.
 - **Supabase Realtime envuelto en un `Observable` de RxJS hecho a mano**, porque la librería expone una API de callbacks, no Observables nativos — es el patrón estándar para integrar cualquier fuente asincrónica externa bajo la interfaz común de Observable/Subscription. El callback corre fuera de la zona que Angular vigila con Zone.js, así que el `.set()` del signal va envuelto en `ngZone.run(...)` para que dispare la actualización de la vista.
+- **Soft delete (`activo: false`) en Productos y Combos, borrado duro en Salas/Funciones/Películas.** Un producto o combo puede estar referenciado en compras históricas (`reserva_productos`/`reserva_combos`), así que "eliminar" tiene que significar "dejar de ofrecer" y no destruir el dato ni romper el historial. Salas/Funciones/Películas, en cambio, bloquean el borrado con el código `23503` de Postgres si todavía tienen datos relacionados.
+- **Acumulación de puntos vía función de Postgres (`sumar_puntos`), no leyendo y reescribiendo el saldo desde Angular.** El incremento (`saldo_puntos = saldo_puntos + p_puntos`) ocurre directo en la base para que sea atómico — evita que dos compras casi simultáneas de la misma cuenta se pisen leyendo el mismo saldo viejo.
 - **RLS (Row Level Security) de Supabase, deprioritizado a propósito.** El enunciado original solo pide "integración con Supabase" en términos generales, sin exigir RLS explícitamente; RLS formaba parte de las decisiones técnicas que se habían definido al planificar el proyecto, pero se bajó de prioridad porque, según lo escuchado en clase, no parece ser algo que el profesor vaya a pedir formalmente en este TP. Queda para el buffer final si sobra tiempo. Se documenta acá para que quede claro que es una decisión consciente, no un olvido.
 
 ## Estado actual
 
 Hecho y probado de punta a punta:
 
-- Autenticación (registro con los campos pedidos por el cliente, login, guard `soloInvitadoGuard`)
+- Autenticación (registro con los campos pedidos por el cliente, login, guard `soloInvitadoGuard`, mensajes específicos de error incluyendo email ya registrado)
 - Cartelera: Top 3 más vendidas, ficha de película con reseñas y promedio, buscador por texto y por género
 - Selección de butacas con matriz accesible + VIP y actualización en tiempo real (Supabase Realtime)
 - Rol de usuario y panel de administración protegido (`canMatch`)
-- CRUD completo de Salas y de Funciones, con validación automática de solapamiento de horarios
+- CRUD completo de Salas, Funciones, Películas, Productos y Combos, con validación automática de solapamiento de horarios
+- Compra de entradas integrada con candy bar/combos, descuentos automáticos por cupón (1ª compra / +50 años) y acumulación de puntos (1 peso gastado = 1 punto)
+- Restricción de edad por clasificación de película (+13/+18) para usuarios logueados, con leyenda visible siempre
+- Generación de entrada en PDF con código QR, descargable desde el comprobante de compra
 - Deploy en producción con CI/CD
 
 Pendiente (se va completando sprint a sprint hasta la entrega):
 
-- CRUD de Películas
-- Candy bar, combos y checkout con cupones/puntos
-- Generación de PDF + QR, rol de empleado (escaneo), cancelaciones con crédito
+- Cancelaciones (hasta 2h antes de la función) con crédito interno en vez de reembolso
+- Rol de Empleado: escaneo de QR (cámara + carga manual) e invalidación del código
+- Canje de puntos por entradas/candy e historial de canjes (sección "Perfil de usuario")
 - Reportes de facturación, gráficos estadísticos, log de auditoría
-- PWA (manifiesto + service worker) y diseño visual propio
+- PWA (manifiesto + service worker) y terminar el diseño visual propio (matriz de butacas: indicador de pantalla, hover, leyenda de colores; sección de búsqueda del Home)
 
 ## Correr el proyecto localmente
 
