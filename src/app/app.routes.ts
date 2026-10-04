@@ -18,6 +18,7 @@ import { FormularioProducto } from './features/admin/formulario-producto/formula
 import { ListaCombos } from './features/admin/lista-combos/lista-combos';
 import { FormularioCombo } from './features/admin/formulario-combo/formulario-combo';
 import { MisReservas } from './features/mis-reservas/mis-reservas';
+import { PerfilUsuario } from './features/perfil-usuario/perfil-usuario';
 
 export const routes: Routes = [
     { path: 'registro', component: Registro, canActivate: [soloInvitadoGuard] },
@@ -40,6 +41,7 @@ export const routes: Routes = [
     { path: 'admin/combos/nuevo', component: FormularioCombo, canMatch: [adminGuard] },
     { path: 'admin/combos/:id/editar', component: FormularioCombo, canMatch: [adminGuard] },
     { path: 'admin/combos', component: ListaCombos, canMatch: [adminGuard] },
+    { path: 'perfil', component: PerfilUsuario },
     { path: 'mis-reservas', component: MisReservas },
     { path: '', component: Home, pathMatch: 'full' },
 ];

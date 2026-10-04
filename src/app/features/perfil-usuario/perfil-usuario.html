@@ -1,0 +1,91 @@
+@if (cargando()) {
+    <p>Cargando...</p>
+} @else if (!authService.usuarioActual()) {
+    <p>Iniciá sesión para ver tu perfil.</p>
+} @else if (perfil(); as p) {
+    <h2>Hola, {{ p.nombre }} {{ p.apellido }}</h2>
+
+    @if (errorMensaje()) { <p class="error">{{ errorMensaje() }}</p> }
+
+    <section class="saldos">
+        <div class="tarjeta-saldo">
+            <span class="numero">{{ p.saldo_puntos }}</span>
+            <span class="etiqueta">Puntos acumulados</span>
+        </div>
+        <div class="tarjeta-saldo">
+            <span class="numero">${{ p.saldo_credito }}</span>
+            <span class="etiqueta">Crédito disponible</span>
+        </div>
+    </section>
+
+    <section class="cupones">
+        <h3>Mis cupones</h3>
+        @if (cuponBienvenida(); as cb) {
+            @if (!yaComproAlgunaVez()) {
+                <p class="cupon disponible">
+                    🎁 Cupón de bienvenida disponible: -{{ cb.porcentajeDescuento }}% en tu primera compra.
+                </p>
+            } @else {
+                <p class="cupon usado">Cupón de bienvenida ya utilizado.</p>
+            }
+        }
+        @if (esMayor50() && cuponMayor50(); as cm) {
+            <p class="cupon disponible">
+                🎉 Por ser mayor de 50 años tenés -{{ cm.porcentajeDescuento }}% en todas tus compras.
+            </p>
+        }
+    </section>
+
+    <section class="mis-peliculas">
+        <h3>Mis películas</h3>
+        @if (misPeliculas().length === 0) {
+            <p>Todavía no viste ninguna película con nosotros.</p>
+        } @else {
+            <div class="tarjetas">
+                @for (pelicula of misPeliculas(); track pelicula.titulo) {
+                    <article>
+                        <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
+                        <h4>{{ pelicula.titulo }}</h4>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="canje">
+        <h3>Canjear puntos</h3>
+        @if (mensajeCanje()) { <p class="mensaje-canje">{{ mensajeCanje() }}</p> }
+
+        <div class="catalogo">
+            @for (item of catalogo(); track item.id) {
+                <div class="item-catalogo">
+                    <p class="descripcion">{{ item.descripcion }}</p>
+                    <p class="detalle">{{ item.puntosRequeridos }} puntos → ${{ item.valorCredito }} de crédito</p>
+                    <button
+                        type="button"
+                        [disabled]="canjeandoId() === item.id || p.saldo_puntos < item.puntosRequeridos"
+                        (click)="canjear(item)"
+                    >
+                        {{ canjeandoId() === item.id ? 'Canjeando...' : 'Canjear' }}
+                    </button>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="historial">
+        <h3>Historial de canjes</h3>
+        @if (historial().length === 0) {
+            <p>Todavía no hiciste ningún canje.</p>
+        } @else {
+            @for (canje of historial(); track canje.id) {
+                <p class="fila-historial">
+                    {{ canje.createdAt | date: 'short' }} — {{ canje.descripcion }}
+                    ({{ canje.puntosGastados }} pts → ${{ canje.creditoOtorgado }})
+                </p>
+            }
+        }
+    </section>
+} @else {
+    <p class="error">No pudimos cargar tu perfil.</p>
+}

@@ -142,7 +142,7 @@ export class ReservasService {
             .from('reservas')
             .select(
                 `id, total, qr_code, cancelada,
-                funciones ( horario, formato, idioma, peliculas ( titulo ) ),
+                funciones ( horario, formato, idioma, peliculas ( id, titulo, imagen_url ) ),
                 reserva_butacas ( butacas ( fila, columna ) )`,
             )
             .eq('usuario_id', usuarioId)

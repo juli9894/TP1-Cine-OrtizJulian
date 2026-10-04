@@ -6,7 +6,9 @@ export interface ReservaCreada {
 
 export interface ReservaDetalle {
     id: number;
+    peliculaId: number;
     peliculaTitulo: string;
+    peliculaImagenUrl: string;
     horario: string;
     formato: string;
     idioma: string;
@@ -25,7 +27,7 @@ export interface FilaReservaDetalle {
         horario: string;
         formato: string;
         idioma: string;
-        peliculas: { titulo: string } | null;
+        peliculas: { id: number; titulo: string; imagen_url: string } | null;
     } | null;
     reserva_butacas: { butacas: { fila: string; columna: number } | null }[];
 }
@@ -33,7 +35,9 @@ export interface FilaReservaDetalle {
 export function mapearReservaDetalle(fila: FilaReservaDetalle): ReservaDetalle {
     return {
         id: fila.id,
+        peliculaId: fila.funciones?.peliculas?.id ?? 0,
         peliculaTitulo: fila.funciones?.peliculas?.titulo ?? '',
+        peliculaImagenUrl: fila.funciones?.peliculas?.imagen_url ?? '',
         horario: fila.funciones?.horario ?? '',
         formato: fila.funciones?.formato ?? '',
         idioma: fila.funciones?.idioma ?? '',

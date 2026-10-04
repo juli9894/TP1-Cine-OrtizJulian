@@ -1,0 +1,121 @@
+.saldos {
+    display: flex;
+    gap: var(--espacio-3);
+    margin: var(--espacio-3) 0;
+}
+
+.tarjeta-saldo {
+    flex: 1;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    padding: var(--espacio-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-1);
+}
+
+.tarjeta-saldo .numero {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.tarjeta-saldo .etiqueta {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.cupones {
+    margin: var(--espacio-4) 0;
+}
+
+.cupon {
+    padding: var(--espacio-2) var(--espacio-3);
+    border-radius: var(--radio);
+    margin: var(--espacio-2) 0;
+}
+
+.cupon.disponible {
+    background: rgba(217, 164, 65, 0.15);
+    border: 1px solid var(--color-accent);
+}
+
+.cupon.usado {
+    color: var(--color-text-muted);
+}
+
+.mis-peliculas {
+    margin: var(--espacio-4) 0;
+}
+
+.tarjetas {
+    display: flex;
+    gap: var(--espacio-3);
+    flex-wrap: wrap;
+}
+
+.tarjetas article {
+    flex: 0 1 140px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    padding: var(--espacio-2);
+}
+
+.tarjetas img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: var(--radio);
+}
+
+.tarjetas h4 {
+    margin: var(--espacio-2) 0 0;
+    font-size: 0.875rem;
+}
+
+.canje {
+    margin: var(--espacio-4) 0;
+}
+
+.catalogo {
+    display: flex;
+    gap: var(--espacio-3);
+    flex-wrap: wrap;
+}
+
+.item-catalogo {
+    flex: 1 1 220px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    padding: var(--espacio-3);
+}
+
+.item-catalogo .descripcion {
+    font-weight: 600;
+    margin: 0 0 var(--espacio-1);
+}
+
+.item-catalogo .detalle {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    margin: 0 0 var(--espacio-2);
+}
+
+.mensaje-canje {
+    padding: var(--espacio-2) var(--espacio-3);
+    background: rgba(217, 164, 65, 0.15);
+    border-radius: var(--radio);
+}
+
+.historial {
+    margin: var(--espacio-4) 0;
+}
+
+.fila-historial {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    margin: var(--espacio-1) 0;
+}
