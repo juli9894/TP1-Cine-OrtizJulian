@@ -9,6 +9,7 @@ import { Butaca } from '../models/butaca';
 import { Producto } from '../models/producto';
 import { Combo } from '../models/combo';
 import { ReservaCreada } from '../models/reserva';
+import { Cupon } from '../models/cupon';
 
 export interface ProductoSeleccionado {
     productoId: number;
@@ -66,6 +67,22 @@ export class ReservasService {
         return totalProductos + totalCombos;
     }
 
+    calcularDescuento(subtotal: number, cupon: Cupon | null): number {
+        if (!cupon) return 0;
+        return Math.round((subtotal * cupon.porcentajeDescuento) / 100);
+    }
+
+    async contarReservasDe(usuarioId: string): Promise<number> {
+        const { count, error } = await this.supabase
+            .from('reservas')
+            .select('id', { count: 'exact', head: true })
+            .eq('usuario_id', usuarioId);
+
+        if (error) throw error;
+
+        return count ?? 0;
+    }
+
     async crear(
         funcion: Funcion,
         butacasSeleccionadas: Butaca[],
@@ -73,10 +90,11 @@ export class ReservasService {
         total: number,
         productosSeleccionados: ProductoSeleccionado[],
         combosSeleccionados: ComboSeleccionado[],
+        cuponId: number | null,
     ): Promise<ReservaCreada> {
         const { data, error } = await this.supabase
             .from('reservas')
-            .insert({ usuario_id: usuarioId, funcion_id: funcion.id, total })
+            .insert({ usuario_id: usuarioId, funcion_id: funcion.id, total, cupon_id: cuponId })
             .select('id, qr_code')
             .single();
         if (error) throw error;

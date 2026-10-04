@@ -6,6 +6,7 @@ import { ProductosService } from '../../../core/services/productos';
 import { CombosService } from '../../../core/services/combos';
 import { PeliculasService } from '../../../core/services/peliculas';
 import { PerfilesService } from '../../../core/services/perfiles';
+import { CuponesService } from '../../../core/services/cupones';
 import { AuthService } from '../../../core/services/auth';
 import { Funcion } from '../../../core/models/funcion';
 import { Butaca } from '../../../core/models/butaca';
@@ -14,6 +15,8 @@ import { RecargoFormato } from '../../../core/models/recargo-formato';
 import { Producto } from '../../../core/models/producto';
 import { Combo } from '../../../core/models/combo';
 import { Pelicula } from '../../../core/models/pelicula';
+import { Perfil } from '../../../core/models/perfil';
+import { Cupon } from '../../../core/models/cupon';
 import { ReservaCreada } from '../../../core/models/reserva';
 import { Subscription } from 'rxjs';
 
@@ -41,6 +44,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     private readonly combosService = inject(CombosService);
     private readonly peliculasService = inject(PeliculasService);
     private readonly perfilesService = inject(PerfilesService);
+    private readonly cuponesService = inject(CuponesService);
     private readonly authService = inject(AuthService);
     private readonly ngZone = inject(NgZone);
 
@@ -57,6 +61,8 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     combos = signal<Combo[]>([]);
     cantidadesProductos = signal<Record<number, number>>({});
     cantidadesCombos = signal<Record<number, number>>({});
+    perfil = signal<Perfil | null>(null);
+    cupon = signal<Cupon | null>(null);
     reservaConfirmada = signal<ReservaCreada | null>(null);
     errorMensaje = signal('');
     private suscripcion?: Subscription;
@@ -107,7 +113,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
             .filter((c) => c.cantidad > 0),
     );
 
-    total = computed(() => {
+    subtotal = computed(() => {
         const funcion = this.funcion();
         if (!funcion) return 0;
         const totalButacas = this.reservasService.calcularTotal(
@@ -124,6 +130,10 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         );
         return totalButacas + totalCandy;
     });
+
+    descuento = computed(() => this.reservasService.calcularDescuento(this.subtotal(), this.cupon()));
+
+    total = computed(() => this.subtotal() - this.descuento());
 
     async ngOnInit(): Promise<void> {
         const funcionId = Number(this.id());
@@ -144,6 +154,19 @@ export class SeleccionButacas implements OnInit, OnDestroy {
             ]);
             this.productos.set(productos);
             this.combos.set(combos);
+
+            const usuario = this.authService.usuarioActual();
+            if (usuario) {
+                const perfil = await this.perfilesService.obtenerPorId(usuario.id);
+                this.perfil.set(perfil);
+
+                const cantidadReservas = await this.reservasService.contarReservasDe(usuario.id);
+                if (cantidadReservas === 0) {
+                    this.cupon.set(await this.cuponesService.obtenerPorTipo('bienvenida'));
+                } else if (calcularEdad(perfil.fecha_nacimiento) >= 50) {
+                    this.cupon.set(await this.cuponesService.obtenerPorTipo('mayor50'));
+                }
+            }
 
             this.suscripcion = this.butacasService
                 .suscribirseAButacasOcupadas(funcionId)
@@ -186,20 +209,15 @@ export class SeleccionButacas implements OnInit, OnDestroy {
 
         const edadMinima = this.edadMinima();
         const usuario = this.authService.usuarioActual();
+        const perfil = this.perfil();
 
-        if (edadMinima > 0 && usuario) {
-            try {
-                const perfil = await this.perfilesService.obtenerPorId(usuario.id);
-                const edad = calcularEdad(perfil.fecha_nacimiento);
+        if (edadMinima > 0 && perfil) {
+            const edad = calcularEdad(perfil.fecha_nacimiento);
 
-                if (edad < edadMinima) {
-                    this.errorMensaje.set(
-                        `Esta función es ${pelicula.clasificacion}: no podés comprar entradas (edad mínima ${edadMinima} años).`,
-                    );
-                    return;
-                }
-            } catch (err) {
-                this.errorMensaje.set('No pudimos validar tu edad. Probá de nuevo.');
+            if (edad < edadMinima) {
+                this.errorMensaje.set(
+                    `Esta función es ${pelicula.clasificacion}: no podés comprar entradas (edad mínima ${edadMinima} años).`,
+                );
                 return;
             }
         }
@@ -213,6 +231,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
                 this.total(),
                 this.productosSeleccionados(),
                 this.combosSeleccionados(),
+                this.cupon()?.id ?? null,
             );
             this.reservaConfirmada.set(reserva);
         } catch (err) {

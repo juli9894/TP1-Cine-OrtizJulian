@@ -2,6 +2,12 @@
     @if (reservaConfirmada(); as reserva) {
         <div class="confirmacion">
             <h2>¡Compra confirmada!</h2>
+            @if (cupon(); as c) {
+                <p class="descuento">
+                    {{ c.tipo === 'bienvenida' ? 'Cupón de bienvenida' : 'Descuento +50 años' }}
+                    (-{{ c.porcentajeDescuento }}%): -${{ descuento() }}
+                </p>
+            }
             <p>Total pagado: ${{ reserva.total }}</p>
             <p>Código de reserva: {{ reserva.qrCode }}</p>
             @if (edadMinima() > 0) {
@@ -75,6 +81,13 @@
             }
         </div>
 
+        <p>Subtotal: ${{ subtotal() }}</p>
+        @if (cupon(); as c) {
+            <p class="descuento">
+                {{ c.tipo === 'bienvenida' ? 'Cupón de bienvenida' : 'Descuento +50 años' }}
+                (-{{ c.porcentajeDescuento }}%): -${{ descuento() }}
+            </p>
+        }
         <p>Total: ${{ total() }}</p>
         @if (errorMensaje()) { <p class="error">{{ errorMensaje() }}</p> }
         <button type="button" [disabled]="idsSeleccionados().length === 0" (click)="confirmarCompra()">
