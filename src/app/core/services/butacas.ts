@@ -26,6 +26,7 @@ export class ButacasService {
             .from('reservas')
             .select('id')
             .eq('funcion_id', funcionId)
+            .eq('cancelada', false)
             .overrideTypes<{ id: number }[], { merge: false }>();
 
         if (errorReservas) throw errorReservas;

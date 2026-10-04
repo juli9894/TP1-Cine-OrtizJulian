@@ -4,6 +4,7 @@
     @if (authService.usuarioActual(); as usuario) {
         <div class="sesion">
             <span>{{ usuario.email }}</span>
+            <a routerLink="/mis-reservas">Mis reservas</a>
             <button (click)="cerrarSesion()">Cerrar sesión</button>
         </div>
     } @else {

@@ -11,6 +11,7 @@ export interface Perfil {
     created_at: string;
     rol: RolUsuario;
     saldo_puntos: number;
+    saldo_credito: number;
 }
 
 export interface DatosRegistro {

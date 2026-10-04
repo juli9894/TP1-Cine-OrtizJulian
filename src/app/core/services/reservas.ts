@@ -8,7 +8,7 @@ import { Funcion } from '../models/funcion';
 import { Butaca } from '../models/butaca';
 import { Producto } from '../models/producto';
 import { Combo } from '../models/combo';
-import { ReservaCreada } from '../models/reserva';
+import { ReservaCreada, ReservaDetalle, FilaReservaDetalle, mapearReservaDetalle } from '../models/reserva';
 import { Cupon } from '../models/cupon';
 
 export interface ProductoSeleccionado {
@@ -135,5 +135,30 @@ export class ReservasService {
         }
 
         return { id: data.id, qrCode: data.qr_code, total };
+    }
+
+    async obtenerDeUsuario(usuarioId: string): Promise<ReservaDetalle[]> {
+        const { data, error } = await this.supabase
+            .from('reservas')
+            .select(
+                `id, total, qr_code, cancelada,
+                funciones ( horario, formato, idioma, peliculas ( titulo ) ),
+                reserva_butacas ( butacas ( fila, columna ) )`,
+            )
+            .eq('usuario_id', usuarioId)
+            .order('created_at', { ascending: false })
+            .overrideTypes<FilaReservaDetalle[], { merge: false }>();
+
+        if (error) throw error;
+
+        return (data ?? []).map(mapearReservaDetalle);
+    }
+
+    async cancelar(reservaId: number, usuarioId: string): Promise<void> {
+        const { error } = await this.supabase.rpc('cancelar_reserva', {
+            p_reserva_id: reservaId,
+            p_usuario_id: usuarioId,
+        });
+        if (error) throw error;
     }
 }

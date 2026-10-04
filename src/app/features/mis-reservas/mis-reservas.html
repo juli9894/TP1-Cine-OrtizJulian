@@ -1,0 +1,37 @@
+@if (cargando()) {
+    <p>Cargando...</p>
+} @else if (!authService.usuarioActual()) {
+    <p>Iniciá sesión para ver tus reservas.</p>
+} @else {
+    <h2>Mis reservas</h2>
+
+    @if (errorMensaje()) { <p class="error">{{ errorMensaje() }}</p> }
+
+    @if (reservas().length === 0) {
+        <p>Todavía no hiciste ninguna compra.</p>
+    }
+
+    @for (reserva of reservas(); track reserva.id) {
+        <div class="reserva" [class.cancelada]="reserva.cancelada">
+            <h3>{{ reserva.peliculaTitulo }}</h3>
+            <p>{{ reserva.formato }} — {{ reserva.idioma }}</p>
+            <p>Butacas: {{ reserva.butacas.join(', ') }}</p>
+            <p>Total: ${{ reserva.total }}</p>
+
+            @if (reserva.cancelada) {
+                <p class="estado">Cancelada</p>
+            } @else {
+                <button
+                    type="button"
+                    [disabled]="cancelandoId() === reserva.id || !puedeCancelar(reserva)"
+                    (click)="cancelar(reserva)"
+                >
+                    {{ cancelandoId() === reserva.id ? 'Cancelando...' : 'Cancelar reserva' }}
+                </button>
+                @if (!puedeCancelar(reserva)) {
+                    <span class="nota"> Ya no se puede cancelar (faltan menos de 2hs para la función)</span>
+                }
+            }
+        </div>
+    }
+}
