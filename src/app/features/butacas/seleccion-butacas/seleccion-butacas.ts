@@ -8,6 +8,7 @@ import { PeliculasService } from '../../../core/services/peliculas';
 import { PerfilesService } from '../../../core/services/perfiles';
 import { CuponesService } from '../../../core/services/cupones';
 import { AuthService } from '../../../core/services/auth';
+import { generarTicketPdf } from '../../../core/services/ticket-pdf';
 import { Funcion } from '../../../core/models/funcion';
 import { Butaca } from '../../../core/models/butaca';
 import { PrecioButaca } from '../../../core/models/precio-butaca';
@@ -65,6 +66,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     cupon = signal<Cupon | null>(null);
     reservaConfirmada = signal<ReservaCreada | null>(null);
     errorMensaje = signal('');
+    generandoPdf = signal(false);
     private suscripcion?: Subscription;
 
     edadMinima = computed(() => {
@@ -134,6 +136,29 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     descuento = computed(() => this.reservasService.calcularDescuento(this.subtotal(), this.cupon()));
 
     total = computed(() => this.subtotal() - this.descuento());
+
+    // Textos derivados para mostrar en la pantalla de confirmación y en el PDF
+    // (la misma info, calculada una sola vez en vez de duplicar el .map en los dos lugares).
+    horarioFormateado = computed(() => {
+        const funcion = this.funcion();
+        return funcion ? new Date(funcion.horario).toLocaleString('es-AR') : '';
+    });
+
+    butacasTextos = computed(() =>
+        this.butacasSeleccionadas().map((b) => `Fila ${b.fila}, Butaca ${b.columna}`),
+    );
+
+    itemsComprados = computed(() => {
+        const nombresProductos = this.productosSeleccionados().map((p) => {
+            const producto = this.productos().find((x) => x.id === p.productoId);
+            return `${p.cantidad}x ${producto?.nombre ?? ''}`;
+        });
+        const nombresCombos = this.combosSeleccionados().map((c) => {
+            const combo = this.combos().find((x) => x.id === c.comboId);
+            return `${c.cantidad}x ${combo?.nombre ?? ''}`;
+        });
+        return [...nombresProductos, ...nombresCombos];
+    });
 
     async ngOnInit(): Promise<void> {
         const funcionId = Number(this.id());
@@ -236,6 +261,31 @@ export class SeleccionButacas implements OnInit, OnDestroy {
             this.reservaConfirmada.set(reserva);
         } catch (err) {
             this.errorMensaje.set('No pudimos confirmar la compra. Probá de nuevo.');
+        }
+    }
+
+    async descargarEntrada(): Promise<void> {
+        const funcion = this.funcion();
+        const pelicula = this.pelicula();
+        const reserva = this.reservaConfirmada();
+        if (!funcion || !pelicula || !reserva) return;
+
+        this.generandoPdf.set(true);
+        try {
+            await generarTicketPdf({
+                pelicula: pelicula.titulo,
+                horario: this.horarioFormateado(),
+                formato: funcion.formato,
+                idioma: funcion.idioma,
+                butacas: this.butacasTextos(),
+                items: this.itemsComprados(),
+                total: reserva.total,
+                qrCode: reserva.qrCode,
+            });
+        } catch (err) {
+            this.errorMensaje.set('No pudimos generar el PDF. Probá de nuevo.');
+        } finally {
+            this.generandoPdf.set(false);
         }
     }
 

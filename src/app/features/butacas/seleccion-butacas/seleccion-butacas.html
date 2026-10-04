@@ -2,6 +2,13 @@
     @if (reservaConfirmada(); as reserva) {
         <div class="confirmacion">
             <h2>¡Compra confirmada!</h2>
+            <p>{{ pelicula()?.titulo }}</p>
+            <p>{{ f.formato }} — {{ f.idioma }} — {{ horarioFormateado() }}</p>
+            <p>Butacas: {{ butacasTextos().join(', ') }}</p>
+            @if (itemsComprados().length > 0) {
+                <p>Candy bar: {{ itemsComprados().join(', ') }}</p>
+            }
+            <p>Subtotal: ${{ subtotal() }}</p>
             @if (cupon(); as c) {
                 <p class="descuento">
                     {{ c.tipo === 'bienvenida' ? 'Cupón de bienvenida' : 'Descuento +50 años' }}
@@ -10,6 +17,9 @@
             }
             <p>Total pagado: ${{ reserva.total }}</p>
             <p>Código de reserva: {{ reserva.qrCode }}</p>
+            <button type="button" [disabled]="generandoPdf()" (click)="descargarEntrada()">
+                {{ generandoPdf() ? 'Generando...' : 'Descargar entrada (PDF)' }}
+            </button>
             @if (edadMinima() > 0) {
                 <p class="nota-clasificacion">
                     Función {{ pelicula()?.clasificacion }}
