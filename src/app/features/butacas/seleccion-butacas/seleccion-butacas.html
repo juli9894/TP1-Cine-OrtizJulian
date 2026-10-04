@@ -4,10 +4,31 @@
             <h2>¡Compra confirmada!</h2>
             <p>Total pagado: ${{ reserva.total }}</p>
             <p>Código de reserva: {{ reserva.qrCode }}</p>
+            @if (edadMinima() > 0) {
+                <p class="nota-clasificacion">
+                    Función {{ pelicula()?.clasificacion }}
+                    @if (pelicula()?.clasificacion === '+13') {
+                        — los menores de 13 años deben ir acompañados de un adulto.
+                    } @else {
+                        — no se permite el ingreso de menores de 18 años.
+                    }
+                </p>
+            }
         </div>
     } @else {
         <div class="info-funcion">
+            <h2>{{ pelicula()?.titulo }}</h2>
             <p>{{ f.formato }} — {{ f.idioma }}</p>
+            @if (edadMinima() > 0) {
+                <p class="nota-clasificacion">
+                    Función {{ pelicula()?.clasificacion }}
+                    @if (pelicula()?.clasificacion === '+13') {
+                        — los menores de 13 años deben ir acompañados de un adulto.
+                    } @else {
+                        — no se permite el ingreso de menores de 18 años.
+                    }
+                </p>
+            }
         </div>
         <div class="sala">
             @for (fila of filas(); track fila[0].id) {

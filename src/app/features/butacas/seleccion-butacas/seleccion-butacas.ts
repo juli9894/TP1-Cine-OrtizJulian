@@ -4,6 +4,8 @@ import { ButacasService } from '../../../core/services/butacas';
 import { ReservasService, ProductoSeleccionado, ComboSeleccionado } from '../../../core/services/reservas';
 import { ProductosService } from '../../../core/services/productos';
 import { CombosService } from '../../../core/services/combos';
+import { PeliculasService } from '../../../core/services/peliculas';
+import { PerfilesService } from '../../../core/services/perfiles';
 import { AuthService } from '../../../core/services/auth';
 import { Funcion } from '../../../core/models/funcion';
 import { Butaca } from '../../../core/models/butaca';
@@ -11,8 +13,20 @@ import { PrecioButaca } from '../../../core/models/precio-butaca';
 import { RecargoFormato } from '../../../core/models/recargo-formato';
 import { Producto } from '../../../core/models/producto';
 import { Combo } from '../../../core/models/combo';
+import { Pelicula } from '../../../core/models/pelicula';
 import { ReservaCreada } from '../../../core/models/reserva';
 import { Subscription } from 'rxjs';
+
+function calcularEdad(fechaNacimiento: string): number {
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const cumplioEsteAnio =
+        hoy.getMonth() > nacimiento.getMonth() ||
+        (hoy.getMonth() === nacimiento.getMonth() && hoy.getDate() >= nacimiento.getDate());
+    if (!cumplioEsteAnio) edad--;
+    return edad;
+}
 
 @Component({
     selector: 'app-seleccion-butacas',
@@ -25,12 +39,15 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     private readonly reservasService = inject(ReservasService);
     private readonly productosService = inject(ProductosService);
     private readonly combosService = inject(CombosService);
+    private readonly peliculasService = inject(PeliculasService);
+    private readonly perfilesService = inject(PerfilesService);
     private readonly authService = inject(AuthService);
     private readonly ngZone = inject(NgZone);
 
     id = input.required<string>();
 
     funcion = signal<Funcion | null>(null);
+    pelicula = signal<Pelicula | null>(null);
     butacas = signal<Butaca[]>([]);
     idsOcupados = signal<number[]>([]);
     idsSeleccionados = signal<number[]>([]);
@@ -43,6 +60,14 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     reservaConfirmada = signal<ReservaCreada | null>(null);
     errorMensaje = signal('');
     private suscripcion?: Subscription;
+
+    edadMinima = computed(() => {
+        const pelicula = this.pelicula();
+        if (!pelicula) return 0;
+        if (pelicula.clasificacion === '+18') return 18;
+        if (pelicula.clasificacion === '+13') return 13;
+        return 0;
+    });
 
     filas = computed(() => {
         const porFila = new Map<string, Butaca[]>();
@@ -105,6 +130,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         try {
             const funcion = await this.funcionesService.obtenerPorId(funcionId);
             this.funcion.set(funcion);
+            this.pelicula.set(await this.peliculasService.obtenerPorId(funcion.peliculaId));
             this.butacas.set(await this.butacasService.obtenerButacasDeSala(funcion.salaId));
             this.idsOcupados.set(await this.butacasService.obtenerIdsOcupados(funcionId));
 
@@ -154,10 +180,32 @@ export class SeleccionButacas implements OnInit, OnDestroy {
 
     async confirmarCompra(): Promise<void> {
         const funcion = this.funcion();
-        if (!funcion || this.idsSeleccionados().length === 0) return;
+        const pelicula = this.pelicula();
+        if (!funcion || !pelicula || this.idsSeleccionados().length === 0) return;
         this.errorMensaje.set('');
+
+        const edadMinima = this.edadMinima();
+        const usuario = this.authService.usuarioActual();
+
+        if (edadMinima > 0 && usuario) {
+            try {
+                const perfil = await this.perfilesService.obtenerPorId(usuario.id);
+                const edad = calcularEdad(perfil.fecha_nacimiento);
+
+                if (edad < edadMinima) {
+                    this.errorMensaje.set(
+                        `Esta función es ${pelicula.clasificacion}: no podés comprar entradas (edad mínima ${edadMinima} años).`,
+                    );
+                    return;
+                }
+            } catch (err) {
+                this.errorMensaje.set('No pudimos validar tu edad. Probá de nuevo.');
+                return;
+            }
+        }
+
         try {
-            const usuarioId = this.authService.usuarioActual()?.id ?? null;
+            const usuarioId = usuario?.id ?? null;
             const reserva = await this.reservasService.crear(
                 funcion,
                 this.butacasSeleccionadas(),
