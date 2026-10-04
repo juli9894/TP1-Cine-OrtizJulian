@@ -12,12 +12,14 @@ import { ListaSalas } from './features/admin/lista-salas/lista-salas';
 import { ListaFunciones } from './features/admin/lista-funciones/lista-funciones';
 import { FormularioPelicula } from './features/admin/formulario-pelicula/formulario-pelicula';
 import { ListaPeliculas } from './features/admin/lista-peliculas/lista-peliculas';
+import { PreciosButacas } from './features/admin/precios-butacas/precios-butacas';
 
 export const routes: Routes = [
     { path: 'registro', component: Registro, canActivate: [soloInvitadoGuard] },
     { path: 'login', component: Login, canActivate: [soloInvitadoGuard] },
     { path: 'peliculas/:id', component: PeliculaDetalle },
     { path: 'funciones/:id/butacas', component: SeleccionButacas },
+    { path: 'admin/precios-butacas', component: PreciosButacas, canMatch: [adminGuard] },
     { path: 'admin/funciones/nueva', component: FormularioFuncion, canMatch: [adminGuard] },
     { path: 'admin/funciones/:id/editar', component: FormularioFuncion, canMatch: [adminGuard] },
     { path: 'admin/funciones', component: ListaFunciones, canMatch: [adminGuard] },

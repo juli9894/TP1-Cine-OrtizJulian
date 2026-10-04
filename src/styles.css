@@ -106,6 +106,10 @@ th, td {
     color: var(--color-error);
 }
 
+.exito {
+    color: #2ecc71;
+}
+
 main {
     padding: var(--espacio-4);
     max-width: 1100px;

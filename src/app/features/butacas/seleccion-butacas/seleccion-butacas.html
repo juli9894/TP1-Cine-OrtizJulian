@@ -1,28 +1,45 @@
 @if (funcion(); as f) {
-    <div class="info-funcion">
-        <p>{{ f.formato }} — {{ f.idioma }}</p>
-    </div>
+    @if (reservaConfirmada(); as reserva) {
+        <div class="confirmacion">
+            <h2>¡Compra confirmada!</h2>
+            <p>Total pagado: ${{ reserva.total }}</p>
+            <p>Código de reserva: {{ reserva.qrCode }}</p>
+        </div>
+    } @else {
+        <div class="info-funcion">
+            <p>{{ f.formato }} — {{ f.idioma }}</p>
+        </div>
 
-    <div class="sala">
-        @for (fila of filas(); track fila[0].id) {
-            <div class="fila">
-                @for (butaca of fila; track butaca.id) {
-                    <button
-                        type="button"
-                        class="butaca"
-                        [class.accesible]="butaca.tipo === 'accesible'"
-                        [class.vip]="butaca.tipo === 'vip'"
-                        [class.ocupada]="idsOcupados().includes(butaca.id)"
-                        [class.seleccionada]="idsSeleccionados().includes(butaca.id)"
-                        [disabled]="idsOcupados().includes(butaca.id)"
-                        (click)="onClickButaca(butaca)"
-                    ></button>
-                }
-            </div>
+        <div class="sala">
+            @for (fila of filas(); track fila[0].id) {
+                <div class="fila" [class.accesible]="fila[0].tipo === 'accesible'">
+                    @for (butaca of fila; track butaca.id) {
+                        <button
+                            type="button"
+                            class="butaca"
+                            [class.accesible]="butaca.tipo === 'accesible'"
+                            [class.vip]="butaca.tipo === 'vip'"
+                            [class.ocupada]="idsOcupados().includes(butaca.id)"
+                            [class.seleccionada]="idsSeleccionados().includes(butaca.id)"
+                            [disabled]="idsOcupados().includes(butaca.id)"
+                            (click)="onClickButaca(butaca)"
+                        ></button>
+                    }
+                </div>
+            }
+        </div>
+
+        <p>Butacas seleccionadas: {{ idsSeleccionados().length }}</p>
+        <p>Total: ${{ total() }}</p>
+
+        @if (errorMensaje()) {
+            <p class="error">{{ errorMensaje() }}</p>
         }
-    </div>
 
-    <p>Butacas seleccionadas: {{ idsSeleccionados().length }}</p>
+        <button type="button" [disabled]="idsSeleccionados().length === 0" (click)="confirmarCompra()">
+            Confirmar compra
+        </button>
+    }
 } @else {
     @if (errorMensaje()) {
         <p class="error">{{ errorMensaje() }}</p>

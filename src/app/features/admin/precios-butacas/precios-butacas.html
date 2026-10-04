@@ -1,0 +1,54 @@
+<h2>Precios de butacas</h2>
+
+<form [formGroup]="formularioPrecios" (ngSubmit)="guardarPrecios()">
+    <label>
+        Normal
+        <input type="number" formControlName="normal" />
+    </label>
+
+    <label>
+        Accesible
+        <input type="number" formControlName="accesible" />
+    </label>
+
+    <label>
+        VIP
+        <input type="number" formControlName="vip" />
+    </label>
+
+    <button type="submit" [disabled]="formularioPrecios.invalid">Guardar</button>
+</form>
+
+<h2>Recargo por formato</h2>
+
+<form [formGroup]="formularioRecargos" (ngSubmit)="guardarRecargos()">
+    <label>
+        2D
+        <input type="number" formControlName="2D" />
+    </label>
+
+    <label>
+        3D
+        <input type="number" formControlName="3D" />
+    </label>
+
+    <label>
+        4D
+        <input type="number" formControlName="4D" />
+    </label>
+
+    <label>
+        5D
+        <input type="number" formControlName="5D" />
+    </label>
+
+    <button type="submit" [disabled]="formularioRecargos.invalid">Guardar</button>
+</form>
+
+@if (errorMensaje()) {
+    <p class="error">{{ errorMensaje() }}</p>
+}
+
+@if (mensajeExito()) {
+    <p class="exito">{{ mensajeExito() }}</p>
+}
