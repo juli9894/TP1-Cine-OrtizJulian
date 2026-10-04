@@ -1,0 +1,24 @@
+<h2>{{ esEdicion() ? 'Editar combo' : 'Nuevo combo' }}</h2>
+
+<form [formGroup]="formularioCombo" (ngSubmit)="guardar()">
+    <label>
+        Nombre
+        <input type="text" formControlName="nombre" />
+    </label>
+
+    <label>
+        Descripción
+        <input type="text" formControlName="descripcion" />
+    </label>
+
+    <label>
+        Precio
+        <input type="number" formControlName="precio" />
+    </label>
+
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
+
+    <button type="submit" [disabled]="formularioCombo.invalid">Guardar</button>
+</form>

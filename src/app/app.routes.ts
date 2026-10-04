@@ -13,6 +13,10 @@ import { ListaFunciones } from './features/admin/lista-funciones/lista-funciones
 import { FormularioPelicula } from './features/admin/formulario-pelicula/formulario-pelicula';
 import { ListaPeliculas } from './features/admin/lista-peliculas/lista-peliculas';
 import { PreciosButacas } from './features/admin/precios-butacas/precios-butacas';
+import { ListaProductos } from './features/admin/lista-productos/lista-productos';
+import { FormularioProducto } from './features/admin/formulario-producto/formulario-producto';
+import { ListaCombos } from './features/admin/lista-combos/lista-combos';
+import { FormularioCombo } from './features/admin/formulario-combo/formulario-combo';
 
 export const routes: Routes = [
     { path: 'registro', component: Registro, canActivate: [soloInvitadoGuard] },
@@ -29,5 +33,11 @@ export const routes: Routes = [
     { path: 'admin/peliculas/nueva', component: FormularioPelicula, canMatch: [adminGuard] },
     { path: 'admin/peliculas/:id/editar', component: FormularioPelicula, canMatch: [adminGuard] },
     { path: 'admin/peliculas', component: ListaPeliculas, canMatch: [adminGuard] },
+    { path: 'admin/productos/nuevo', component: FormularioProducto, canMatch: [adminGuard] },
+    { path: 'admin/productos/:id/editar', component: FormularioProducto, canMatch: [adminGuard] },
+    { path: 'admin/productos', component: ListaProductos, canMatch: [adminGuard] },
+    { path: 'admin/combos/nuevo', component: FormularioCombo, canMatch: [adminGuard] },
+    { path: 'admin/combos/:id/editar', component: FormularioCombo, canMatch: [adminGuard] },
+    { path: 'admin/combos', component: ListaCombos, canMatch: [adminGuard] },
     { path: '', component: Home, pathMatch: 'full' },
 ];

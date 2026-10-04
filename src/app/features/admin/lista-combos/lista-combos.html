@@ -1,0 +1,33 @@
+<h2>Combos</h2>
+
+<a routerLink="/admin/combos/nuevo">+ Nuevo combo</a>
+
+@if (errorMensaje()) {
+    <p class="error">{{ errorMensaje() }}</p>
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (combo of combos(); track combo.id) {
+            <tr>
+                <td>{{ combo.nombre }}</td>
+                <td>{{ combo.descripcion }}</td>
+                <td>${{ combo.precio }}</td>
+                <td>
+                    <a [routerLink]="['/admin/combos', combo.id, 'editar']">Editar</a>
+                    <button (click)="eliminarCombo(combo.id)">Eliminar</button>
+                </td>
+            </tr>
+        } @empty {
+            <tr><td colspan="4">No hay combos cargados.</td></tr>
+        }
+    </tbody>
+</table>

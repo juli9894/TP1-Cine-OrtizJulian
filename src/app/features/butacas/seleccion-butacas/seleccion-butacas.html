@@ -9,7 +9,6 @@
         <div class="info-funcion">
             <p>{{ f.formato }} — {{ f.idioma }}</p>
         </div>
-
         <div class="sala">
             @for (fila of filas(); track fila[0].id) {
                 <div class="fila" [class.accesible]="fila[0].tipo === 'accesible'">
@@ -28,22 +27,39 @@
                 </div>
             }
         </div>
-
         <p>Butacas seleccionadas: {{ idsSeleccionados().length }}</p>
+
+        <div class="candy-bar">
+            <h3>Candy Bar</h3>
+            @for (grupo of productosPorCategoria(); track grupo[0]) {
+                <h4>{{ grupo[0] }}</h4>
+                @for (producto of grupo[1]; track producto.id) {
+                    <div class="item-candy">
+                        <span>{{ producto.nombre }} (${{ producto.precio }})</span>
+                        <button type="button" (click)="restarProducto(producto.id)">-</button>
+                        <span>{{ cantidadesProductos()[producto.id] ?? 0 }}</span>
+                        <button type="button" (click)="sumarProducto(producto.id)">+</button>
+                    </div>
+                }
+            }
+
+            <h4>Combos</h4>
+            @for (combo of combos(); track combo.id) {
+                <div class="item-candy">
+                    <span>{{ combo.nombre }} — {{ combo.descripcion }} (${{ combo.precio }})</span>
+                    <button type="button" (click)="restarCombo(combo.id)">-</button>
+                    <span>{{ cantidadesCombos()[combo.id] ?? 0 }}</span>
+                    <button type="button" (click)="sumarCombo(combo.id)">+</button>
+                </div>
+            }
+        </div>
+
         <p>Total: ${{ total() }}</p>
-
-        @if (errorMensaje()) {
-            <p class="error">{{ errorMensaje() }}</p>
-        }
-
+        @if (errorMensaje()) { <p class="error">{{ errorMensaje() }}</p> }
         <button type="button" [disabled]="idsSeleccionados().length === 0" (click)="confirmarCompra()">
             Confirmar compra
         </button>
     }
 } @else {
-    @if (errorMensaje()) {
-        <p class="error">{{ errorMensaje() }}</p>
-    } @else {
-        <p>Cargando...</p>
-    }
+    @if (errorMensaje()) { <p class="error">{{ errorMensaje() }}</p> } @else { <p>Cargando...</p> }
 }
