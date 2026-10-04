@@ -91,6 +91,7 @@ export class ReservasService {
         productosSeleccionados: ProductoSeleccionado[],
         combosSeleccionados: ComboSeleccionado[],
         cuponId: number | null,
+        montoCreditoAplicado: number,
     ): Promise<ReservaCreada> {
         const { data, error } = await this.supabase
             .from('reservas')
@@ -132,6 +133,14 @@ export class ReservasService {
                 p_puntos: total,
             });
             if (errorPuntos) throw errorPuntos;
+
+            if (montoCreditoAplicado > 0) {
+                const { error: errorCredito } = await this.supabase.rpc('aplicar_credito', {
+                    p_usuario_id: usuarioId,
+                    p_monto: montoCreditoAplicado,
+                });
+                if (errorCredito) throw errorCredito;
+            }
         }
 
         return { id: data.id, qrCode: data.qr_code, total };

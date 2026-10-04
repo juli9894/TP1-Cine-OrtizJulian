@@ -56,21 +56,14 @@
         <h3>Canjear puntos</h3>
         @if (mensajeCanje()) { <p class="mensaje-canje">{{ mensajeCanje() }}</p> }
 
-        <div class="catalogo">
-            @for (item of catalogo(); track item.id) {
-                <div class="item-catalogo">
-                    <p class="descripcion">{{ item.descripcion }}</p>
-                    <p class="detalle">{{ item.puntosRequeridos }} puntos → ${{ item.valorCredito }} de crédito</p>
-                    <button
-                        type="button"
-                        [disabled]="canjeandoId() === item.id || p.saldo_puntos < item.puntosRequeridos"
-                        (click)="canjear(item)"
-                    >
-                        {{ canjeandoId() === item.id ? 'Canjeando...' : 'Canjear' }}
-                    </button>
-                </div>
-            }
-        </div>
+        <p>Tenés {{ p.saldo_puntos }} puntos acumulados.</p>
+        <button
+            type="button"
+            [disabled]="canjeando() || p.saldo_puntos === 0"
+            (click)="canjearPuntos()"
+        >
+            {{ canjeando() ? 'Canjeando...' : 'Canjear puntos por crédito' }}
+        </button>
     </section>
 
     <section class="historial">
@@ -80,8 +73,8 @@
         } @else {
             @for (canje of historial(); track canje.id) {
                 <p class="fila-historial">
-                    {{ canje.createdAt | date: 'short' }} — {{ canje.descripcion }}
-                    ({{ canje.puntosGastados }} pts → ${{ canje.creditoOtorgado }})
+                    {{ canje.createdAt | date: 'short' }} — Canjeaste {{ canje.puntosGastados }} puntos
+                    → ${{ canje.creditoOtorgado }} de crédito
                 </p>
             }
         }

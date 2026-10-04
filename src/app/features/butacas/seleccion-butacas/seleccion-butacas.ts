@@ -64,6 +64,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     cantidadesCombos = signal<Record<number, number>>({});
     perfil = signal<Perfil | null>(null);
     cupon = signal<Cupon | null>(null);
+    usarCredito = signal(false);
     reservaConfirmada = signal<ReservaCreada | null>(null);
     errorMensaje = signal('');
     generandoPdf = signal(false);
@@ -135,7 +136,21 @@ export class SeleccionButacas implements OnInit, OnDestroy {
 
     descuento = computed(() => this.reservasService.calcularDescuento(this.subtotal(), this.cupon()));
 
-    total = computed(() => this.subtotal() - this.descuento());
+    // Plata interna disponible (cancelaciones + canjes), y cuánto de eso se va a
+    // descontar en esta compra si el usuario tilda "usar mi saldo disponible".
+    // Se tapa en 0 el resto: ni el cupón ni el crédito pueden dejar el total negativo.
+    creditoDisponible = computed(() => {
+        const perfil = this.perfil();
+        return perfil ? perfil.saldo_credito : 0;
+    });
+
+    creditoAplicado = computed(() => {
+        if (!this.usarCredito()) return 0;
+        const restante = this.subtotal() - this.descuento();
+        return Math.min(this.creditoDisponible(), restante);
+    });
+
+    total = computed(() => this.subtotal() - this.descuento() - this.creditoAplicado());
 
     // Textos derivados para mostrar en la pantalla de confirmación y en el PDF
     // (la misma info, calculada una sola vez en vez de duplicar el .map en los dos lugares).
@@ -226,6 +241,10 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         this.cantidadesCombos.update((actual) => ({ ...actual, [id]: Math.max(0, (actual[id] ?? 0) - 1) }));
     }
 
+    onToggleCredito(evento: Event): void {
+        this.usarCredito.set((evento.target as HTMLInputElement).checked);
+    }
+
     async confirmarCompra(): Promise<void> {
         const funcion = this.funcion();
         const pelicula = this.pelicula();
@@ -257,6 +276,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
                 this.productosSeleccionados(),
                 this.combosSeleccionados(),
                 this.cupon()?.id ?? null,
+                this.creditoAplicado(),
             );
             this.reservaConfirmada.set(reserva);
         } catch (err) {

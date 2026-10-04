@@ -15,6 +15,9 @@
                     (-{{ c.porcentajeDescuento }}%): -${{ descuento() }}
                 </p>
             }
+            @if (creditoAplicado() > 0) {
+                <p class="descuento">Crédito usado: -${{ creditoAplicado() }}</p>
+            }
             <p>Total pagado: ${{ reserva.total }}</p>
             <p>Código de reserva: {{ reserva.qrCode }}</p>
             <button type="button" [disabled]="generandoPdf()" (click)="descargarEntrada()">
@@ -97,6 +100,15 @@
                 {{ c.tipo === 'bienvenida' ? 'Cupón de bienvenida' : 'Descuento +50 años' }}
                 (-{{ c.porcentajeDescuento }}%): -${{ descuento() }}
             </p>
+        }
+        @if (creditoDisponible() > 0) {
+            <label class="credito-toggle">
+                <input type="checkbox" [checked]="usarCredito()" (change)="onToggleCredito($event)" />
+                Usar mi saldo disponible (${{ creditoDisponible() }})
+            </label>
+            @if (creditoAplicado() > 0) {
+                <p class="descuento">Crédito usado: -${{ creditoAplicado() }}</p>
+            }
         }
         <p>Total: ${{ total() }}</p>
         @if (errorMensaje()) { <p class="error">{{ errorMensaje() }}</p> }

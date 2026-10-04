@@ -7,7 +7,6 @@ import { CuponesService } from '../../core/services/cupones';
 import { PuntosService } from '../../core/services/puntos';
 import { Perfil } from '../../core/models/perfil';
 import { ReservaDetalle } from '../../core/models/reserva';
-import { CatalogoPunto } from '../../core/models/catalogo-punto';
 import { Canje } from '../../core/models/canje';
 import { Cupon } from '../../core/models/cupon';
 
@@ -37,13 +36,12 @@ export class PerfilUsuario implements OnInit {
 
     perfil = signal<Perfil | null>(null);
     reservas = signal<ReservaDetalle[]>([]);
-    catalogo = signal<CatalogoPunto[]>([]);
     historial = signal<Canje[]>([]);
     cuponBienvenida = signal<Cupon | null>(null);
     cuponMayor50 = signal<Cupon | null>(null);
     cargando = signal(true);
     errorMensaje = signal('');
-    canjeandoId = signal<number | null>(null);
+    canjeando = signal(false);
     mensajeCanje = signal('');
 
     esMayor50 = computed(() => {
@@ -75,17 +73,15 @@ export class PerfilUsuario implements OnInit {
         }
 
         try {
-            const [perfil, reservas, catalogo, historial, cuponBienvenida, cuponMayor50] = await Promise.all([
+            const [perfil, reservas, historial, cuponBienvenida, cuponMayor50] = await Promise.all([
                 this.perfilesService.obtenerPorId(usuario.id),
                 this.reservasService.obtenerDeUsuario(usuario.id),
-                this.puntosService.obtenerCatalogo(),
                 this.puntosService.obtenerHistorialDe(usuario.id),
                 this.cuponesService.obtenerPorTipo('bienvenida'),
                 this.cuponesService.obtenerPorTipo('mayor50'),
             ]);
             this.perfil.set(perfil);
             this.reservas.set(reservas);
-            this.catalogo.set(catalogo);
             this.historial.set(historial);
             this.cuponBienvenida.set(cuponBienvenida);
             this.cuponMayor50.set(cuponMayor50);
@@ -96,19 +92,19 @@ export class PerfilUsuario implements OnInit {
         }
     }
 
-    async canjear(item: CatalogoPunto): Promise<void> {
+    async canjearPuntos(): Promise<void> {
         const usuario = this.authService.usuarioActual();
         const perfil = this.perfil();
-        if (!usuario || !perfil) return;
+        if (!usuario || !perfil || perfil.saldo_puntos <= 0) return;
 
-        if (!confirm(`¿Canjear ${item.puntosRequeridos} puntos por $${item.valorCredito} de crédito?`)) {
+        if (!confirm(`¿Canjear tus ${perfil.saldo_puntos} puntos acumulados por crédito?`)) {
             return;
         }
 
         this.mensajeCanje.set('');
-        this.canjeandoId.set(item.id);
+        this.canjeando.set(true);
         try {
-            await this.puntosService.canjear(usuario.id, item.id);
+            await this.puntosService.canjear(usuario.id);
             const [perfilActualizado, historial] = await Promise.all([
                 this.perfilesService.obtenerPorId(usuario.id),
                 this.puntosService.obtenerHistorialDe(usuario.id),
@@ -119,7 +115,7 @@ export class PerfilUsuario implements OnInit {
         } catch (err) {
             this.mensajeCanje.set('No pudimos realizar el canje. Probá de nuevo.');
         } finally {
-            this.canjeandoId.set(null);
+            this.canjeando.set(false);
         }
     }
 }
