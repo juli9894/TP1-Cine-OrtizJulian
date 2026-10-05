@@ -21,14 +21,24 @@ Aplicación de cine (cartelera, compra de entradas, panel de administración) pa
 
 ```
 src/app/
-├── core/          # Lo que usa cualquier pantalla: guards, models, services
-├── features/      # Una carpeta por pantalla: auth, home, pelicula-detalle, butacas, admin
-└── app.routes.ts  # Qué pantalla corresponde a cada URL
+├── core/                    # Todo lo transversal a la app, sin UI propia
+│   ├── guards/              # soloInvitadoGuard, adminGuard
+│   ├── models/               # Interfaces TypeScript (tipado estricto, sin `any`)
+│   └── services/             # Un service por entidad, hablan con Supabase
+├── features/                # Un folder por pantalla/funcionalidad
+│   ├── auth/                 # login, registro
+│   ├── home/                  # cartelera, top 3, buscador
+│   ├── pelicula-detalle/      # ficha + reseñas
+│   ├── butacas/                # selección de butacas en tiempo real + checkout + ticket PDF/QR
+│   └── admin/                  # panel de administración (salas, funciones, películas, precios, productos, combos)
+└── app.routes.ts             # rutas + guards
 
-supabase/migrations/  # Cambios a la base de datos, en orden
+supabase/migrations/          # una migración SQL por cambio de esquema, en orden
 ```
 
-`core/` es lo compartido por toda la app. `features/` es cada pantalla con lo que es solo suyo. Cada tabla de la base tiene su propio service (`SalasService`, `FuncionesService`, etc.) — las pantallas nunca hablan con Supabase directo, siempre pasan por ahí.
+**Por qué esta división (`core/` vs `features/`):** `core/` agrupa lo que cualquier pantalla puede necesitar (un guard, un modelo, un service) y no depende de ninguna en particular; `features/` agrupa cada pantalla con lo que le pertenece solo a ella. Evita que un componente de una pantalla importe cosas internas de otra.
+
+**Patrón repetido en los servicios:** cada entidad tiene un service propio (`SalasService`, `FuncionesService`, etc.) que es el único punto de contacto con Supabase para esa tabla — los componentes nunca llaman a Supabase directamente. Cuando la tabla tiene columnas en `snake_case` que no calzan con la convención `camelCase` de TypeScript (por ejemplo `pelicula_id` → `peliculaId`), el service expone una interfaz `Fila<Entidad>` (la forma cruda que devuelve Supabase) y una función `mapear<Entidad>()` que la convierte a la interfaz de dominio (`Entidad`) que usa el resto de la app.
 
 ## Decisiones técnicas
 
