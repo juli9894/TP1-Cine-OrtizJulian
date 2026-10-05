@@ -1,0 +1,24 @@
+.toast-bienvenida {
+    position: fixed;
+    bottom: var(--espacio-4);
+    right: var(--espacio-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radio);
+    padding: var(--espacio-3) var(--espacio-4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    font-weight: 600;
+    z-index: 20;
+    animation: aparecer-toast 0.25s ease;
+}
+
+@keyframes aparecer-toast {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

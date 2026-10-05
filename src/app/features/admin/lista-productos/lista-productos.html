@@ -1,33 +1,40 @@
-<h2>Productos</h2>
+<div class="pagina-admin">
+    <a class="volver" routerLink="/admin">← Volver al panel</a>
 
-<a routerLink="/admin/productos/nuevo">+ Nuevo producto</a>
+    <div class="cabecera-admin">
+        <h2>Productos</h2>
+        <a class="boton-nuevo" routerLink="/admin/productos/nuevo">+ Nuevo producto</a>
+    </div>
 
-@if (errorMensaje()) {
-    <p class="error">{{ errorMensaje() }}</p>
-}
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
 
-<table>
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Precio</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @for (producto of productos(); track producto.id) {
-            <tr>
-                <td>{{ producto.nombre }}</td>
-                <td>{{ producto.categoria }}</td>
-                <td>${{ producto.precio }}</td>
-                <td>
-                    <a [routerLink]="['/admin/productos', producto.id, 'editar']">Editar</a>
-                    <button (click)="eliminarProducto(producto.id)">Eliminar</button>
-                </td>
-            </tr>
-        } @empty {
-            <tr><td colspan="4">No hay productos cargados.</td></tr>
-        }
-    </tbody>
-</table>
+    <div class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (producto of productos(); track producto.id) {
+                    <tr>
+                        <td>{{ producto.nombre }}</td>
+                        <td>{{ producto.categoria }}</td>
+                        <td>${{ producto.precio }}</td>
+                        <td>
+                            <a [routerLink]="['/admin/productos', producto.id, 'editar']">Editar</a>
+                            <button (click)="eliminarProducto(producto.id)">Eliminar</button>
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr><td colspan="4">No hay productos cargados.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

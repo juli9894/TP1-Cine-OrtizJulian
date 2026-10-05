@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, OnInit, signal, OnDestroy, NgZone } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FuncionesService } from '../../../core/services/funciones';
 import { ButacasService } from '../../../core/services/butacas';
 import { ReservasService, ProductoSeleccionado, ComboSeleccionado } from '../../../core/services/reservas';
@@ -8,6 +9,7 @@ import { PeliculasService } from '../../../core/services/peliculas';
 import { PerfilesService } from '../../../core/services/perfiles';
 import { CuponesService } from '../../../core/services/cupones';
 import { AuthService } from '../../../core/services/auth';
+import { SalasService } from '../../../core/services/salas';
 import { generarTicketPdf } from '../../../core/services/ticket-pdf';
 import { Funcion } from '../../../core/models/funcion';
 import { Butaca } from '../../../core/models/butaca';
@@ -18,6 +20,7 @@ import { Combo } from '../../../core/models/combo';
 import { Pelicula } from '../../../core/models/pelicula';
 import { Perfil } from '../../../core/models/perfil';
 import { Cupon } from '../../../core/models/cupon';
+import { Sala } from '../../../core/models/sala';
 import { ReservaCreada } from '../../../core/models/reserva';
 import { Subscription } from 'rxjs';
 
@@ -33,6 +36,7 @@ function calcularEdad(fechaNacimiento: string): number {
 }
 
 @Component({
+    imports: [RouterLink],
     selector: 'app-seleccion-butacas',
     styleUrl: './seleccion-butacas.css',
     templateUrl: './seleccion-butacas.html',
@@ -47,12 +51,14 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     private readonly perfilesService = inject(PerfilesService);
     private readonly cuponesService = inject(CuponesService);
     private readonly authService = inject(AuthService);
+    private readonly salasService = inject(SalasService);
     private readonly ngZone = inject(NgZone);
 
     id = input.required<string>();
 
     funcion = signal<Funcion | null>(null);
     pelicula = signal<Pelicula | null>(null);
+    sala = signal<Sala | null>(null);
     butacas = signal<Butaca[]>([]);
     idsOcupados = signal<number[]>([]);
     idsSeleccionados = signal<number[]>([]);
@@ -65,6 +71,8 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     perfil = signal<Perfil | null>(null);
     cupon = signal<Cupon | null>(null);
     usarCredito = signal(false);
+    candyBarAbierto = signal(false);
+    resumenAbierto = signal(false);
     reservaConfirmada = signal<ReservaCreada | null>(null);
     errorMensaje = signal('');
     generandoPdf = signal(false);
@@ -114,6 +122,13 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         Object.entries(this.cantidadesCombos())
             .map(([id, cantidad]) => ({ comboId: Number(id), cantidad }))
             .filter((c) => c.cantidad > 0),
+    );
+
+    // Para el contador del botón "Candy bar" — suma todas las cantidades
+    // elegidas (productos + combos), sin filtrar ceros (da lo mismo para contar).
+    cantidadCandyTotal = computed(() =>
+        Object.values(this.cantidadesProductos()).reduce((suma, c) => suma + c, 0) +
+        Object.values(this.cantidadesCombos()).reduce((suma, c) => suma + c, 0),
     );
 
     subtotal = computed(() => {
@@ -180,7 +195,14 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         try {
             const funcion = await this.funcionesService.obtenerPorId(funcionId);
             this.funcion.set(funcion);
-            this.pelicula.set(await this.peliculasService.obtenerPorId(funcion.peliculaId));
+
+            const [pelicula, sala] = await Promise.all([
+                this.peliculasService.obtenerPorId(funcion.peliculaId),
+                this.salasService.obtenerPorId(funcion.salaId),
+            ]);
+            this.pelicula.set(pelicula);
+            this.sala.set(sala);
+
             this.butacas.set(await this.butacasService.obtenerButacasDeSala(funcion.salaId));
             this.idsOcupados.set(await this.butacasService.obtenerIdsOcupados(funcionId));
 
@@ -241,6 +263,21 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         this.cantidadesCombos.update((actual) => ({ ...actual, [id]: Math.max(0, (actual[id] ?? 0) - 1) }));
     }
 
+    alternarCandyBar(): void {
+        this.resumenAbierto.set(false);
+        this.candyBarAbierto.update((abierto) => !abierto);
+    }
+
+    alternarResumen(): void {
+        this.candyBarAbierto.set(false);
+        this.resumenAbierto.update((abierto) => !abierto);
+    }
+
+    cerrarPaneles(): void {
+        this.candyBarAbierto.set(false);
+        this.resumenAbierto.set(false);
+    }
+
     onToggleCredito(evento: Event): void {
         this.usarCredito.set((evento.target as HTMLInputElement).checked);
     }
@@ -294,6 +331,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         try {
             await generarTicketPdf({
                 pelicula: pelicula.titulo,
+                sala: this.sala()?.nombre ?? '',
                 horario: this.horarioFormateado(),
                 formato: funcion.formato,
                 idioma: funcion.idioma,

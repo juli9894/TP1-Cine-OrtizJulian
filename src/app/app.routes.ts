@@ -19,12 +19,14 @@ import { ListaCombos } from './features/admin/lista-combos/lista-combos';
 import { FormularioCombo } from './features/admin/formulario-combo/formulario-combo';
 import { MisReservas } from './features/mis-reservas/mis-reservas';
 import { PerfilUsuario } from './features/perfil-usuario/perfil-usuario';
+import { AdminMenu } from './features/admin/admin-menu/admin-menu';
 
 export const routes: Routes = [
     { path: 'registro', component: Registro, canActivate: [soloInvitadoGuard] },
     { path: 'login', component: Login, canActivate: [soloInvitadoGuard] },
     { path: 'peliculas/:id', component: PeliculaDetalle },
     { path: 'funciones/:id/butacas', component: SeleccionButacas },
+    { path: 'admin', component: AdminMenu, canMatch: [adminGuard] },
     { path: 'admin/precios-butacas', component: PreciosButacas, canMatch: [adminGuard] },
     { path: 'admin/funciones/nueva', component: FormularioFuncion, canMatch: [adminGuard] },
     { path: 'admin/funciones/:id/editar', component: FormularioFuncion, canMatch: [adminGuard] },

@@ -1,18 +1,28 @@
 <header class="barra-superior">
-    <span class="logo">🎬 TP Cine</span>
+    <a class="logo" routerLink="/">🎬 TP Cine</a>
 
     @if (authService.usuarioActual(); as usuario) {
         <div class="sesion">
             <span>{{ usuario.email }}</span>
+            @if (esAdmin()) {
+                <a routerLink="/admin">Admin</a>
+            }
             <a routerLink="/perfil">Mi perfil</a>
             <a routerLink="/mis-reservas">Mis reservas</a>
             <button (click)="cerrarSesion()">Cerrar sesión</button>
         </div>
     } @else {
-        <span class="sesion-vacia">No estás logueado</span>
+        <div class="sesion">
+            <a routerLink="/login">Iniciar sesión</a>
+            <a routerLink="/registro">Registrarme</a>
+        </div>
     }
 </header>
 
 <main>
     <router-outlet />
 </main>
+
+@if (nombreBienvenida(); as nombre) {
+    <div class="toast-bienvenida">¡Hola, {{ nombre }}! 👋</div>
+}

@@ -136,3 +136,114 @@ main {
     align-items: center;
     gap: var(--espacio-3);
 }
+
+.pagina-admin {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-3);
+}
+
+.cabecera-admin {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espacio-3);
+    flex-wrap: wrap;
+}
+
+.cabecera-admin h2 {
+    margin: 0;
+}
+
+.boton-nuevo {
+    display: inline-block;
+    background: var(--color-accent);
+    color: var(--color-accent-texto);
+    padding: var(--espacio-2) var(--espacio-3);
+    border-radius: var(--radio);
+    font-weight: 600;
+}
+
+.boton-nuevo:hover {
+    opacity: 0.85;
+    text-decoration: none;
+}
+
+.tabla-contenedor {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    overflow-x: auto;
+}
+
+.tabla-contenedor table {
+    margin: 0;
+}
+
+.tabla-contenedor th {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.tabla-contenedor tbody tr:hover {
+    background: rgba(242, 240, 236, 0.03);
+}
+
+.tabla-contenedor td a {
+    margin-right: var(--espacio-3);
+}
+
+.tabla-contenedor td button {
+    background: transparent;
+    color: var(--color-error);
+    padding: var(--espacio-1) var(--espacio-2);
+    font-weight: 600;
+}
+
+.tabla-contenedor td button:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.tarjeta-formulario {
+    max-width: 520px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    padding: var(--espacio-4);
+}
+
+.tarjeta-formulario h2 {
+    margin-top: 0;
+}
+
+.tarjeta-formulario form {
+    max-width: none;
+}
+
+.grupo-formularios {
+    display: flex;
+    gap: var(--espacio-4);
+    flex-wrap: wrap;
+}
+
+.volver {
+    display: inline-block;
+    font-size: 0.9rem;
+    margin-bottom: var(--espacio-3);
+}
+
+.acciones-formulario {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-3);
+}
+
+.acciones-confirmacion {
+    display: flex;
+    gap: var(--espacio-3);
+    align-items: center;
+    margin-top: var(--espacio-3);
+}

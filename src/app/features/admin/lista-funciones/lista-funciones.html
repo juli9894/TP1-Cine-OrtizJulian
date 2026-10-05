@@ -1,29 +1,36 @@
-<h2>Funciones</h2>
+<div class="pagina-admin">
+    <a class="volver" routerLink="/admin">← Volver al panel</a>
 
-<a routerLink="/admin/funciones/nueva">+ Nueva función</a>
+    <div class="cabecera-admin">
+        <h2>Funciones</h2>
+        <a class="boton-nuevo" routerLink="/admin/funciones/nueva">+ Nueva función</a>
+    </div>
 
-@if (errorMensaje()) {
-    <p class="error">{{ errorMensaje() }}</p>
-}
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
 
-<table>
-    <thead>
-        <tr><th>Película</th><th>Sala</th><th>Horario</th><th>Formato</th><th></th></tr>
-    </thead>
-    <tbody>
-        @for (funcion of funciones(); track funcion.id) {
-            <tr>
-                <td>{{ nombrePelicula(funcion.peliculaId) }}</td>
-                <td>{{ nombreSala(funcion.salaId) }}</td>
-                <td>{{ funcion.horario | date: 'short' }}</td>
-                <td>{{ funcion.formato }}</td>
-                <td>
-                    <a [routerLink]="['/admin/funciones', funcion.id, 'editar']">Editar</a>
-                    <button (click)="eliminarFuncion(funcion.id)">Eliminar</button>
-                </td>
-            </tr>
-        } @empty {
-            <tr><td colspan="5">No hay funciones cargadas.</td></tr>
-        }
-    </tbody>
-</table>
+    <div class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr><th>Película</th><th>Sala</th><th>Horario</th><th>Formato</th><th></th></tr>
+            </thead>
+            <tbody>
+                @for (funcion of funciones(); track funcion.id) {
+                    <tr>
+                        <td>{{ nombrePelicula(funcion.peliculaId) }}</td>
+                        <td>{{ nombreSala(funcion.salaId) }}</td>
+                        <td>{{ funcion.horario | date: 'short' }}</td>
+                        <td>{{ funcion.formato }}</td>
+                        <td>
+                            <a [routerLink]="['/admin/funciones', funcion.id, 'editar']">Editar</a>
+                            <button (click)="eliminarFuncion(funcion.id)">Eliminar</button>
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr><td colspan="5">No hay funciones cargadas.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

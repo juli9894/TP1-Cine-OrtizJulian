@@ -119,3 +119,12 @@
     font-size: 0.875rem;
     margin: var(--espacio-1) 0;
 }
+
+.tarjetas a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.tarjetas a:hover article {
+    border-color: var(--color-accent);
+}

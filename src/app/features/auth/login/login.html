@@ -12,10 +12,12 @@
         <input type="password" formControlName="password" />
         </label>
 
-        @if (errorMensaje) {
-        <p class="error">{{ errorMensaje }}</p>
+        @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
         }
 
         <button type="submit" [disabled]="form.invalid">Ingresar</button>
     </form>
+
+    <p class="link-alternativo">¿No tenés cuenta? <a routerLink="/registro">Registrate</a></p>
     </div>

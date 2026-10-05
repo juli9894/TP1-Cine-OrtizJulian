@@ -42,10 +42,12 @@
         <input type="number" formControlName="diasVacaciones" />
         </label>
 
-        @if (errorMensaje) {
-        <p class="error">{{ errorMensaje }}</p>
+        @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
         }
 
         <button type="submit" [disabled]="form.invalid">Registrarme</button>
     </form>
+
+    <p class="link-alternativo">¿Ya tenés cuenta? <a routerLink="/login">Iniciá sesión</a></p>
     </div>

@@ -1,121 +1,205 @@
+@if (errorMensaje()) {
+    <p class="error">{{ errorMensaje() }}</p>
+}
+
 @if (funcion(); as f) {
     @if (reservaConfirmada(); as reserva) {
-        <div class="confirmacion">
+        <section class="confirmacion">
             <h2>¡Compra confirmada!</h2>
             <p>{{ pelicula()?.titulo }}</p>
-            <p>{{ f.formato }} — {{ f.idioma }} — {{ horarioFormateado() }}</p>
-            <p>Butacas: {{ butacasTextos().join(', ') }}</p>
-            @if (itemsComprados().length > 0) {
-                <p>Candy bar: {{ itemsComprados().join(', ') }}</p>
-            }
-            <p>Subtotal: ${{ subtotal() }}</p>
-            @if (cupon(); as c) {
-                <p class="descuento">
-                    {{ c.tipo === 'bienvenida' ? 'Cupón de bienvenida' : 'Descuento +50 años' }}
-                    (-{{ c.porcentajeDescuento }}%): -${{ descuento() }}
-                </p>
-            }
-            @if (creditoAplicado() > 0) {
-                <p class="descuento">Crédito usado: -${{ creditoAplicado() }}</p>
-            }
-            <p>Total pagado: ${{ reserva.total }}</p>
-            <p>Código de reserva: {{ reserva.qrCode }}</p>
-            <button type="button" [disabled]="generandoPdf()" (click)="descargarEntrada()">
-                {{ generandoPdf() ? 'Generando...' : 'Descargar entrada (PDF)' }}
-            </button>
-            @if (edadMinima() > 0) {
-                <p class="nota-clasificacion">
-                    Función {{ pelicula()?.clasificacion }}
-                    @if (pelicula()?.clasificacion === '+13') {
-                        — los menores de 13 años deben ir acompañados de un adulto.
-                    } @else {
-                        — no se permite el ingreso de menores de 18 años.
-                    }
-                </p>
-            }
-        </div>
-    } @else {
-        <div class="info-funcion">
-            <h2>{{ pelicula()?.titulo }}</h2>
-            <p>{{ f.formato }} — {{ f.idioma }}</p>
-            @if (edadMinima() > 0) {
-                <p class="nota-clasificacion">
-                    Función {{ pelicula()?.clasificacion }}
-                    @if (pelicula()?.clasificacion === '+13') {
-                        — los menores de 13 años deben ir acompañados de un adulto.
-                    } @else {
-                        — no se permite el ingreso de menores de 18 años.
-                    }
-                </p>
-            }
-        </div>
-        <div class="sala">
-            @for (fila of filas(); track fila[0].id) {
-                <div class="fila" [class.accesible]="fila[0].tipo === 'accesible'">
-                    @for (butaca of fila; track butaca.id) {
-                        <button
-                            type="button"
-                            class="butaca"
-                            [class.accesible]="butaca.tipo === 'accesible'"
-                            [class.vip]="butaca.tipo === 'vip'"
-                            [class.ocupada]="idsOcupados().includes(butaca.id)"
-                            [class.seleccionada]="idsSeleccionados().includes(butaca.id)"
-                            [disabled]="idsOcupados().includes(butaca.id)"
-                            (click)="onClickButaca(butaca)"
-                        ></button>
-                    }
-                </div>
-            }
-        </div>
-        <p>Butacas seleccionadas: {{ idsSeleccionados().length }}</p>
+            <p class="subtitulo-funcion">
+                Sala {{ sala()?.nombre }} — {{ f.formato }} — {{ f.idioma }}
+            </p>
+            <p class="subtitulo-funcion">{{ horarioFormateado() }}</p>
 
-        <div class="candy-bar">
-            <h3>Candy Bar</h3>
-            @for (grupo of productosPorCategoria(); track grupo[0]) {
-                <h4>{{ grupo[0] }}</h4>
-                @for (producto of grupo[1]; track producto.id) {
-                    <div class="item-candy">
-                        <span>{{ producto.nombre }} (${{ producto.precio }})</span>
-                        <button type="button" (click)="restarProducto(producto.id)">-</button>
-                        <span>{{ cantidadesProductos()[producto.id] ?? 0 }}</span>
-                        <button type="button" (click)="sumarProducto(producto.id)">+</button>
-                    </div>
+            <p class="subtitulo-resumen">Entradas</p>
+            @for (texto of butacasTextos(); track texto) {
+                <p class="item-resumen">{{ texto }}</p>
+            }
+
+            @if (itemsComprados().length > 0) {
+                <p class="subtitulo-resumen">Candy bar</p>
+                @for (texto of itemsComprados(); track texto) {
+                    <p class="item-resumen">{{ texto }}</p>
                 }
             }
 
-            <h4>Combos</h4>
-            @for (combo of combos(); track combo.id) {
-                <div class="item-candy">
-                    <span>{{ combo.nombre }} — {{ combo.descripcion }} (${{ combo.precio }})</span>
-                    <button type="button" (click)="restarCombo(combo.id)">-</button>
-                    <span>{{ cantidadesCombos()[combo.id] ?? 0 }}</span>
-                    <button type="button" (click)="sumarCombo(combo.id)">+</button>
-                </div>
-            }
+            <div class="totales-resumen">
+                <p class="total-final">Total pagado: ${{ reserva.total }}</p>
+                <p class="codigo-reserva">Código de reserva: {{ reserva.qrCode }}</p>
+                <button (click)="descargarEntrada()" [disabled]="generandoPdf()">
+                    {{ generandoPdf() ? 'Generando PDF...' : 'Descargar entrada (PDF)' }}
+                </button>
+            </div>
+
+            <div class="acciones-confirmacion">
+                <a class="boton-nuevo" routerLink="/">Volver al inicio</a>
+                <a routerLink="/mis-reservas">Ver mis reservas</a>
+            </div>
+        </section>
+    } @else {
+        <section class="info-funcion">
+            <a class="volver" [routerLink]="['/peliculas', pelicula()?.id]">← Volver a la película</a>
+            <h2>{{ pelicula()?.titulo }}</h2>
+            <p class="subtitulo-funcion">
+                Sala {{ sala()?.nombre }} — {{ f.formato }} — {{ f.idioma }}
+            </p>
+            <p class="subtitulo-funcion">{{ horarioFormateado() }}</p>
+        </section>
+
+        <div class="pantalla"></div>
+
+        @if (!resumenAbierto()) {
+            <button class="abrir-resumen" (click)="alternarResumen()">
+                🎟️ Mi compra
+                <span class="badge-candy">${{ total() }}</span>
+            </button>
+        }
+
+        @if (!candyBarAbierto()) {
+            <button class="abrir-candy" (click)="alternarCandyBar()">
+                🍿 Candy bar
+                @if (cantidadCandyTotal() > 0) {
+                    <span class="badge-candy">{{ cantidadCandyTotal() }}</span>
+                }
+            </button>
+        }
+
+        <div class="sala-contenedor">
+            <div class="sala">
+                @for (fila of filas(); track fila[0].fila) {
+                    <div class="fila" [class.accesible]="fila[0].tipo === 'accesible'">
+                        @for (butaca of fila; track butaca.id) {
+                            <button
+                                type="button"
+                                class="butaca"
+                                [class.accesible]="butaca.tipo === 'accesible'"
+                                [class.vip]="butaca.tipo === 'vip'"
+                                [class.ocupada]="idsOcupados().includes(butaca.id)"
+                                [class.seleccionada]="idsSeleccionados().includes(butaca.id)"
+                                [disabled]="idsOcupados().includes(butaca.id)"
+                                [title]="'Fila ' + butaca.fila + ', Butaca ' + butaca.columna"
+                                (click)="onClickButaca(butaca)"
+                            ></button>
+                        }
+                    </div>
+                }
+            </div>
         </div>
 
-        <p>Subtotal: ${{ subtotal() }}</p>
-        @if (cupon(); as c) {
-            <p class="descuento">
-                {{ c.tipo === 'bienvenida' ? 'Cupón de bienvenida' : 'Descuento +50 años' }}
-                (-{{ c.porcentajeDescuento }}%): -${{ descuento() }}
-            </p>
+        <div class="leyenda">
+            <span class="leyenda-item">
+                <span class="leyenda-muestra normal"></span> Disponible
+            </span>
+            <span class="leyenda-item">
+                <span class="leyenda-muestra accesible"></span> Accesible
+            </span>
+            <span class="leyenda-item">
+                <span class="leyenda-muestra vip"></span> VIP
+            </span>
+            <span class="leyenda-item">
+                <span class="leyenda-muestra seleccionada"></span> Seleccionada
+            </span>
+            <span class="leyenda-item">
+                <span class="leyenda-muestra ocupada"></span> Ocupada
+            </span>
+        </div>
+
+        <p>Butacas seleccionadas: {{ butacasSeleccionadas().length }}</p>
+
+        @if (candyBarAbierto() || resumenAbierto()) {
+            <div class="overlay" (click)="cerrarPaneles()"></div>
         }
-        @if (creditoDisponible() > 0) {
-            <label class="credito-toggle">
-                <input type="checkbox" [checked]="usarCredito()" (change)="onToggleCredito($event)" />
-                Usar mi saldo disponible (${{ creditoDisponible() }})
-            </label>
-            @if (creditoAplicado() > 0) {
-                <p class="descuento">Crédito usado: -${{ creditoAplicado() }}</p>
+
+        <aside class="panel-candy" [class.abierto]="candyBarAbierto()">
+            <div class="panel-candy-header">
+                <h3>Candy bar</h3>
+                <button class="cerrar-candy" (click)="alternarCandyBar()">✕</button>
+            </div>
+
+            <div class="panel-candy-contenido">
+                @for (grupo of productosPorCategoria(); track grupo[0]) {
+                    <h4>{{ grupo[0] }}</h4>
+                    @for (producto of grupo[1]; track producto.id) {
+                        <div class="item-candy">
+                            <span>{{ producto.nombre }} — ${{ producto.precio }}</span>
+                            <button (click)="restarProducto(producto.id)">-</button>
+                            <span>{{ cantidadesProductos()[producto.id] ?? 0 }}</span>
+                            <button (click)="sumarProducto(producto.id)">+</button>
+                        </div>
+                    }
+                }
+
+                @if (combos().length > 0) {
+                    <h4>Combos</h4>
+                    @for (combo of combos(); track combo.id) {
+                        <div class="item-candy">
+                            <span>{{ combo.nombre }} — ${{ combo.precio }}</span>
+                            <button (click)="restarCombo(combo.id)">-</button>
+                            <span>{{ cantidadesCombos()[combo.id] ?? 0 }}</span>
+                            <button (click)="sumarCombo(combo.id)">+</button>
+                        </div>
+                    }
+                }
+            </div>
+        </aside>
+
+        <aside class="panel-resumen" [class.abierto]="resumenAbierto()">
+            <div class="panel-resumen-header">
+                <h3>Mi compra</h3>
+                <button class="cerrar-candy" (click)="alternarResumen()">✕</button>
+            </div>
+
+            <p class="subtitulo-resumen">Entradas</p>
+            @if (butacasSeleccionadas().length === 0) {
+                <p class="item-resumen vacio">Todavía no seleccionaste butacas.</p>
+            } @else {
+                @for (texto of butacasTextos(); track texto) {
+                    <p class="item-resumen">{{ texto }}</p>
+                }
             }
-        }
-        <p>Total: ${{ total() }}</p>
-        @if (errorMensaje()) { <p class="error">{{ errorMensaje() }}</p> }
-        <button type="button" [disabled]="idsSeleccionados().length === 0" (click)="confirmarCompra()">
-            Confirmar compra
-        </button>
+
+            @if (itemsComprados().length > 0) {
+                <p class="subtitulo-resumen">Candy bar</p>
+                @for (texto of itemsComprados(); track texto) {
+                    <p class="item-resumen">{{ texto }}</p>
+                }
+            }
+
+            <div class="totales-resumen">
+                <p>Subtotal: ${{ subtotal() }}</p>
+
+                @if (descuento() > 0) {
+                    <p>
+                        Descuento ({{ cupon()?.tipo === 'bienvenida' ? 'cupón de bienvenida' : 'cupón mayores de 50' }}):
+                        -${{ descuento() }}
+                    </p>
+                }
+
+                @if (creditoDisponible() > 0) {
+                    <label class="credito-toggle">
+                        <input
+                            type="checkbox"
+                            [checked]="usarCredito()"
+                            (change)="onToggleCredito($event)"
+                        />
+                        Usar mi saldo disponible (${{ creditoDisponible() }})
+                    </label>
+                }
+
+                @if (creditoAplicado() > 0) {
+                    <p>Crédito aplicado: -${{ creditoAplicado() }}</p>
+                }
+
+                <p class="total-final">Total: ${{ total() }}</p>
+
+                <button
+                    (click)="confirmarCompra()"
+                    [disabled]="butacasSeleccionadas().length === 0"
+                >
+                    Confirmar compra
+                </button>
+            </div>
+        </aside>
     }
-} @else {
-    @if (errorMensaje()) { <p class="error">{{ errorMensaje() }}</p> } @else { <p>Cargando...</p> }
 }

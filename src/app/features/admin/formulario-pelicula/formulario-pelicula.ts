@@ -1,13 +1,13 @@
 import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PeliculasService } from '../../../core/services/peliculas';
 import { GenerosService } from '../../../core/services/generos';
 import { Genero } from '../../../core/models/genero';
 import { ClasificacionPelicula } from '../../../core/models/pelicula';
 
 @Component({
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, RouterLink],
     selector: 'app-formulario-pelicula',
     styleUrl: './formulario-pelicula.css',
     templateUrl: './formulario-pelicula.html',

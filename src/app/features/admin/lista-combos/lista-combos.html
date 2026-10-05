@@ -1,33 +1,40 @@
-<h2>Combos</h2>
+<div class="pagina-admin">
+    <a class="volver" routerLink="/admin">← Volver al panel</a>
 
-<a routerLink="/admin/combos/nuevo">+ Nuevo combo</a>
+    <div class="cabecera-admin">
+        <h2>Combos</h2>
+        <a class="boton-nuevo" routerLink="/admin/combos/nuevo">+ Nuevo combo</a>
+    </div>
 
-@if (errorMensaje()) {
-    <p class="error">{{ errorMensaje() }}</p>
-}
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
 
-<table>
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Precio</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @for (combo of combos(); track combo.id) {
-            <tr>
-                <td>{{ combo.nombre }}</td>
-                <td>{{ combo.descripcion }}</td>
-                <td>${{ combo.precio }}</td>
-                <td>
-                    <a [routerLink]="['/admin/combos', combo.id, 'editar']">Editar</a>
-                    <button (click)="eliminarCombo(combo.id)">Eliminar</button>
-                </td>
-            </tr>
-        } @empty {
-            <tr><td colspan="4">No hay combos cargados.</td></tr>
-        }
-    </tbody>
-</table>
+    <div class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (combo of combos(); track combo.id) {
+                    <tr>
+                        <td>{{ combo.nombre }}</td>
+                        <td>{{ combo.descripcion }}</td>
+                        <td>${{ combo.precio }}</td>
+                        <td>
+                            <a [routerLink]="['/admin/combos', combo.id, 'editar']">Editar</a>
+                            <button (click)="eliminarCombo(combo.id)">Eliminar</button>
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr><td colspan="4">No hay combos cargados.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

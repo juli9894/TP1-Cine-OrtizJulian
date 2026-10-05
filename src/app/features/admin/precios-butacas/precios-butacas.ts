@@ -1,10 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { PreciosButacaService } from '../../../core/services/precios-butaca';
 import { RecargosFormatoService } from '../../../core/services/recargos-formatos';
 
 @Component({
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, RouterLink],
     selector: 'app-precios-butacas',
     styleUrl: './precios-butacas.css',
     templateUrl: './precios-butacas.html',

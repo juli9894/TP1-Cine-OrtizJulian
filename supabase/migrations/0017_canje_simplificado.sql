@@ -1,4 +1,4 @@
--- Simplificacion a pedido de Julian: el canje de puntos ya no es por un catalogo
+-- El canje de puntos ya no es por un catalogo
 -- de recompensas con costos distintos (entrada/candy) -- las dos opciones que
 -- habia entregaban exactamente lo mismo (credito interno) a la misma tasa
 -- 1 punto = $1, asi que tener un catalogo con varios items era redundante. Un

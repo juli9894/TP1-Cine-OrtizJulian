@@ -1,28 +1,35 @@
-<h2>Películas</h2>
+<div class="pagina-admin">
+    <a class="volver" routerLink="/admin">← Volver al panel</a>
 
-<a routerLink="/admin/peliculas/nueva">+ Nueva película</a>
+    <div class="cabecera-admin">
+        <h2>Películas</h2>
+        <a class="boton-nuevo" routerLink="/admin/peliculas/nueva">+ Nueva película</a>
+    </div>
 
-@if (errorMensaje()) {
-    <p class="error">{{ errorMensaje() }}</p>
-}
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
 
-<table>
-    <thead>
-        <tr><th>Título</th><th>Duración</th><th>Clasificación</th><th></th></tr>
-    </thead>
-    <tbody>
-        @for (pelicula of peliculas(); track pelicula.id) {
-            <tr>
-                <td>{{ pelicula.titulo }}</td>
-                <td>{{ pelicula.duracionMinutos }} min</td>
-                <td>{{ pelicula.clasificacion }}</td>
-                <td>
-                    <a [routerLink]="['/admin/peliculas', pelicula.id, 'editar']">Editar</a>
-                    <button (click)="eliminarPelicula(pelicula.id)">Eliminar</button>
-                </td>
-            </tr>
-        } @empty {
-            <tr><td colspan="4">No hay películas cargadas.</td></tr>
-        }
-    </tbody>
-</table>
+    <div class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr><th>Título</th><th>Duración</th><th>Clasificación</th><th></th></tr>
+            </thead>
+            <tbody>
+                @for (pelicula of peliculas(); track pelicula.id) {
+                    <tr>
+                        <td>{{ pelicula.titulo }}</td>
+                        <td>{{ pelicula.duracionMinutos }} min</td>
+                        <td>{{ pelicula.clasificacion }}</td>
+                        <td>
+                            <a [routerLink]="['/admin/peliculas', pelicula.id, 'editar']">Editar</a>
+                            <button (click)="eliminarPelicula(pelicula.id)">Eliminar</button>
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr><td colspan="4">No hay películas cargadas.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

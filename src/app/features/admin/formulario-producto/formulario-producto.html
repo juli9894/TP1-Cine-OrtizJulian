@@ -1,24 +1,29 @@
-<h2>{{ esEdicion() ? 'Editar producto' : 'Nuevo producto' }}</h2>
+<div class="tarjeta-formulario">
+    <h2>{{ esEdicion() ? 'Editar producto' : 'Nuevo producto' }}</h2>
 
-<form [formGroup]="formularioProducto" (ngSubmit)="guardar()">
-    <label>
-        Nombre
-        <input type="text" formControlName="nombre" />
-    </label>
+    <form [formGroup]="formularioProducto" (ngSubmit)="guardar()">
+        <label>
+            Nombre
+            <input type="text" formControlName="nombre" />
+        </label>
 
-    <label>
-        Categoría
-        <input type="text" formControlName="categoria" />
-    </label>
+        <label>
+            Categoría
+            <input type="text" formControlName="categoria" />
+        </label>
 
-    <label>
-        Precio
-        <input type="number" formControlName="precio" />
-    </label>
+        <label>
+            Precio
+            <input type="number" formControlName="precio" />
+        </label>
 
-    @if (errorMensaje()) {
-        <p class="error">{{ errorMensaje() }}</p>
-    }
+        @if (errorMensaje()) {
+            <p class="error">{{ errorMensaje() }}</p>
+        }
 
-    <button type="submit" [disabled]="formularioProducto.invalid">Guardar</button>
-</form>
+        <div class="acciones-formulario">
+            <button type="submit" [disabled]="formularioProducto.invalid">Guardar</button>
+            <a routerLink="/admin/productos">Cancelar</a>
+        </div>
+    </form>
+</div>

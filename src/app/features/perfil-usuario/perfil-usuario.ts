@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { PerfilesService } from '../../core/services/perfiles';
 import { ReservasService } from '../../core/services/reservas';
@@ -23,7 +24,7 @@ function calcularEdad(fechaNacimiento: string): number {
 
 @Component({
     selector: 'app-perfil-usuario',
-    imports: [CommonModule],
+    imports: [CommonModule, RouterLink],
     styleUrl: './perfil-usuario.css',
     templateUrl: './perfil-usuario.html',
 })
@@ -52,11 +53,12 @@ export class PerfilUsuario implements OnInit {
     yaComproAlgunaVez = computed(() => this.reservas().length > 0);
 
     misPeliculas = computed(() => {
-        const vistas = new Map<number, { titulo: string; imagenUrl: string }>();
+        const vistas = new Map<number, { peliculaId: number; titulo: string; imagenUrl: string }>();
         for (const reserva of this.reservas()) {
             if (reserva.cancelada || reserva.peliculaId === 0) continue;
             if (!vistas.has(reserva.peliculaId)) {
                 vistas.set(reserva.peliculaId, {
+                    peliculaId: reserva.peliculaId,
                     titulo: reserva.peliculaTitulo,
                     imagenUrl: reserva.peliculaImagenUrl,
                 });

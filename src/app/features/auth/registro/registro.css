@@ -1,0 +1,23 @@
+.registro {
+    max-width: 480px;
+    margin: var(--espacio-5) auto 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    padding: var(--espacio-4);
+}
+
+.registro h2 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.registro form {
+    max-width: none;
+}
+
+.link-alternativo {
+    text-align: center;
+    margin-top: var(--espacio-3);
+    color: var(--color-text-muted);
+}

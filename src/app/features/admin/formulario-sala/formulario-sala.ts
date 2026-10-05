@@ -1,10 +1,10 @@
 import { Component, inject, input, OnInit, signal, computed } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { SalasService } from '../../../core/services/salas';
 
 @Component({
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, RouterLink],
     selector: 'app-formulario-sala',
     styleUrl: './formulario-sala.css',
     templateUrl: './formulario-sala.html',

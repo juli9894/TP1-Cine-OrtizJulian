@@ -1,0 +1,31 @@
+.menu-admin {
+    display: flex;
+    gap: var(--espacio-5);
+    flex-wrap: wrap;
+}
+
+.menu-admin section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-2);
+    min-width: 200px;
+}
+
+.menu-admin h3 {
+    margin: 0 0 var(--espacio-1);
+    font-size: 1rem;
+    color: var(--color-text-muted);
+}
+
+.menu-admin a {
+    color: var(--color-text);
+    padding: var(--espacio-2) var(--espacio-3);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+}
+
+.menu-admin a:hover {
+    border-color: var(--color-accent);
+    text-decoration: none;
+}

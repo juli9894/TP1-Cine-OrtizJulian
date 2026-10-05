@@ -3,11 +3,13 @@
 
     <div class="tarjetas">
         @for (pelicula of top3(); track pelicula.id) {
-            <article>
-            <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
-            <h3>{{ pelicula.titulo }}</h3>
-            <p>{{ pelicula.duracionMinutos }} min</p>
-            </article>
+            <a [routerLink]="['/peliculas', pelicula.id]">
+                <article>
+                <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
+                <h3>{{ pelicula.titulo }}</h3>
+                <p>{{ pelicula.duracionMinutos }} min</p>
+                </article>
+            </a>
         } @empty {
             <p>Todavía no hay películas cargadas.</p>
         }
@@ -17,18 +19,20 @@
 <section>
     <h2>Buscar películas</h2>
 
-    <input
-        type="text"
-        placeholder="Buscar por título..."
-        (input)="onTextoChange($event)"
-    />
+    <div class="buscador">
+        <input
+            type="text"
+            placeholder="Buscar por título..."
+            (input)="onTextoChange($event)"
+        />
 
-    <select (change)="onGeneroChange($event)">
-        <option value="">Todos los géneros</option>
-        @for (genero of generos(); track genero.id) {
-            <option [value]="genero.id">{{ genero.nombre }}</option>
-        }
-    </select>
+        <select (change)="onGeneroChange($event)">
+            <option value="">Todos los géneros</option>
+            @for (genero of generos(); track genero.id) {
+                <option [value]="genero.id">{{ genero.nombre }}</option>
+            }
+        </select>
+    </div>
 
     <div class="resultados">
         @for (pelicula of resultados(); track pelicula.id) {

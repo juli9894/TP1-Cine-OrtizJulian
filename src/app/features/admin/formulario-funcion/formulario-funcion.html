@@ -1,56 +1,61 @@
-<h2>{{ esEdicion() ? 'Editar función' : 'Nueva función' }}</h2>
+<div class="tarjeta-formulario">
+    <h2>{{ esEdicion() ? 'Editar función' : 'Nueva función' }}</h2>
 
-@if (errorCarga()) {
-    <p class="error">{{ errorCarga() }}</p>
-} @else {
-    <form [formGroup]="formularioFuncion" (ngSubmit)="guardar()">
-        <label>
-            Película
-            <select formControlName="peliculaId">
-                <option value="">Seleccioná una película</option>
-                @for (pelicula of peliculas(); track pelicula.id) {
-                    <option [value]="pelicula.id">{{ pelicula.titulo }}</option>
-                }
-            </select>
-        </label>
+    @if (errorCarga()) {
+        <p class="error">{{ errorCarga() }}</p>
+    } @else {
+        <form [formGroup]="formularioFuncion" (ngSubmit)="guardar()">
+            <label>
+                Película
+                <select formControlName="peliculaId">
+                    <option value="">Seleccioná una película</option>
+                    @for (pelicula of peliculas(); track pelicula.id) {
+                        <option [value]="pelicula.id">{{ pelicula.titulo }}</option>
+                    }
+                </select>
+            </label>
 
-        <label>
-            Sala
-            <select formControlName="salaId">
-                <option value="">Seleccioná una sala</option>
-                @for (sala of salas(); track sala.id) {
-                    <option [value]="sala.id">{{ sala.nombre }}</option>
-                }
-            </select>
-        </label>
+            <label>
+                Sala
+                <select formControlName="salaId">
+                    <option value="">Seleccioná una sala</option>
+                    @for (sala of salas(); track sala.id) {
+                        <option [value]="sala.id">{{ sala.nombre }}</option>
+                    }
+                </select>
+            </label>
 
-        <label>
-            Horario
-            <input type="datetime-local" formControlName="horario" />
-        </label>
+            <label>
+                Horario
+                <input type="datetime-local" formControlName="horario" />
+            </label>
 
-        <label>
-            Formato
-            <select formControlName="formato">
-                <option value="2D">2D</option>
-                <option value="3D">3D</option>
-                <option value="4D">4D</option>
-                <option value="5D">5D</option>
-            </select>
-        </label>
+            <label>
+                Formato
+                <select formControlName="formato">
+                    <option value="2D">2D</option>
+                    <option value="3D">3D</option>
+                    <option value="4D">4D</option>
+                    <option value="5D">5D</option>
+                </select>
+            </label>
 
-        <label>
-            Idioma
-            <select formControlName="idioma">
-                <option value="castellano">Castellano</option>
-                <option value="subtitulada">Subtitulada</option>
-            </select>
-        </label>
+            <label>
+                Idioma
+                <select formControlName="idioma">
+                    <option value="castellano">Castellano</option>
+                    <option value="subtitulada">Subtitulada</option>
+                </select>
+            </label>
 
-        @if (errorFuncion()) {
-            <p class="error">{{ errorFuncion() }}</p>
-        }
+            @if (errorFuncion()) {
+                <p class="error">{{ errorFuncion() }}</p>
+            }
 
-        <button type="submit" [disabled]="formularioFuncion.invalid">{{ esEdicion() ? 'Guardar cambios' : 'Crear función' }}</button>
-    </form>
-}
+            <div class="acciones-formulario">
+                <button type="submit" [disabled]="formularioFuncion.invalid">{{ esEdicion() ? 'Guardar cambios' : 'Crear función' }}</button>
+                <a routerLink="/admin/funciones">Cancelar</a>
+            </div>
+        </form>
+    }
+</div>

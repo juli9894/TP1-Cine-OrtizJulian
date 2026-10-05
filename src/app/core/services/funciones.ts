@@ -19,6 +19,20 @@ export class FuncionesService {
         return mapearFuncion(data[0]);
     }
 
+    async obtenerPorPelicula(peliculaId: number): Promise<Funcion[]> {
+        const { data, error } = await this.supabase
+            .from('funciones')
+            .select('*')
+            .eq('pelicula_id', peliculaId)
+            .gte('horario', new Date().toISOString())
+            .order('horario')
+            .overrideTypes<FilaFuncion[], { merge: false }>();
+
+        if (error) throw error;
+
+        return data.map(mapearFuncion);
+    }
+
     async crear(datos: NuevaFuncion): Promise<void> {
         const { error } = await this.supabase
             .from('funciones')

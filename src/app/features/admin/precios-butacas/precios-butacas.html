@@ -1,54 +1,66 @@
-<h2>Precios de butacas</h2>
+<div class="pagina-admin">
+    <a class="volver" routerLink="/admin">← Volver al panel</a>
 
-<form [formGroup]="formularioPrecios" (ngSubmit)="guardarPrecios()">
-    <label>
-        Normal
-        <input type="number" formControlName="normal" />
-    </label>
+    <h2>Precios y recargos</h2>
 
-    <label>
-        Accesible
-        <input type="number" formControlName="accesible" />
-    </label>
+    <div class="grupo-formularios">
+        <div class="tarjeta-formulario">
+            <h3>Precios de butacas</h3>
 
-    <label>
-        VIP
-        <input type="number" formControlName="vip" />
-    </label>
+            <form [formGroup]="formularioPrecios" (ngSubmit)="guardarPrecios()">
+                <label>
+                    Normal
+                    <input type="number" formControlName="normal" />
+                </label>
 
-    <button type="submit" [disabled]="formularioPrecios.invalid">Guardar</button>
-</form>
+                <label>
+                    Accesible
+                    <input type="number" formControlName="accesible" />
+                </label>
 
-<h2>Recargo por formato</h2>
+                <label>
+                    VIP
+                    <input type="number" formControlName="vip" />
+                </label>
 
-<form [formGroup]="formularioRecargos" (ngSubmit)="guardarRecargos()">
-    <label>
-        2D
-        <input type="number" formControlName="2D" />
-    </label>
+                <button type="submit" [disabled]="formularioPrecios.invalid">Guardar</button>
+            </form>
+        </div>
 
-    <label>
-        3D
-        <input type="number" formControlName="3D" />
-    </label>
+        <div class="tarjeta-formulario">
+            <h3>Recargo por formato</h3>
 
-    <label>
-        4D
-        <input type="number" formControlName="4D" />
-    </label>
+            <form [formGroup]="formularioRecargos" (ngSubmit)="guardarRecargos()">
+                <label>
+                    2D
+                    <input type="number" formControlName="2D" />
+                </label>
 
-    <label>
-        5D
-        <input type="number" formControlName="5D" />
-    </label>
+                <label>
+                    3D
+                    <input type="number" formControlName="3D" />
+                </label>
 
-    <button type="submit" [disabled]="formularioRecargos.invalid">Guardar</button>
-</form>
+                <label>
+                    4D
+                    <input type="number" formControlName="4D" />
+                </label>
 
-@if (errorMensaje()) {
-    <p class="error">{{ errorMensaje() }}</p>
-}
+                <label>
+                    5D
+                    <input type="number" formControlName="5D" />
+                </label>
 
-@if (mensajeExito()) {
-    <p class="exito">{{ mensajeExito() }}</p>
-}
+                <button type="submit" [disabled]="formularioRecargos.invalid">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
+
+    @if (mensajeExito()) {
+        <p class="exito">{{ mensajeExito() }}</p>
+    }
+</div>

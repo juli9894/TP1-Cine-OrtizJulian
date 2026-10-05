@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PeliculasService } from '../../../core/services/peliculas';
 import { SalasService } from '../../../core/services/salas';
 import { FuncionesService } from '../../../core/services/funciones';
@@ -9,7 +9,7 @@ import { Sala } from '../../../core/models/sala';
 import { FormatoFuncion, IdiomaFuncion } from '../../../core/models/funcion';
 
 @Component({
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, RouterLink],
     selector: 'app-formulario-funcion',
     styleUrl: './formulario-funcion.css',
     templateUrl: './formulario-funcion.html',

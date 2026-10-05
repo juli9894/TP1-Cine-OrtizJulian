@@ -1,10 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ReservasService } from '../../core/services/reservas';
 import { AuthService } from '../../core/services/auth';
 import { ReservaDetalle } from '../../core/models/reserva';
 
 @Component({
+    imports: [DatePipe, RouterLink],
     selector: 'app-mis-reservas',
+    styleUrl: './mis-reservas.css',
     templateUrl: './mis-reservas.html',
 })
 export class MisReservas implements OnInit {

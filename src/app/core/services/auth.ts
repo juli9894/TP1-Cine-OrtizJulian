@@ -8,6 +8,7 @@ export class AuthService {
     private readonly supabase = inject(SupabaseClientService).client;
 
     readonly usuarioActual = signal<User | null>(null);
+    readonly bienvenidaPendiente = signal(false);
 
     constructor() {
         this.supabase.auth.getSession().then(({ data }) => {

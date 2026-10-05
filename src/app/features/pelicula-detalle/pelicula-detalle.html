@@ -1,17 +1,51 @@
 @if (pelicula(); as p) {
+    <a class="volver" routerLink="/">← Volver a la cartelera</a>
+
     <article>
         <img [src]="p.imagenUrl" [alt]="p.titulo" />
-        <h2>{{ p.titulo }}</h2>
-        <p>{{ p.duracionMinutos }} min</p>
-        <p>{{ p.sinopsis }}</p>
+        <div class="info-pelicula">
+            <h2>{{ p.titulo }}</h2>
+            <p class="duracion">{{ p.duracionMinutos }} min</p>
+            <p>{{ p.sinopsis }}</p>
+        </div>
     </article>
+
+    <section class="funciones-disponibles">
+        <h3>Funciones disponibles</h3>
+
+        @if (funciones().length === 0) {
+            <p>No hay funciones programadas por el momento.</p>
+        } @else {
+            <div class="selector-dias">
+                @for (dia of diasDisponibles(); track dia) {
+                    <button
+                        type="button"
+                        class="chip-dia"
+                        [class.activo]="dia === diaSeleccionado()"
+                        (click)="seleccionarDia(dia)"
+                    >
+                        {{ formatearDia(dia) }}
+                    </button>
+                }
+            </div>
+
+            <div class="selector-horarios">
+                @for (funcion of funcionesDelDia(); track funcion.id) {
+                    <a class="chip-horario" [routerLink]="['/funciones', funcion.id, 'butacas']">
+                        {{ formatearHora(funcion.horario) }} — {{ funcion.formato }} —
+                        {{ funcion.idioma === 'castellano' ? 'Cast.' : 'Sub.' }}
+                    </a>
+                }
+            </div>
+        }
+    </section>
 
     <section>
         <h3>Reseñas — promedio: {{ promedio().toFixed(1) }} / 5</h3>
 
         @for (resena of resenas(); track resena.id) {
         <article class="resena">
-            <p>{{ resena.calificacion }} / 5</p>
+            <p class="estrellas-resena">{{ '★'.repeat(resena.calificacion) }}{{ '☆'.repeat(5 - resena.calificacion) }}</p>
             <p>{{ resena.comentario }}</p>
         </article>
         } @empty {
@@ -20,12 +54,13 @@
 
         @if (authService.usuarioActual()) {
             <form [formGroup]="formularioResena" (ngSubmit)="enviarResena()">
-                <div class="estrellas">
+                <div class="estrellas" (mouseleave)="onSalirEstrellas()">
                     @for (estrella of [1, 2, 3, 4, 5]; track estrella) {
                     <button
                         type="button"
-                        [class.activa]="estrella <= formularioResena.controls.calificacion.value"
-                        (click)="formularioResena.patchValue({ calificacion: estrella })"
+                        [class.activa]="estrella <= estrellaMostrada()"
+                        (mouseenter)="onHoverEstrella(estrella)"
+                        (click)="elegirCalificacion(estrella)"
                     >
                         ★
                     </button>

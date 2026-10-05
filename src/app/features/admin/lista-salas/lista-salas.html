@@ -1,29 +1,36 @@
-<h2>Salas</h2>
+<div class="pagina-admin">
+    <a class="volver" routerLink="/admin">← Volver al panel</a>
 
-<a routerLink="/admin/salas/nueva">+ Nueva sala</a>
+    <div class="cabecera-admin">
+        <h2>Salas</h2>
+        <a class="boton-nuevo" routerLink="/admin/salas/nueva">+ Nueva sala</a>
+    </div>
 
-@if (errorMensaje()) {
-    <p class="error">{{ errorMensaje() }}</p>
-}
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
 
-<table>
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @for (sala of salas(); track sala.id) {
-            <tr>
-                <td>{{ sala.nombre }}</td>
-                <td>
-                    <a [routerLink]="['/admin/salas', sala.id, 'editar']">Editar</a>
-                    <button (click)="eliminarSala(sala.id)">Eliminar</button>
-                </td>
-            </tr>
-        } @empty {
-            <tr><td colspan="2">No hay salas cargadas.</td></tr>
-        }
-    </tbody>
-</table>
+    <div class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (sala of salas(); track sala.id) {
+                    <tr>
+                        <td>{{ sala.nombre }}</td>
+                        <td>
+                            <a [routerLink]="['/admin/salas', sala.id, 'editar']">Editar</a>
+                            <button (click)="eliminarSala(sala.id)">Eliminar</button>
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr><td colspan="2">No hay salas cargadas.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

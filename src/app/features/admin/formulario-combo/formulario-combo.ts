@@ -1,10 +1,10 @@
 import { Component, inject, input, OnInit, signal, computed } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CombosService } from '../../../core/services/combos';
 
 @Component({
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, RouterLink],
     selector: 'app-formulario-combo',
     styleUrl: './formulario-combo.css',
     templateUrl: './formulario-combo.html',

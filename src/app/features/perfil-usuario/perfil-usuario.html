@@ -42,11 +42,13 @@
             <p>Todavía no viste ninguna película con nosotros.</p>
         } @else {
             <div class="tarjetas">
-                @for (pelicula of misPeliculas(); track pelicula.titulo) {
-                    <article>
-                        <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
-                        <h4>{{ pelicula.titulo }}</h4>
-                    </article>
+                @for (pelicula of misPeliculas(); track pelicula.peliculaId) {
+                    <a [routerLink]="['/peliculas', pelicula.peliculaId]">
+                        <article>
+                            <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
+                            <h4>{{ pelicula.titulo }}</h4>
+                        </article>
+                    </a>
                 }
             </div>
         }
