@@ -84,7 +84,7 @@ export class ReservasService {
     }
 
     async crear(
-        funcion: Funcion,
+        funcion: Funcion | null,
         butacasSeleccionadas: Butaca[],
         usuarioId: string | null,
         total: number,
@@ -95,17 +95,21 @@ export class ReservasService {
     ): Promise<ReservaCreada> {
         const { data, error } = await this.supabase
             .from('reservas')
-            .insert({ usuario_id: usuarioId, funcion_id: funcion.id, total, cupon_id: cuponId })
+            .insert({ usuario_id: usuarioId, funcion_id: funcion?.id ?? null, total, cupon_id: cuponId })
             .select('id, qr_code')
             .single();
         if (error) throw error;
 
-        const filasButacas = butacasSeleccionadas.map((butaca) => ({
-            reserva_id: data.id,
-            butaca_id: butaca.id,
-        }));
-        const { error: errorButacas } = await this.supabase.from('reserva_butacas').insert(filasButacas);
-        if (errorButacas) throw errorButacas;
+        // Una compra de solo candy bar (sin función ni butacas) no inserta nada
+        // en reserva_butacas — mandar un insert vacío ahí rompe contra Supabase.
+        if (butacasSeleccionadas.length > 0) {
+            const filasButacas = butacasSeleccionadas.map((butaca) => ({
+                reserva_id: data.id,
+                butaca_id: butaca.id,
+            }));
+            const { error: errorButacas } = await this.supabase.from('reserva_butacas').insert(filasButacas);
+            if (errorButacas) throw errorButacas;
+        }
 
         if (productosSeleccionados.length > 0) {
             const filasProductos = productosSeleccionados.map((p) => ({
@@ -151,8 +155,10 @@ export class ReservasService {
             .from('reservas')
             .select(
                 `id, total, qr_code, cancelada,
-                funciones ( horario, formato, idioma, peliculas ( id, titulo, imagen_url ) ),
-                reserva_butacas ( butacas ( fila, columna ) )`,
+                funciones ( horario, formato, idioma, peliculas ( id, titulo, imagen_url ), salas ( nombre ) ),
+                reserva_butacas ( butacas ( fila, columna ) ),
+                reserva_productos ( cantidad, productos ( nombre ) ),
+                reserva_combos ( cantidad, combos ( nombre ) )`,
             )
             .eq('usuario_id', usuarioId)
             .order('created_at', { ascending: false })

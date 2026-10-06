@@ -2,9 +2,10 @@ import { Component, effect, inject, signal } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { AuthService } from './core/services/auth';
 import { PerfilesService } from './core/services/perfiles';
+import { CandyBar } from './features/candy-bar/candy-bar';
 
 @Component({
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet, RouterLink, CandyBar],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',

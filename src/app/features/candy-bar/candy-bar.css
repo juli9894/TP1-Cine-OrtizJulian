@@ -1,0 +1,163 @@
+.boton-flotante-candy {
+    /* Misma posición exacta que .abrir-candy en seleccion-butacas.css:
+       centrado verticalmente, pegado al borde derecho — así el botón no
+       "salta" de lugar al navegar entre pantallas. */
+    position: fixed;
+    top: 50%;
+    right: var(--espacio-4);
+    transform: translateY(-50%);
+    z-index: 12;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--espacio-2);
+    padding: var(--espacio-3) var(--espacio-4);
+    font-size: 1.05rem;
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.badge-candy {
+    background: var(--color-bg);
+    color: var(--color-accent);
+    border-radius: 999px;
+    padding: 2px var(--espacio-2);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.panel-candy {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: min(360px, 90vw);
+    background: var(--color-surface);
+    border-left: 1px solid var(--color-border);
+    padding: var(--espacio-4);
+    overflow-y: auto;
+    transition: transform 0.25s ease;
+    z-index: 11;
+    transform: translateX(100%);
+}
+
+.panel-candy.abierto {
+    transform: translateX(0);
+}
+
+.panel-candy-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--espacio-1);
+}
+
+.panel-candy-header h3 {
+    margin: 0;
+}
+
+.cerrar-candy {
+    background: transparent;
+    color: var(--color-text-muted);
+    padding: var(--espacio-1) var(--espacio-2);
+}
+
+.cerrar-candy:hover {
+    color: var(--color-text);
+    opacity: 1;
+}
+
+.subtitulo-funcion {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--espacio-3);
+}
+
+.panel-candy-contenido {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-1);
+}
+
+.panel-candy-contenido h4 {
+    margin: var(--espacio-3) 0 var(--espacio-1);
+}
+
+.panel-candy-contenido h4:first-child {
+    margin-top: 0;
+}
+
+.item-candy {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-2);
+}
+
+.credito-toggle {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--espacio-2);
+    width: 100%;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    padding: var(--espacio-2) var(--espacio-3);
+    color: var(--color-text);
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.credito-toggle input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+}
+
+.totales-resumen {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-2);
+    margin-top: var(--espacio-4);
+    padding-top: var(--espacio-3);
+    border-top: 1px solid var(--color-border);
+}
+
+.totales-resumen p {
+    margin: 0;
+}
+
+.totales-resumen .total-final {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.totales-resumen button {
+    width: 100%;
+}
+
+.confirmacion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-1);
+}
+
+.item-resumen {
+    margin: 0;
+    padding: var(--espacio-1) 0;
+}
+
+.codigo-reserva {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    word-break: break-all;
+    margin-top: var(--espacio-2);
+}

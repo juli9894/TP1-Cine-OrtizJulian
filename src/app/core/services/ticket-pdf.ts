@@ -2,12 +2,14 @@ import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 
 export interface DatosTicket {
-    pelicula: string;
-    sala: string;
-    horario: string;
-    formato: string;
-    idioma: string;
-    butacas: string[];
+    // La película/función queda opcional: un pedido solo de candy bar (sin
+    // butacas ni función elegida) no tiene ninguno de estos datos.
+    pelicula?: string;
+    sala?: string;
+    horario?: string;
+    formato?: string;
+    idioma?: string;
+    butacas?: string[];
     items: string[];
     total: number;
     qrCode: string;
@@ -32,36 +34,47 @@ export async function generarTicketPdf(datos: DatosTicket): Promise<void> {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(...GRIS_MEDIO);
-    doc.text('Entrada de cine', margenIzquierdo, 28);
+    doc.text(datos.pelicula ? 'Entrada de cine' : 'Pedido de candy bar', margenIzquierdo, 28);
 
     doc.setDrawColor(...GRIS_MEDIO);
     doc.line(margenIzquierdo, 33, margenDerecho, 33);
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(17);
-    doc.setTextColor(...GRIS_OSCURO);
-    doc.text(datos.pelicula, margenIzquierdo, 45);
+    let y = 45;
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(11);
-    doc.setTextColor(...GRIS_MEDIO);
-    doc.text(`Sala ${datos.sala} — ${datos.formato} — ${datos.idioma}`, margenIzquierdo, 52);
-    doc.text(datos.horario, margenIzquierdo, 58);
+    if (datos.pelicula) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(17);
+        doc.setTextColor(...GRIS_OSCURO);
+        doc.text(datos.pelicula, margenIzquierdo, y);
 
-    let y = 70;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor(...GRIS_MEDIO);
+        // .filter(Boolean) para no imprimir "Sala undefined" cuando no
+        // tenemos el nombre de la sala a mano (ej: mis-reservas no lo pide).
+        const detalleFuncion = [datos.sala ? `Sala ${datos.sala}` : null, datos.formato, datos.idioma]
+            .filter(Boolean)
+            .join(' — ');
+        doc.text(detalleFuncion, margenIzquierdo, y + 7);
+        doc.text(datos.horario ?? '', margenIzquierdo, y + 13);
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...DORADO);
-    doc.text('ENTRADAS', margenIzquierdo, y);
-    y += 7;
+        y += 25;
+    }
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(11);
-    doc.setTextColor(...GRIS_OSCURO);
-    for (const butaca of datos.butacas) {
-        doc.text(butaca, margenIzquierdo, y);
-        y += 6;
+    if (datos.butacas && datos.butacas.length > 0) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(...DORADO);
+        doc.text('ENTRADAS', margenIzquierdo, y);
+        y += 7;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor(...GRIS_OSCURO);
+        for (const butaca of datos.butacas) {
+            doc.text(butaca, margenIzquierdo, y);
+            y += 6;
+        }
     }
 
     if (datos.items.length > 0) {

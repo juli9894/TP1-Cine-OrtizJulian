@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReservasService } from '../../core/services/reservas';
 import { AuthService } from '../../core/services/auth';
+import { generarTicketPdf } from '../../core/services/ticket-pdf';
 import { ReservaDetalle } from '../../core/models/reserva';
 
 @Component({
@@ -19,6 +20,7 @@ export class MisReservas implements OnInit {
     cargando = signal(true);
     errorMensaje = signal('');
     cancelandoId = signal<number | null>(null);
+    generandoPdfId = signal<number | null>(null);
 
     async ngOnInit(): Promise<void> {
         const usuario = this.authService.usuarioActual();
@@ -61,6 +63,35 @@ export class MisReservas implements OnInit {
             this.errorMensaje.set('No pudimos cancelar la reserva. Probá de nuevo.');
         } finally {
             this.cancelandoId.set(null);
+        }
+    }
+
+    // Regenera el comprobante en PDF a partir de los datos YA guardados de la
+    // reserva — no hace falta volver a pasar por Supabase ni por el carrito,
+    // porque obtenerDeUsuario() ya trajo todo lo necesario (función, butacas,
+    // candy, total y el código QR original).
+    async descargar(reserva: ReservaDetalle): Promise<void> {
+        this.generandoPdfId.set(reserva.id);
+        try {
+            await generarTicketPdf({
+                ...(reserva.peliculaId > 0
+                    ? {
+                          pelicula: reserva.peliculaTitulo,
+                          sala: reserva.sala,
+                          horario: new Date(reserva.horario).toLocaleString('es-AR'),
+                          formato: reserva.formato,
+                          idioma: reserva.idioma,
+                          butacas: reserva.butacas,
+                      }
+                    : {}),
+                items: reserva.candyItems,
+                total: reserva.total,
+                qrCode: reserva.qrCode,
+            });
+        } catch (err) {
+            this.errorMensaje.set('No pudimos generar el PDF. Probá de nuevo.');
+        } finally {
+            this.generandoPdfId.set(null);
         }
     }
 }

@@ -2,9 +2,8 @@ import { Component, computed, inject, input, OnInit, signal, OnDestroy, NgZone }
 import { RouterLink } from '@angular/router';
 import { FuncionesService } from '../../../core/services/funciones';
 import { ButacasService } from '../../../core/services/butacas';
-import { ReservasService, ProductoSeleccionado, ComboSeleccionado } from '../../../core/services/reservas';
-import { ProductosService } from '../../../core/services/productos';
-import { CombosService } from '../../../core/services/combos';
+import { ReservasService } from '../../../core/services/reservas';
+import { CarritoCandyService } from '../../../core/services/carrito-candy';
 import { PeliculasService } from '../../../core/services/peliculas';
 import { PerfilesService } from '../../../core/services/perfiles';
 import { CuponesService } from '../../../core/services/cupones';
@@ -15,12 +14,10 @@ import { Funcion } from '../../../core/models/funcion';
 import { Butaca } from '../../../core/models/butaca';
 import { PrecioButaca } from '../../../core/models/precio-butaca';
 import { RecargoFormato } from '../../../core/models/recargo-formato';
-import { Producto } from '../../../core/models/producto';
-import { Combo } from '../../../core/models/combo';
-import { Pelicula } from '../../../core/models/pelicula';
 import { Perfil } from '../../../core/models/perfil';
 import { Cupon } from '../../../core/models/cupon';
 import { Sala } from '../../../core/models/sala';
+import { Pelicula } from '../../../core/models/pelicula';
 import { ReservaCreada } from '../../../core/models/reserva';
 import { Subscription } from 'rxjs';
 
@@ -45,8 +42,11 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     private readonly funcionesService = inject(FuncionesService);
     private readonly butacasService = inject(ButacasService);
     private readonly reservasService = inject(ReservasService);
-    private readonly productosService = inject(ProductosService);
-    private readonly combosService = inject(CombosService);
+    // Carrito de candy bar: es el MISMO service (y las mismas signals) que usa
+    // el widget flotante de app.html. Por eso lo que el usuario cargó en el
+    // candy bar desde el Home sigue estando acá — no son dos carritos, es
+    // uno solo compartido entre pantallas.
+    protected readonly carritoCandy = inject(CarritoCandyService);
     private readonly peliculasService = inject(PeliculasService);
     private readonly perfilesService = inject(PerfilesService);
     private readonly cuponesService = inject(CuponesService);
@@ -64,10 +64,6 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     idsSeleccionados = signal<number[]>([]);
     precios = signal<PrecioButaca[]>([]);
     recargos = signal<RecargoFormato[]>([]);
-    productos = signal<Producto[]>([]);
-    combos = signal<Combo[]>([]);
-    cantidadesProductos = signal<Record<number, number>>({});
-    cantidadesCombos = signal<Record<number, number>>({});
     perfil = signal<Perfil | null>(null);
     cupon = signal<Cupon | null>(null);
     usarCredito = signal(false);
@@ -77,6 +73,13 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     errorMensaje = signal('');
     generandoPdf = signal(false);
     private suscripcion?: Subscription;
+
+    // Foto de lo que había en el carrito de candy en el momento exacto de
+    // confirmar la compra. Hace falta porque, apenas se confirma, vaciamos
+    // el carrito compartido (carritoCandy.vaciar()) para que quede listo
+    // para la próxima compra — así que la pantalla de "¡Compra confirmada!"
+    // no puede seguir leyendo el carrito en vivo, tiene que leer esta copia.
+    itemsUltimaCompra = signal<string[]>([]);
 
     edadMinima = computed(() => {
         const pelicula = this.pelicula();
@@ -102,35 +105,6 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         this.butacas().filter((butaca) => this.idsSeleccionados().includes(butaca.id)),
     );
 
-    productosPorCategoria = computed(() => {
-        const grupos = new Map<string, Producto[]>();
-        for (const producto of this.productos()) {
-            const lista = grupos.get(producto.categoria) ?? [];
-            lista.push(producto);
-            grupos.set(producto.categoria, lista);
-        }
-        return Array.from(grupos.entries());
-    });
-
-    productosSeleccionados = computed((): ProductoSeleccionado[] =>
-        Object.entries(this.cantidadesProductos())
-            .map(([id, cantidad]) => ({ productoId: Number(id), cantidad }))
-            .filter((p) => p.cantidad > 0),
-    );
-
-    combosSeleccionados = computed((): ComboSeleccionado[] =>
-        Object.entries(this.cantidadesCombos())
-            .map(([id, cantidad]) => ({ comboId: Number(id), cantidad }))
-            .filter((c) => c.cantidad > 0),
-    );
-
-    // Para el contador del botón "Candy bar" — suma todas las cantidades
-    // elegidas (productos + combos), sin filtrar ceros (da lo mismo para contar).
-    cantidadCandyTotal = computed(() =>
-        Object.values(this.cantidadesProductos()).reduce((suma, c) => suma + c, 0) +
-        Object.values(this.cantidadesCombos()).reduce((suma, c) => suma + c, 0),
-    );
-
     subtotal = computed(() => {
         const funcion = this.funcion();
         if (!funcion) return 0;
@@ -140,13 +114,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
             this.precios(),
             this.recargos(),
         );
-        const totalCandy = this.reservasService.calcularTotalCandy(
-            this.productosSeleccionados(),
-            this.combosSeleccionados(),
-            this.productos(),
-            this.combos(),
-        );
-        return totalButacas + totalCandy;
+        return totalButacas + this.carritoCandy.subtotal();
     });
 
     descuento = computed(() => this.reservasService.calcularDescuento(this.subtotal(), this.cupon()));
@@ -178,18 +146,6 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         this.butacasSeleccionadas().map((b) => `Fila ${b.fila}, Butaca ${b.columna}`),
     );
 
-    itemsComprados = computed(() => {
-        const nombresProductos = this.productosSeleccionados().map((p) => {
-            const producto = this.productos().find((x) => x.id === p.productoId);
-            return `${p.cantidad}x ${producto?.nombre ?? ''}`;
-        });
-        const nombresCombos = this.combosSeleccionados().map((c) => {
-            const combo = this.combos().find((x) => x.id === c.comboId);
-            return `${c.cantidad}x ${combo?.nombre ?? ''}`;
-        });
-        return [...nombresProductos, ...nombresCombos];
-    });
-
     async ngOnInit(): Promise<void> {
         const funcionId = Number(this.id());
         try {
@@ -210,12 +166,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
             this.precios.set(precios);
             this.recargos.set(recargos);
 
-            const [productos, combos] = await Promise.all([
-                this.productosService.obtenerActivos(),
-                this.combosService.obtenerActivos(),
-            ]);
-            this.productos.set(productos);
-            this.combos.set(combos);
+            await this.carritoCandy.cargarCatalogoSiHaceFalta();
 
             const usuario = this.authService.usuarioActual();
             if (usuario) {
@@ -223,10 +174,13 @@ export class SeleccionButacas implements OnInit, OnDestroy {
                 this.perfil.set(perfil);
 
                 const cantidadReservas = await this.reservasService.contarReservasDe(usuario.id);
-                if (cantidadReservas === 0) {
-                    this.cupon.set(await this.cuponesService.obtenerPorTipo('bienvenida'));
-                } else if (calcularEdad(perfil.fecha_nacimiento) >= 50) {
+                // El cupón de +50 tiene prioridad: aplica siempre que la edad alcance,
+                // sin importar si es la primera compra (antes, "primera compra" le
+                // ganaba a "mayor de 50" y nunca se llegaba a aplicar en ese caso).
+                if (calcularEdad(perfil.fecha_nacimiento) >= 50) {
                     this.cupon.set(await this.cuponesService.obtenerPorTipo('mayor50'));
+                } else if (cantidadReservas === 0) {
+                    this.cupon.set(await this.cuponesService.obtenerPorTipo('bienvenida'));
                 }
             }
 
@@ -245,22 +199,6 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         this.idsSeleccionados.update((ids) =>
             ids.includes(butaca.id) ? ids.filter((id) => id !== butaca.id) : [...ids, butaca.id],
         );
-    }
-
-    sumarProducto(id: number): void {
-        this.cantidadesProductos.update((actual) => ({ ...actual, [id]: (actual[id] ?? 0) + 1 }));
-    }
-
-    restarProducto(id: number): void {
-        this.cantidadesProductos.update((actual) => ({ ...actual, [id]: Math.max(0, (actual[id] ?? 0) - 1) }));
-    }
-
-    sumarCombo(id: number): void {
-        this.cantidadesCombos.update((actual) => ({ ...actual, [id]: (actual[id] ?? 0) + 1 }));
-    }
-
-    restarCombo(id: number): void {
-        this.cantidadesCombos.update((actual) => ({ ...actual, [id]: Math.max(0, (actual[id] ?? 0) - 1) }));
     }
 
     alternarCandyBar(): void {
@@ -285,14 +223,22 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     async confirmarCompra(): Promise<void> {
         const funcion = this.funcion();
         const pelicula = this.pelicula();
-        if (!funcion || !pelicula || this.idsSeleccionados().length === 0) return;
+        const hayButacas = this.idsSeleccionados().length > 0;
+        const hayCandy = this.carritoCandy.hayAlgoSeleccionado();
+
+        // Esta pantalla ya no exige comprar entradas: también sirve para
+        // despachar lo que haya en el carrito de candy (cargado acá mismo o
+        // desde cualquier otra pantalla), sin elegir butacas.
+        if (!funcion || !pelicula || (!hayButacas && !hayCandy)) return;
         this.errorMensaje.set('');
 
         const edadMinima = this.edadMinima();
         const usuario = this.authService.usuarioActual();
         const perfil = this.perfil();
 
-        if (edadMinima > 0 && perfil) {
+        // La restricción de edad es por la película: solo aplica si
+        // realmente se están comprando entradas para esa función.
+        if (hayButacas && edadMinima > 0 && perfil) {
             const edad = calcularEdad(perfil.fecha_nacimiento);
 
             if (edad < edadMinima) {
@@ -305,16 +251,26 @@ export class SeleccionButacas implements OnInit, OnDestroy {
 
         try {
             const usuarioId = usuario?.id ?? null;
+            // Guardamos una foto de los items de candy ANTES de vaciar el
+            // carrito, para poder mostrarla después en la confirmación.
+            const itemsCandy = this.carritoCandy.itemsSeleccionados();
+
+            // Si no se compró ninguna butaca, la reserva no queda atada a
+            // esta función (funcion_id null) — es el mismo caso que comprar
+            // candy bar independiente desde el widget flotante, solo que
+            // acá el usuario lo hizo desde la pantalla de una función.
             const reserva = await this.reservasService.crear(
-                funcion,
+                hayButacas ? funcion : null,
                 this.butacasSeleccionadas(),
                 usuarioId,
                 this.total(),
-                this.productosSeleccionados(),
-                this.combosSeleccionados(),
+                this.carritoCandy.productosSeleccionados(),
+                this.carritoCandy.combosSeleccionados(),
                 this.cupon()?.id ?? null,
                 this.creditoAplicado(),
             );
+            this.itemsUltimaCompra.set(itemsCandy);
+            this.carritoCandy.vaciar();
             this.reservaConfirmada.set(reserva);
         } catch (err) {
             this.errorMensaje.set('No pudimos confirmar la compra. Probá de nuevo.');
@@ -327,16 +283,22 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         const reserva = this.reservaConfirmada();
         if (!funcion || !pelicula || !reserva) return;
 
+        const huboButacas = this.butacasTextos().length > 0;
+
         this.generandoPdf.set(true);
         try {
             await generarTicketPdf({
-                pelicula: pelicula.titulo,
-                sala: this.sala()?.nombre ?? '',
-                horario: this.horarioFormateado(),
-                formato: funcion.formato,
-                idioma: funcion.idioma,
-                butacas: this.butacasTextos(),
-                items: this.itemsComprados(),
+                ...(huboButacas
+                    ? {
+                          pelicula: pelicula.titulo,
+                          sala: this.sala()?.nombre ?? '',
+                          horario: this.horarioFormateado(),
+                          formato: funcion.formato,
+                          idioma: funcion.idioma,
+                          butacas: this.butacasTextos(),
+                      }
+                    : {}),
+                items: this.itemsUltimaCompra(),
                 total: reserva.total,
                 qrCode: reserva.qrCode,
             });

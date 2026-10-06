@@ -1,0 +1,101 @@
+@if (visible()) {
+    @if (!abierto()) {
+        <button class="boton-flotante-candy" (click)="alternarPanel()">
+            🍿 Candy bar
+            @if (carritoCandy.cantidadTotal() > 0) {
+                <span class="badge-candy">{{ carritoCandy.cantidadTotal() }}</span>
+            }
+        </button>
+    }
+
+    @if (abierto()) {
+        <div class="overlay" (click)="cerrarPanel()"></div>
+    }
+
+    <aside class="panel-candy" [class.abierto]="abierto()">
+        <div class="panel-candy-header">
+            <h3>🍿 Candy bar</h3>
+            <button class="cerrar-candy" (click)="cerrarPanel()">✕</button>
+        </div>
+
+        <p class="subtitulo-funcion">Pochoclos, bebidas y combos — sin elegir película ni función.</p>
+
+        @if (errorMensaje()) {
+            <p class="error">{{ errorMensaje() }}</p>
+        }
+
+        @if (reservaConfirmada(); as reserva) {
+            <div class="confirmacion">
+                <h4>¡Compra confirmada!</h4>
+
+                @for (texto of itemsUltimaCompra(); track texto) {
+                    <p class="item-resumen">{{ texto }}</p>
+                }
+
+                <div class="totales-resumen">
+                    <p class="total-final">Total pagado: ${{ reserva.total }}</p>
+                    <p class="codigo-reserva">Código: {{ reserva.qrCode }}</p>
+                    <button (click)="descargarComprobante()" [disabled]="generandoPdf()">
+                        {{ generandoPdf() ? 'Generando PDF...' : 'Descargar comprobante (PDF)' }}
+                    </button>
+                    <button (click)="empezarOtraCompra()">Comprar más</button>
+                    <a routerLink="/mis-reservas" (click)="cerrarPanel()">Ver mis reservas</a>
+                </div>
+            </div>
+        } @else {
+            <div class="panel-candy-contenido">
+                @for (grupo of carritoCandy.productosPorCategoria(); track grupo[0]) {
+                    <h4>{{ grupo[0] }}</h4>
+                    @for (producto of grupo[1]; track producto.id) {
+                        <div class="item-candy">
+                            <span>{{ producto.nombre }} — ${{ producto.precio }}</span>
+                            <button (click)="carritoCandy.restarProducto(producto.id)">-</button>
+                            <span>{{ carritoCandy.cantidadesProductos()[producto.id] ?? 0 }}</span>
+                            <button (click)="carritoCandy.sumarProducto(producto.id)">+</button>
+                        </div>
+                    }
+                }
+
+                @if (carritoCandy.combos().length > 0) {
+                    <h4>Combos</h4>
+                    @for (combo of carritoCandy.combos(); track combo.id) {
+                        <div class="item-candy">
+                            <span>{{ combo.nombre }} — ${{ combo.precio }}</span>
+                            <button (click)="carritoCandy.restarCombo(combo.id)">-</button>
+                            <span>{{ carritoCandy.cantidadesCombos()[combo.id] ?? 0 }}</span>
+                            <button (click)="carritoCandy.sumarCombo(combo.id)">+</button>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="totales-resumen">
+                <p>Subtotal: ${{ carritoCandy.subtotal() }}</p>
+
+                @if (descuento() > 0) {
+                    <p>
+                        Descuento ({{ cupon()?.tipo === 'bienvenida' ? 'cupón de bienvenida' : 'cupón mayores de 50' }}):
+                        -${{ descuento() }}
+                    </p>
+                }
+
+                @if (creditoDisponible() > 0) {
+                    <label class="credito-toggle">
+                        <input type="checkbox" [checked]="usarCredito()" (change)="onToggleCredito($event)" />
+                        Usar mi saldo disponible (${{ creditoDisponible() }})
+                    </label>
+                }
+
+                @if (creditoAplicado() > 0) {
+                    <p>Crédito aplicado: -${{ creditoAplicado() }}</p>
+                }
+
+                <p class="total-final">Total: ${{ total() }}</p>
+
+                <button (click)="confirmarCompra()" [disabled]="!carritoCandy.hayAlgoSeleccionado()">
+                    Confirmar compra
+                </button>
+            </div>
+        }
+    </aside>
+}

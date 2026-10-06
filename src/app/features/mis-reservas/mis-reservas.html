@@ -13,30 +13,57 @@
 
     @for (reserva of reservas(); track reserva.id) {
         <div class="reserva" [class.cancelada]="reserva.cancelada">
-            <img [src]="reserva.peliculaImagenUrl" [alt]="reserva.peliculaTitulo" />
+            @if (reserva.peliculaId) {
+                <img [src]="reserva.peliculaImagenUrl" [alt]="reserva.peliculaTitulo" />
 
-            <div class="info-reserva">
-                <h3><a [routerLink]="['/peliculas', reserva.peliculaId]">{{ reserva.peliculaTitulo }}</a></h3>
-                <p class="datos-funcion">
-                    {{ reserva.formato }} — {{ reserva.idioma }} — {{ reserva.horario | date: 'dd/MM/yyyy HH:mm' }}
-                </p>
-                <p class="butacas-reserva">Butacas: {{ reserva.butacas.join(', ') }}</p>
-                <p class="total-reserva">Total: ${{ reserva.total }}</p>
-            </div>
+                <div class="info-reserva">
+                    <h3><a [routerLink]="['/peliculas', reserva.peliculaId]">{{ reserva.peliculaTitulo }}</a></h3>
+                    <p class="datos-funcion">
+                        {{ reserva.formato }} — {{ reserva.idioma }} — {{ reserva.horario | date: 'dd/MM/yyyy HH:mm' }}
+                    </p>
+                    <p class="butacas-reserva">Butacas: {{ reserva.butacas.join(', ') }}</p>
+                    @if (reserva.candyItems.length > 0) {
+                        <p class="candy-reserva">Candy bar: {{ reserva.candyItems.join(', ') }}</p>
+                    }
+                    <p class="total-reserva">Total: ${{ reserva.total }}</p>
+                    <p class="codigo-reserva">Código: {{ reserva.qrCode }}</p>
+                </div>
+            } @else {
+                <!-- Compra de solo candy bar: no tiene función asociada (funcion_id
+                     null, ver migración 0018), así que no hay película/butacas que mostrar. -->
+                <div class="info-reserva">
+                    <h3>🍿 Candy bar</h3>
+                    <p class="candy-reserva">{{ reserva.candyItems.join(', ') }}</p>
+                    <p class="total-reserva">Total: ${{ reserva.total }}</p>
+                    <p class="codigo-reserva">Código: {{ reserva.qrCode }}</p>
+                </div>
+            }
 
             <div class="acciones-reserva">
-                @if (reserva.cancelada) {
-                    <p class="estado">Cancelada</p>
-                } @else {
+                @if (!reserva.cancelada) {
                     <button
                         type="button"
-                        [disabled]="cancelandoId() === reserva.id || !puedeCancelar(reserva)"
-                        (click)="cancelar(reserva)"
+                        [disabled]="generandoPdfId() === reserva.id"
+                        (click)="descargar(reserva)"
                     >
-                        {{ cancelandoId() === reserva.id ? 'Cancelando...' : 'Cancelar reserva' }}
+                        {{ generandoPdfId() === reserva.id ? 'Generando PDF...' : 'Descargar comprobante (PDF)' }}
                     </button>
-                    @if (!puedeCancelar(reserva)) {
-                        <span class="nota">Ya no se puede cancelar (faltan menos de 2hs para la función)</span>
+                }
+
+                @if (reserva.peliculaId) {
+                    @if (reserva.cancelada) {
+                        <p class="estado">Cancelada</p>
+                    } @else {
+                        <button
+                            type="button"
+                            [disabled]="cancelandoId() === reserva.id || !puedeCancelar(reserva)"
+                            (click)="cancelar(reserva)"
+                        >
+                            {{ cancelandoId() === reserva.id ? 'Cancelando...' : 'Cancelar reserva' }}
+                        </button>
+                        @if (!puedeCancelar(reserva)) {
+                            <span class="nota">Ya no se puede cancelar (faltan menos de 2hs para la función)</span>
+                        }
                     }
                 }
             </div>

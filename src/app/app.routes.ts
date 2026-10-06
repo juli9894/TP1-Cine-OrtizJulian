@@ -1,49 +1,127 @@
 import { Routes } from '@angular/router';
-import { Registro } from './features/auth/registro/registro';
-import { Login } from './features/auth/login/login';
-import { Home } from './features/home/home';
-import { PeliculaDetalle } from './features/pelicula-detalle/pelicula-detalle';
 import { soloInvitadoGuard } from './core/guards/solo-invitado-guard';
-import { SeleccionButacas } from './features/butacas/seleccion-butacas/seleccion-butacas';
-import { FormularioFuncion } from './features/admin/formulario-funcion/formulario-funcion';
 import { adminGuard } from './core/guards/admin-guard';
-import { FormularioSala } from './features/admin/formulario-sala/formulario-sala';
-import { ListaSalas } from './features/admin/lista-salas/lista-salas';
-import { ListaFunciones } from './features/admin/lista-funciones/lista-funciones';
-import { FormularioPelicula } from './features/admin/formulario-pelicula/formulario-pelicula';
-import { ListaPeliculas } from './features/admin/lista-peliculas/lista-peliculas';
-import { PreciosButacas } from './features/admin/precios-butacas/precios-butacas';
-import { ListaProductos } from './features/admin/lista-productos/lista-productos';
-import { FormularioProducto } from './features/admin/formulario-producto/formulario-producto';
-import { ListaCombos } from './features/admin/lista-combos/lista-combos';
-import { FormularioCombo } from './features/admin/formulario-combo/formulario-combo';
-import { MisReservas } from './features/mis-reservas/mis-reservas';
-import { PerfilUsuario } from './features/perfil-usuario/perfil-usuario';
-import { AdminMenu } from './features/admin/admin-menu/admin-menu';
 
 export const routes: Routes = [
-    { path: 'registro', component: Registro, canActivate: [soloInvitadoGuard] },
-    { path: 'login', component: Login, canActivate: [soloInvitadoGuard] },
-    { path: 'peliculas/:id', component: PeliculaDetalle },
-    { path: 'funciones/:id/butacas', component: SeleccionButacas },
-    { path: 'admin', component: AdminMenu, canMatch: [adminGuard] },
-    { path: 'admin/precios-butacas', component: PreciosButacas, canMatch: [adminGuard] },
-    { path: 'admin/funciones/nueva', component: FormularioFuncion, canMatch: [adminGuard] },
-    { path: 'admin/funciones/:id/editar', component: FormularioFuncion, canMatch: [adminGuard] },
-    { path: 'admin/funciones', component: ListaFunciones, canMatch: [adminGuard] },
-    { path: 'admin/salas/nueva', component: FormularioSala, canMatch: [adminGuard] },
-    { path: 'admin/salas/:id/editar', component: FormularioSala, canMatch: [adminGuard] },
-    { path: 'admin/salas', component: ListaSalas, canMatch: [adminGuard] },
-    { path: 'admin/peliculas/nueva', component: FormularioPelicula, canMatch: [adminGuard] },
-    { path: 'admin/peliculas/:id/editar', component: FormularioPelicula, canMatch: [adminGuard] },
-    { path: 'admin/peliculas', component: ListaPeliculas, canMatch: [adminGuard] },
-    { path: 'admin/productos/nuevo', component: FormularioProducto, canMatch: [adminGuard] },
-    { path: 'admin/productos/:id/editar', component: FormularioProducto, canMatch: [adminGuard] },
-    { path: 'admin/productos', component: ListaProductos, canMatch: [adminGuard] },
-    { path: 'admin/combos/nuevo', component: FormularioCombo, canMatch: [adminGuard] },
-    { path: 'admin/combos/:id/editar', component: FormularioCombo, canMatch: [adminGuard] },
-    { path: 'admin/combos', component: ListaCombos, canMatch: [adminGuard] },
-    { path: 'perfil', component: PerfilUsuario },
-    { path: 'mis-reservas', component: MisReservas },
-    { path: '', component: Home, pathMatch: 'full' },
+    {
+        path: 'registro',
+        loadComponent: () => import('./features/auth/registro/registro').then((m) => m.Registro),
+        canActivate: [soloInvitadoGuard],
+    },
+    {
+        path: 'login',
+        loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
+        canActivate: [soloInvitadoGuard],
+    },
+    {
+        path: 'peliculas/:id',
+        loadComponent: () => import('./features/pelicula-detalle/pelicula-detalle').then((m) => m.PeliculaDetalle),
+    },
+    {
+        path: 'funciones/:id/butacas',
+        loadComponent: () =>
+            import('./features/butacas/seleccion-butacas/seleccion-butacas').then((m) => m.SeleccionButacas),
+    },
+    {
+        path: 'admin',
+        loadComponent: () => import('./features/admin/admin-menu/admin-menu').then((m) => m.AdminMenu),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/precios-butacas',
+        loadComponent: () => import('./features/admin/precios-butacas/precios-butacas').then((m) => m.PreciosButacas),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/funciones/nueva',
+        loadComponent: () =>
+            import('./features/admin/formulario-funcion/formulario-funcion').then((m) => m.FormularioFuncion),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/funciones/:id/editar',
+        loadComponent: () =>
+            import('./features/admin/formulario-funcion/formulario-funcion').then((m) => m.FormularioFuncion),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/funciones',
+        loadComponent: () => import('./features/admin/lista-funciones/lista-funciones').then((m) => m.ListaFunciones),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/salas/nueva',
+        loadComponent: () => import('./features/admin/formulario-sala/formulario-sala').then((m) => m.FormularioSala),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/salas/:id/editar',
+        loadComponent: () => import('./features/admin/formulario-sala/formulario-sala').then((m) => m.FormularioSala),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/salas',
+        loadComponent: () => import('./features/admin/lista-salas/lista-salas').then((m) => m.ListaSalas),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/peliculas/nueva',
+        loadComponent: () =>
+            import('./features/admin/formulario-pelicula/formulario-pelicula').then((m) => m.FormularioPelicula),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/peliculas/:id/editar',
+        loadComponent: () =>
+            import('./features/admin/formulario-pelicula/formulario-pelicula').then((m) => m.FormularioPelicula),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/peliculas',
+        loadComponent: () => import('./features/admin/lista-peliculas/lista-peliculas').then((m) => m.ListaPeliculas),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/productos/nuevo',
+        loadComponent: () =>
+            import('./features/admin/formulario-producto/formulario-producto').then((m) => m.FormularioProducto),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/productos/:id/editar',
+        loadComponent: () =>
+            import('./features/admin/formulario-producto/formulario-producto').then((m) => m.FormularioProducto),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/productos',
+        loadComponent: () => import('./features/admin/lista-productos/lista-productos').then((m) => m.ListaProductos),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/combos/nuevo',
+        loadComponent: () => import('./features/admin/formulario-combo/formulario-combo').then((m) => m.FormularioCombo),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/combos/:id/editar',
+        loadComponent: () => import('./features/admin/formulario-combo/formulario-combo').then((m) => m.FormularioCombo),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/combos',
+        loadComponent: () => import('./features/admin/lista-combos/lista-combos').then((m) => m.ListaCombos),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'perfil',
+        loadComponent: () => import('./features/perfil-usuario/perfil-usuario').then((m) => m.PerfilUsuario),
+    },
+    {
+        path: 'mis-reservas',
+        loadComponent: () => import('./features/mis-reservas/mis-reservas').then((m) => m.MisReservas),
+    },
+    {   path: '', 
+        loadComponent: () => import('./features/home/home').then((m) => m.Home), pathMatch: 'full' },
+    {   path: '**', redirectTo: '' },
 ];
