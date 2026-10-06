@@ -5,7 +5,16 @@
         <img [src]="p.imagenUrl" [alt]="p.titulo" />
         <div class="info-pelicula">
             <h2>{{ p.titulo }}</h2>
-            <p class="duracion">{{ p.duracionMinutos }} min</p>
+            <p class="duracion">
+                {{ p.duracionMinutos }} min —
+                <span class="badge-clasificacion" [attr.data-clasificacion]="p.clasificacion">{{ p.clasificacion }}</span>
+            </p>
+            @if (p.clasificacion !== 'ATP') {
+                <p class="aviso-clasificacion">
+                    Apta para mayores de {{ p.clasificacion === '+18' ? '18' : '13' }} años. Menores de esa edad no
+                    pueden comprar entradas para esta función; en la entrada se aclara si requiere acompañamiento adulto.
+                </p>
+            }
             <p>{{ p.sinopsis }}</p>
         </div>
     </article>

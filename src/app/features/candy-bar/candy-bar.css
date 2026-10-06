@@ -139,6 +139,12 @@
     font-weight: 700;
 }
 
+.nota-total {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--color-text-muted);
+}
+
 .totales-resumen button {
     width: 100%;
 }

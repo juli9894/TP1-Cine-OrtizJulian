@@ -4,8 +4,8 @@ h2 {
 
 .reserva {
     display: flex;
-    gap: var(--espacio-3);
-    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--espacio-2);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radio);
@@ -13,16 +13,44 @@ h2 {
     margin-bottom: var(--espacio-3);
 }
 
+/* Fila horizontal de siempre (imagen + info + acciones). Separada de
+   .reserva para que una lista larga de butacas (muchas entradas juntas)
+   no empuje los botones a su propia línea -- info-reserva se puede achicar
+   libremente (min-width: 0) sin que .acciones-reserva se mueva de lugar. */
+.reserva-fila {
+    display: flex;
+    gap: var(--espacio-3);
+    align-items: flex-start;
+}
+
 .reserva.cancelada {
     opacity: 0.55;
 }
 
-.reserva img {
+/* Antes era ".reserva img" (le pegaba a CUALQUIER <img> dentro de .reserva).
+   El QR de "ver detalle" tambien es un <img> ahi adentro, asi que esta regla
+   (pensada solo para el poster de la pelicula: 80px, recorte 2:3, cover) se
+   lo aplicaba tambien a el -- object-fit: cover lo recortaba y el ancho
+   quedaba en 80px en vez de los 140px de .qr-detalle, por mayor especificidad
+   (".reserva img" = clase + tag, le gana a ".qr-detalle" = una sola clase).
+   Eso era lo que se veia "cortado", no un problema de generacion del QR.
+   Ahora el poster tiene su propia clase y no choca con nada mas. */
+.poster-reserva {
     width: 80px;
     aspect-ratio: 2 / 3;
     object-fit: cover;
     border-radius: var(--radio);
     flex-shrink: 0;
+}
+
+/* Reserva de solo candy: no hay poster real, pero mantenemos el mismo
+   tamaño/forma que el de una pelicula para que la tarjeta quede pareja. */
+.candy-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    background: linear-gradient(160deg, var(--color-accent) 0%, var(--color-surface) 130%);
 }
 
 .info-reserva {
@@ -35,7 +63,7 @@ h2 {
 }
 
 .datos-funcion,
-.butacas-reserva {
+.candy-indicador {
     margin: 0 0 var(--espacio-1);
     color: var(--color-text-muted);
     font-size: 0.9rem;
@@ -52,8 +80,14 @@ h2 {
     font-weight: 600;
 }
 
+.nota-total {
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
 .codigo-reserva {
-    margin: var(--espacio-1) 0 0;
+    margin: 0 0 var(--espacio-1);
     font-family: monospace;
     font-size: 0.8rem;
     color: var(--color-text-muted);
@@ -79,4 +113,72 @@ h2 {
     font-size: 0.8rem;
     color: var(--color-text-muted);
     max-width: 180px;
+}
+
+/* "Ver detalle" como link chico tipo "ver más" de Facebook/Instagram, no
+   como un botón más -- va debajo de las acciones principales (descargar /
+   cancelar), para que la tarjeta no se vea tan cargada de botones iguales. */
+.ver-detalle {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-top: var(--espacio-1);
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--color-text-muted);
+    cursor: pointer;
+}
+
+.ver-detalle:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+    opacity: 1;
+}
+
+.detalle-reserva {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--espacio-2);
+}
+
+.detalle-reserva p {
+    margin: 0 0 var(--espacio-1);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.etiqueta-detalle {
+    margin: var(--espacio-2) 0 2px;
+    font-weight: 600;
+    color: var(--color-text);
+    font-size: 0.85rem;
+}
+
+.etiqueta-detalle:first-child {
+    margin-top: 0;
+}
+
+.lista-detalle {
+    margin: 0 0 var(--espacio-1);
+    padding-left: 1.2em;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.lista-detalle li {
+    margin-bottom: 2px;
+}
+
+.qr-detalle {
+    /* Sin border-radius a proposito: un QR tiene sus 3 "ojos" (patrones de
+       posicion) pegados a las esquinas, y redondear el <img> redondea el QR
+       mismo (border-radius en un elemento reemplazado recorta su propio
+       contenido, no hace falta overflow:hidden) -- esto sumado al bug de
+       ".reserva img" de arriba era lo que lo cortaba. Rectangulo recto +
+       quiet zone blanca via padding, como cualquier QR real. */
+    width: 220px;
+    height: 220px;
+    display: block;
+    margin: var(--espacio-1) 0 var(--espacio-2);
+    background: white;
+    padding: var(--espacio-1);
 }

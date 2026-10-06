@@ -1,8 +1,15 @@
 import { Routes } from '@angular/router';
 import { soloInvitadoGuard } from './core/guards/solo-invitado-guard';
 import { adminGuard } from './core/guards/admin-guard';
+import { empleadoGuard } from './core/guards/empleado-guard';
 
 export const routes: Routes = [
+    {
+        path: 'empleado',
+        loadComponent: () =>
+            import('./features/empleado/validar-entrada/validar-entrada').then((m) => m.ValidarEntrada),
+        canMatch: [empleadoGuard],
+    },
     {
         path: 'registro',
         loadComponent: () => import('./features/auth/registro/registro').then((m) => m.Registro),

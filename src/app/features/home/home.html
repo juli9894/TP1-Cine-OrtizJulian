@@ -7,7 +7,10 @@
                 <article>
                 <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
                 <h3>{{ pelicula.titulo }}</h3>
-                <p>{{ pelicula.duracionMinutos }} min</p>
+                <p>
+                    {{ pelicula.duracionMinutos }} min —
+                    <span class="badge-clasificacion" [attr.data-clasificacion]="pelicula.clasificacion">{{ pelicula.clasificacion }}</span>
+                </p>
                 </article>
             </a>
         } @empty {
@@ -40,7 +43,10 @@
                 <article>
                     <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
                     <h3>{{ pelicula.titulo }}</h3>
-                    <p>{{ pelicula.duracionMinutos }} min</p>
+                    <p>
+                        {{ pelicula.duracionMinutos }} min —
+                        <span class="badge-clasificacion" [attr.data-clasificacion]="pelicula.clasificacion">{{ pelicula.clasificacion }}</span>
+                    </p>
                 </article>
             </a>
         } @empty {

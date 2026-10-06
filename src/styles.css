@@ -247,3 +247,27 @@ main {
     align-items: center;
     margin-top: var(--espacio-3);
 }
+/* Clasificacion de edad (ATP / +13 / +18) de una pelicula -- global porque
+   la usan tanto el home (cartelera y Top 3) como el detalle de pelicula.
+   Color por severidad para que se note de un vistazo antes de comprar,
+   sobre todo ahora que +13/+18 se bloquean de verdad (ver migracion 0022). */
+.badge-clasificacion {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+}
+
+.badge-clasificacion[data-clasificacion='+13'] {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+.badge-clasificacion[data-clasificacion='+18'] {
+    color: var(--color-error);
+    border-color: var(--color-error);
+}

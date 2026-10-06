@@ -1,10 +1,15 @@
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
+import { notaTotalPagado } from '../utils/pago';
 
 export interface DatosTicket {
     // La película/función queda opcional: un pedido solo de candy bar (sin
     // butacas ni función elegida) no tiene ninguno de estos datos.
     pelicula?: string;
+    // Si viene y no es 'ATP', el ticket aclara la edad mínima y que un
+    // menor necesita acompañamiento adulto -- es la "entrada" que pide el
+    // enunciado, no solo la pantalla de compra.
+    clasificacion?: 'ATP' | '+13' | '+18';
     sala?: string;
     horario?: string;
     formato?: string;
@@ -13,6 +18,13 @@ export interface DatosTicket {
     items: string[];
     total: number;
     qrCode: string;
+    // Desglose opcional de cómo se llegó al total -- sin esto, una compra
+    // pagada con cupón/crédito solo mostraba "Total pagado: $0" sin
+    // explicar por qué. Si no se pasa (ej. entradas viejas sin este dato
+    // guardado todavía), el ticket se ve exactamente igual que antes.
+    subtotal?: number;
+    descuento?: number;
+    creditoAplicado?: number;
 }
 
 const DORADO: [number, number, number] = [217, 164, 65];
@@ -20,7 +32,9 @@ const GRIS_OSCURO: [number, number, number] = [30, 30, 35];
 const GRIS_MEDIO: [number, number, number] = [120, 120, 125];
 
 export async function generarTicketPdf(datos: DatosTicket): Promise<void> {
-    const qrDataUrl = await QRCode.toDataURL(datos.qrCode);
+    // width: 300 -- misma razón que en mis-reservas.ts: mejor generarlo ya
+    // grande que depender de que jsPDF agrande una imagen chica al insertarla.
+    const qrDataUrl = await QRCode.toDataURL(datos.qrCode, { width: 300 });
 
     const doc = new jsPDF();
     const margenIzquierdo = 20;
@@ -46,19 +60,29 @@ export async function generarTicketPdf(datos: DatosTicket): Promise<void> {
         doc.setFontSize(17);
         doc.setTextColor(...GRIS_OSCURO);
         doc.text(datos.pelicula, margenIzquierdo, y);
+        y += 7;
+
+        if (datos.clasificacion && datos.clasificacion !== 'ATP') {
+            const edadMinima = datos.clasificacion === '+18' ? '18' : '13';
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(...DORADO);
+            doc.text(`Apta para mayores de ${edadMinima} años — requiere acompañamiento adulto`, margenIzquierdo, y);
+            y += 6;
+        }
 
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(11);
         doc.setTextColor(...GRIS_MEDIO);
         // .filter(Boolean) para no imprimir "Sala undefined" cuando no
         // tenemos el nombre de la sala a mano (ej: mis-reservas no lo pide).
-        const detalleFuncion = [datos.sala ? `Sala ${datos.sala}` : null, datos.formato, datos.idioma]
+        const detalleFuncion = [datos.sala ?? null, datos.formato, datos.idioma]
             .filter(Boolean)
             .join(' — ');
-        doc.text(detalleFuncion, margenIzquierdo, y + 7);
-        doc.text(datos.horario ?? '', margenIzquierdo, y + 13);
+        doc.text(detalleFuncion, margenIzquierdo, y);
+        doc.text(datos.horario ?? '', margenIzquierdo, y + 6);
 
-        y += 25;
+        y += 18;
     }
 
     if (datos.butacas && datos.butacas.length > 0) {
@@ -99,11 +123,45 @@ export async function generarTicketPdf(datos: DatosTicket): Promise<void> {
     doc.line(margenIzquierdo, y, margenDerecho, y);
     y += 12;
 
+    // Desglose: solo tiene sentido mostrarlo si de verdad se aplicó un
+    // descuento o crédito -- si se pagó el subtotal entero, alcanza con
+    // la línea de "Total pagado" de siempre.
+    if ((datos.descuento ?? 0) > 0 || (datos.creditoAplicado ?? 0) > 0) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(...GRIS_MEDIO);
+        if (datos.subtotal !== undefined) {
+            doc.text(`Subtotal: $${datos.subtotal}`, margenIzquierdo, y);
+            y += 6;
+        }
+        if ((datos.descuento ?? 0) > 0) {
+            doc.text(`Descuento aplicado: -$${datos.descuento}`, margenIzquierdo, y);
+            y += 6;
+        }
+        if ((datos.creditoAplicado ?? 0) > 0) {
+            doc.text(`Crédito usado: -$${datos.creditoAplicado}`, margenIzquierdo, y);
+            y += 6;
+        }
+        y += 2;
+    }
+
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.setTextColor(...GRIS_OSCURO);
     doc.text(`Total pagado: $${datos.total}`, margenIzquierdo, y);
-    y += 10;
+    y += 7;
+
+    // Aparte, en letra chica, para no arriesgar que el texto del total se
+    // salga de la hoja si el nombre del cupón o el monto son largos.
+    const notaTotal = notaTotalPagado(datos.descuento ?? 0, datos.creditoAplicado ?? 0, datos.total);
+    if (notaTotal) {
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(9);
+        doc.setTextColor(...GRIS_MEDIO);
+        doc.text(notaTotal.trim(), margenIzquierdo, y);
+        y += 6;
+    }
+    y += 3;
 
     doc.setFont('courier', 'normal');
     doc.setFontSize(9);

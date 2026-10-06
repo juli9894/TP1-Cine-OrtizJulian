@@ -7,6 +7,9 @@
             @if (esAdmin()) {
                 <a routerLink="/admin">Admin</a>
             }
+            @if (esEmpleado()) {
+                <a routerLink="/empleado">Empleado</a>
+            }
             <a routerLink="/perfil">Mi perfil</a>
             <a routerLink="/mis-reservas">Mis reservas</a>
             <button (click)="cerrarSesion()">Cerrar sesión</button>

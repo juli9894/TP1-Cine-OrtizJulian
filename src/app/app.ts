@@ -15,6 +15,7 @@ export class App {
   private readonly perfilesService = inject(PerfilesService);
 
   protected readonly esAdmin = signal(false);
+  protected readonly esEmpleado = signal(false);
   protected readonly nombreBienvenida = signal<string | null>(null);
 
   constructor() {
@@ -23,11 +24,13 @@ export class App {
 
       if (!usuario) {
         this.esAdmin.set(false);
+        this.esEmpleado.set(false);
         return;
       }
 
       this.perfilesService.obtenerPorId(usuario.id).then((perfil) => {
         this.esAdmin.set(perfil.rol === 'admin');
+        this.esEmpleado.set(perfil.rol === 'empleado' || perfil.rol === 'admin');
 
         if (this.authService.bienvenidaPendiente()) {
           this.authService.bienvenidaPendiente.set(false);

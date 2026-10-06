@@ -8,7 +8,7 @@ export const adminGuard: CanMatchFn = async () => {
     const perfilesService = inject(PerfilesService);
     const router = inject(Router);
 
-    const usuario = authService.usuarioActual();
+    const usuario = await authService.obtenerUsuarioActual();
     if (usuario === null) {
         return router.createUrlTree(['/']);
     }

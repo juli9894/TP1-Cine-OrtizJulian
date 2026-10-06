@@ -33,7 +33,21 @@
                 }
 
                 <div class="totales-resumen">
-                    <p class="total-final">Total pagado: ${{ reserva.total }}</p>
+                    @if (resumenUltimaCompra(); as resumen) {
+                        @if (resumen.descuento > 0 || resumen.creditoAplicado > 0) {
+                            <p>Subtotal: ${{ resumen.subtotal }}</p>
+                            @if (resumen.descuento > 0) {
+                                <p>Descuento aplicado: -${{ resumen.descuento }}</p>
+                            }
+                            @if (resumen.creditoAplicado > 0) {
+                                <p>Crédito usado: -${{ resumen.creditoAplicado }}</p>
+                            }
+                        }
+                    }
+                    <p class="total-final">
+                        Total pagado: ${{ reserva.total }}
+                        <span class="nota-total">{{ notaTotalPagado(resumenUltimaCompra()?.descuento ?? 0, resumenUltimaCompra()?.creditoAplicado ?? 0, reserva.total) }}</span>
+                    </p>
                     <p class="codigo-reserva">Código: {{ reserva.qrCode }}</p>
                     <button (click)="descargarComprobante()" [disabled]="generandoPdf()">
                         {{ generandoPdf() ? 'Generando PDF...' : 'Descargar comprobante (PDF)' }}

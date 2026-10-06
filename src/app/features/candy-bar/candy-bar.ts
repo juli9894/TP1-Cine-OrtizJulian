@@ -7,6 +7,7 @@ import { PerfilesService } from '../../core/services/perfiles';
 import { CuponesService } from '../../core/services/cupones';
 import { AuthService } from '../../core/services/auth';
 import { generarTicketPdf } from '../../core/services/ticket-pdf';
+import { notaTotalPagado } from '../../core/utils/pago';
 import { Perfil } from '../../core/models/perfil';
 import { Cupon } from '../../core/models/cupon';
 import { ReservaCreada } from '../../core/models/reserva';
@@ -32,7 +33,13 @@ function calcularEdad(fechaNacimiento: string): number {
 //   integrado a la compra de entradas (ver seleccion-butacas.html), que lee
 //   el mismo carrito compartido. Mostrar los dos botones juntos confundiría.
 function debeOcultarseEn(ruta: string): boolean {
-    return ruta.startsWith('/admin') || ruta === '/login' || ruta === '/registro' || ruta.includes('/butacas');
+    return (
+        ruta.startsWith('/admin') ||
+        ruta.startsWith('/empleado') ||
+        ruta === '/login' ||
+        ruta === '/registro' ||
+        ruta.includes('/butacas')
+    );
 }
 
 @Component({
@@ -70,6 +77,13 @@ export class CandyBar implements OnInit, OnDestroy {
     // porque, apenas se confirma, se vacía el carrito compartido para dejarlo
     // listo para la próxima compra (ver confirmarCompra()).
     itemsUltimaCompra = signal<string[]>([]);
+
+    // Misma idea que en SeleccionButacas: foto del desglose de pago ANTES
+    // de vaciar el carrito compartido (ver confirmarCompra()).
+    resumenUltimaCompra = signal<{ subtotal: number; descuento: number; creditoAplicado: number } | null>(null);
+
+    // Referencia directa a la función -- se usa desde el template.
+    protected notaTotalPagado = notaTotalPagado;
 
     // Se recalcula sola cada vez que cambia rutaActual (Router) — es la señal
     // que decide si el botón flotante se muestra o no en la pantalla actual.
@@ -140,8 +154,12 @@ export class CandyBar implements OnInit, OnDestroy {
         const usuario = this.authService.usuarioActual();
 
         try {
-            // Foto de los items ANTES de vaciar el carrito compartido.
+            // Foto de los items y del desglose de pago ANTES de vaciar el
+            // carrito compartido.
             const itemsCandy = this.carritoCandy.itemsSeleccionados();
+            const subtotalCompra = this.carritoCandy.subtotal();
+            const descuentoCompra = this.descuento();
+            const creditoCompra = this.creditoAplicado();
 
             // funcion: null y butacas: [] — es justamente lo que permite esta
             // compra NO estar atada a ninguna función (ver migración 0018).
@@ -153,13 +171,42 @@ export class CandyBar implements OnInit, OnDestroy {
                 this.carritoCandy.productosSeleccionados(),
                 this.carritoCandy.combosSeleccionados(),
                 this.cupon()?.id ?? null,
-                this.creditoAplicado(),
+                creditoCompra,
+                subtotalCompra,
+                descuentoCompra,
             );
             this.itemsUltimaCompra.set(itemsCandy);
+            this.resumenUltimaCompra.set({
+                subtotal: subtotalCompra,
+                descuento: descuentoCompra,
+                creditoAplicado: creditoCompra,
+            });
             this.carritoCandy.vaciar();
             this.reservaConfirmada.set(reserva);
+
+            // El saldo de crédito que se usó para pagar ya se descontó en el
+            // servidor (reservasService.crear) -- si no refrescamos acá, el
+            // perfil local queda con el saldo VIEJO, y la próxima compra en
+            // la misma sesión ofrece usar crédito que ya no existe. Pasó de
+            // verdad probando: comprar candy 3 veces con el mismo perfil
+            // "cacheado" terminaba en un "No tenés crédito suficiente" del
+            // servidor, porque la pantalla seguía mostrando el saldo inicial.
+            if (usuario) {
+                try {
+                    this.perfil.set(await this.perfilesService.obtenerPorId(usuario.id));
+                } catch {
+                    // No crítico: la compra ya se confirmó. Si esto falla, el
+                    // usuario simplemente ve el saldo viejo hasta recargar.
+                }
+            }
         } catch (err) {
-            this.errorMensaje.set('No pudimos confirmar la compra. Probá de nuevo.');
+            // Los RPC de Postgres (aplicar_credito, sumar_puntos) tiran un
+            // mensaje de error ya pensado para mostrar tal cual (ej. "No
+            // tenes credito suficiente") -- lo mostramos en vez de un
+            // genérico siempre que venga, así el usuario entiende qué pasó
+            // en vez de un "probá de nuevo" que no explica nada.
+            const mensaje = err && typeof err === 'object' && 'message' in err ? String((err as { message: unknown }).message) : '';
+            this.errorMensaje.set(mensaje || 'No pudimos confirmar la compra. Probá de nuevo.');
         }
     }
 
@@ -169,10 +216,12 @@ export class CandyBar implements OnInit, OnDestroy {
 
         this.generandoPdf.set(true);
         try {
+            const resumen = this.resumenUltimaCompra();
             await generarTicketPdf({
                 items: this.itemsUltimaCompra(),
                 total: reserva.total,
                 qrCode: reserva.qrCode,
+                ...(resumen ? { subtotal: resumen.subtotal, descuento: resumen.descuento, creditoAplicado: resumen.creditoAplicado } : {}),
             });
         } catch (err) {
             this.errorMensaje.set('No pudimos generar el PDF. Probá de nuevo.');
@@ -185,6 +234,7 @@ export class CandyBar implements OnInit, OnDestroy {
     // widget ni recargar la página.
     empezarOtraCompra(): void {
         this.reservaConfirmada.set(null);
+        this.resumenUltimaCompra.set(null);
         this.usarCredito.set(false);
         this.errorMensaje.set('');
     }

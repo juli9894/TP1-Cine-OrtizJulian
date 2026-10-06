@@ -10,7 +10,7 @@
             @if (butacasTextos().length > 0) {
                 <p>{{ pelicula()?.titulo }}</p>
                 <p class="subtitulo-funcion">
-                    Sala {{ sala()?.nombre }} — {{ f.formato }} — {{ f.idioma }}
+                    {{ sala()?.nombre }} — {{ f.formato }} — {{ f.idioma }}
                 </p>
                 <p class="subtitulo-funcion">{{ horarioFormateado() }}</p>
 
@@ -28,7 +28,21 @@
             }
 
             <div class="totales-resumen">
-                <p class="total-final">Total pagado: ${{ reserva.total }}</p>
+                @if (resumenUltimaCompra(); as resumen) {
+                    @if (resumen.descuento > 0 || resumen.creditoAplicado > 0) {
+                        <p>Subtotal: ${{ resumen.subtotal }}</p>
+                        @if (resumen.descuento > 0) {
+                            <p>Descuento aplicado: -${{ resumen.descuento }}</p>
+                        }
+                        @if (resumen.creditoAplicado > 0) {
+                            <p>Crédito usado: -${{ resumen.creditoAplicado }}</p>
+                        }
+                    }
+                }
+                <p class="total-final">
+                    Total pagado: ${{ reserva.total }}
+                    <span class="nota-total">{{ notaTotalPagado(resumenUltimaCompra()?.descuento ?? 0, resumenUltimaCompra()?.creditoAplicado ?? 0, reserva.total) }}</span>
+                </p>
                 <p class="codigo-reserva">Código de reserva: {{ reserva.qrCode }}</p>
                 <button (click)="descargarEntrada()" [disabled]="generandoPdf()">
                     {{ generandoPdf() ? 'Generando PDF...' : 'Descargar entrada (PDF)' }}
@@ -45,7 +59,7 @@
             <a class="volver" [routerLink]="['/peliculas', pelicula()?.id]">← Volver a la película</a>
             <h2>{{ pelicula()?.titulo }}</h2>
             <p class="subtitulo-funcion">
-                Sala {{ sala()?.nombre }} — {{ f.formato }} — {{ f.idioma }}
+                {{ sala()?.nombre }} — {{ f.formato }} — {{ f.idioma }}
             </p>
             <p class="subtitulo-funcion">{{ horarioFormateado() }}</p>
         </section>
@@ -71,20 +85,24 @@
         <div class="sala-contenedor">
             <div class="sala">
                 @for (fila of filas(); track fila[0].fila) {
-                    <div class="fila" [class.accesible]="fila[0].tipo === 'accesible'">
-                        @for (butaca of fila; track butaca.id) {
-                            <button
-                                type="button"
-                                class="butaca"
-                                [class.accesible]="butaca.tipo === 'accesible'"
-                                [class.vip]="butaca.tipo === 'vip'"
-                                [class.ocupada]="idsOcupados().includes(butaca.id)"
-                                [class.seleccionada]="idsSeleccionados().includes(butaca.id)"
-                                [disabled]="idsOcupados().includes(butaca.id)"
-                                [title]="'Fila ' + butaca.fila + ', Butaca ' + butaca.columna"
-                                (click)="onClickButaca(butaca)"
-                            ></button>
-                        }
+                    <div class="fila-contenedor">
+                        <span class="fila-letra">{{ fila[0].fila }}</span>
+                        <div class="fila" [class.accesible]="fila[0].tipo === 'accesible'">
+                            @for (butaca of fila; track butaca.id) {
+                                <button
+                                    type="button"
+                                    class="butaca"
+                                    [class.accesible]="butaca.tipo === 'accesible'"
+                                    [class.vip]="butaca.tipo === 'vip'"
+                                    [class.ocupada]="idsOcupados().includes(butaca.id)"
+                                    [class.seleccionada]="idsSeleccionados().includes(butaca.id)"
+                                    [disabled]="idsOcupados().includes(butaca.id)"
+                                    [attr.aria-label]="'Fila ' + butaca.fila + ', Butaca ' + butaca.columna"
+                                    [attr.data-tooltip]="butaca.fila + '' + butaca.columna"
+                                    (click)="onClickButaca(butaca)"
+                                ></button>
+                            }
+                        </div>
                     </div>
                 }
             </div>

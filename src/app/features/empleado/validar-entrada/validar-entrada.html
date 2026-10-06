@@ -1,0 +1,67 @@
+<div class="pagina-admin">
+    <div class="cabecera-admin">
+        <h2>Validar entrada / candy bar</h2>
+    </div>
+
+    <p class="ayuda">
+        Escaneá el código QR de la entrada con la cámara, o cargalo a mano si la cámara falla o el QR está dañado.
+    </p>
+
+    <div class="acciones-camara">
+        @if (!escaneando()) {
+            <button type="button" (click)="iniciarCamara()">📷 Escanear con cámara</button>
+        } @else {
+            <button type="button" (click)="detenerCamara()">Detener cámara</button>
+        }
+    </div>
+
+    <video #video class="video-escaner" [class.activo]="escaneando()" muted playsinline></video>
+    <canvas #canvas class="canvas-oculto"></canvas>
+
+    <div class="carga-manual">
+        <label>
+            Código de reserva (carga manual)
+            <input
+                type="text"
+                [value]="codigoManual()"
+                (input)="onCodigoManualChange($event)"
+                placeholder="Pegá o escribí el código"
+            />
+        </label>
+        <button type="button" (click)="validarManual()" [disabled]="validando() || !codigoManual()">
+            {{ validando() ? 'Validando...' : 'Validar' }}
+        </button>
+    </div>
+
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
+
+    @if (resultado(); as reserva) {
+        <div class="resultado-validacion">
+            <h3>✅ Código válido — entregar:</h3>
+
+            @if (reserva.peliculaId) {
+                <p class="subtitulo-funcion">
+                    {{ reserva.peliculaTitulo }} — {{ reserva.sala }} — {{ reserva.formato }} — {{ reserva.idioma }}
+                </p>
+
+                @if (reserva.butacas.length > 0) {
+                    <p class="subtitulo-resumen">Entradas</p>
+                    @for (texto of reserva.butacas; track texto) {
+                        <p class="item-resumen">{{ texto }}</p>
+                    }
+                }
+            }
+
+            @if (reserva.candyItems.length > 0) {
+                <p class="subtitulo-resumen">Candy bar</p>
+                @for (texto of reserva.candyItems; track texto) {
+                    <p class="item-resumen">{{ texto }}</p>
+                }
+            }
+
+            <p class="total-final">Total pagado: ${{ reserva.total }}</p>
+        </div>
+    }
+</div>

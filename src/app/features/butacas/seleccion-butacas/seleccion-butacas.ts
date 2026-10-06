@@ -10,6 +10,7 @@ import { CuponesService } from '../../../core/services/cupones';
 import { AuthService } from '../../../core/services/auth';
 import { SalasService } from '../../../core/services/salas';
 import { generarTicketPdf } from '../../../core/services/ticket-pdf';
+import { notaTotalPagado } from '../../../core/utils/pago';
 import { Funcion } from '../../../core/models/funcion';
 import { Butaca } from '../../../core/models/butaca';
 import { PrecioButaca } from '../../../core/models/precio-butaca';
@@ -80,6 +81,15 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     // para la próxima compra — así que la pantalla de "¡Compra confirmada!"
     // no puede seguir leyendo el carrito en vivo, tiene que leer esta copia.
     itemsUltimaCompra = signal<string[]>([]);
+
+    // Misma idea que itemsUltimaCompra: subtotal()/descuento()/creditoAplicado()
+    // dependen de carritoCandy.subtotal(), que cambia apenas se vacía el carrito
+    // al confirmar -- sin esta foto, la pantalla de "¡Compra confirmada!" (y el
+    // PDF) mostrarían un desglose recalculado mal (candy en $0) en vez del real.
+    resumenUltimaCompra = signal<{ subtotal: number; descuento: number; creditoAplicado: number } | null>(null);
+
+    // Referencia directa a la función -- se usa desde el template.
+    protected notaTotalPagado = notaTotalPagado;
 
     edadMinima = computed(() => {
         const pelicula = this.pelicula();
@@ -251,9 +261,13 @@ export class SeleccionButacas implements OnInit, OnDestroy {
 
         try {
             const usuarioId = usuario?.id ?? null;
-            // Guardamos una foto de los items de candy ANTES de vaciar el
-            // carrito, para poder mostrarla después en la confirmación.
+            // Guardamos una foto de los items de candy Y del desglose de pago
+            // ANTES de vaciar el carrito, para poder mostrarlos después en la
+            // confirmación (ver resumenUltimaCompra arriba).
             const itemsCandy = this.carritoCandy.itemsSeleccionados();
+            const subtotalCompra = this.subtotal();
+            const descuentoCompra = this.descuento();
+            const creditoCompra = this.creditoAplicado();
 
             // Si no se compró ninguna butaca, la reserva no queda atada a
             // esta función (funcion_id null) — es el mismo caso que comprar
@@ -267,13 +281,38 @@ export class SeleccionButacas implements OnInit, OnDestroy {
                 this.carritoCandy.productosSeleccionados(),
                 this.carritoCandy.combosSeleccionados(),
                 this.cupon()?.id ?? null,
-                this.creditoAplicado(),
+                creditoCompra,
+                subtotalCompra,
+                descuentoCompra,
             );
             this.itemsUltimaCompra.set(itemsCandy);
+            this.resumenUltimaCompra.set({
+                subtotal: subtotalCompra,
+                descuento: descuentoCompra,
+                creditoAplicado: creditoCompra,
+            });
             this.carritoCandy.vaciar();
             this.reservaConfirmada.set(reserva);
+
+            // Mismo motivo que en candy-bar.ts: el crédito usado ya se
+            // descontó en el servidor, hay que refrescar el perfil local o
+            // la próxima compra en la misma sesión ofrece un saldo que ya
+            // no existe.
+            if (usuarioId) {
+                try {
+                    this.perfil.set(await this.perfilesService.obtenerPorId(usuarioId));
+                } catch {
+                    // No crítico: la compra ya se confirmó.
+                }
+            }
         } catch (err) {
-            this.errorMensaje.set('No pudimos confirmar la compra. Probá de nuevo.');
+            // Los RPC de Postgres (aplicar_credito, sumar_puntos) tiran un
+            // mensaje de error ya pensado para mostrar tal cual (ej. "No
+            // tenes credito suficiente") -- lo mostramos en vez de un
+            // genérico siempre que venga, así el usuario entiende qué pasó
+            // en vez de un "probá de nuevo" que no explica nada.
+            const mensaje = err && typeof err === 'object' && 'message' in err ? String((err as { message: unknown }).message) : '';
+            this.errorMensaje.set(mensaje || 'No pudimos confirmar la compra. Probá de nuevo.');
         }
     }
 
@@ -287,10 +326,12 @@ export class SeleccionButacas implements OnInit, OnDestroy {
 
         this.generandoPdf.set(true);
         try {
+            const resumen = this.resumenUltimaCompra();
             await generarTicketPdf({
                 ...(huboButacas
                     ? {
                           pelicula: pelicula.titulo,
+                          clasificacion: pelicula.clasificacion,
                           sala: this.sala()?.nombre ?? '',
                           horario: this.horarioFormateado(),
                           formato: funcion.formato,
@@ -301,6 +342,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
                 items: this.itemsUltimaCompra(),
                 total: reserva.total,
                 qrCode: reserva.qrCode,
+                ...(resumen ? { subtotal: resumen.subtotal, descuento: resumen.descuento, creditoAplicado: resumen.creditoAplicado } : {}),
             });
         } catch (err) {
             this.errorMensaje.set('No pudimos generar el PDF. Probá de nuevo.');
