@@ -93,12 +93,6 @@
     margin-top: 0;
 }
 
-.item-candy {
-    display: flex;
-    align-items: center;
-    gap: var(--espacio-2);
-}
-
 .credito-toggle {
     display: flex;
     flex-direction: row;

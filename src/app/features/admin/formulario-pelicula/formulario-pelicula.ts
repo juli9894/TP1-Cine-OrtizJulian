@@ -5,9 +5,10 @@ import { PeliculasService } from '../../../core/services/peliculas';
 import { GenerosService } from '../../../core/services/generos';
 import { Genero } from '../../../core/models/genero';
 import { ClasificacionPelicula } from '../../../core/models/pelicula';
+import { SelectorFecha } from '../../../shared/selector-fecha/selector-fecha';
 
 @Component({
-    imports: [ReactiveFormsModule, RouterLink],
+    imports: [ReactiveFormsModule, RouterLink, SelectorFecha],
     selector: 'app-formulario-pelicula',
     styleUrl: './formulario-pelicula.css',
     templateUrl: './formulario-pelicula.html',
@@ -32,7 +33,20 @@ export class FormularioPelicula implements OnInit {
         sinopsis: ['', Validators.required],
         imagenUrl: ['', Validators.required],
         clasificacion: ['ATP' as ClasificacionPelicula, Validators.required],
+        diasPreventa: [7, [Validators.required, Validators.min(0)]],
+        precioPreventa: [null as number | null],
     });
+
+    // Igual que horarioValor en FormularioFuncion: SelectorFecha no es un
+    // FormControl, asi que la fecha de estreno vive en un signal aparte
+    // del FormGroup. Por default, hoy -- asi una pelicula nueva que no se
+    // piensa poner en "Proximamente" sigue vendiendose normal desde que se
+    // crea, sin que el admin tenga que tocar nada extra.
+    fechaEstrenoValor = signal(new Date().toISOString().slice(0, 10));
+
+    onFechaEstrenoChange(valor: string): void {
+        this.fechaEstrenoValor.set(valor);
+    }
 
     async ngOnInit(): Promise<void> {
         try {
@@ -48,7 +62,10 @@ export class FormularioPelicula implements OnInit {
                     sinopsis: pelicula.sinopsis,
                     imagenUrl: pelicula.imagenUrl,
                     clasificacion: pelicula.clasificacion,
+                    diasPreventa: pelicula.diasPreventa,
+                    precioPreventa: pelicula.precioPreventa,
                 });
+                this.fechaEstrenoValor.set(pelicula.fechaEstreno);
 
                 this.generosSeleccionados.set(await this.peliculasService.obtenerGenerosDe(peliculaId));
             }
@@ -79,6 +96,9 @@ export class FormularioPelicula implements OnInit {
             sinopsis: valores.sinopsis,
             imagenUrl: valores.imagenUrl,
             clasificacion: valores.clasificacion,
+            fechaEstreno: this.fechaEstrenoValor(),
+            diasPreventa: Number(valores.diasPreventa),
+            precioPreventa: valores.precioPreventa === null ? null : Number(valores.precioPreventa),
         };
 
         try {

@@ -1,10 +1,12 @@
 import { inject, Service } from '@angular/core';
 import { SupabaseClientService } from './supabase-client';
 import { Funcion, FilaFuncion, mapearFuncion, NuevaFuncion } from '../models/funcion';
+import { LogAuditoriaService } from './log-auditoria';
 
 @Service()
 export class FuncionesService {
     private readonly supabase = inject(SupabaseClientService).client;
+    private readonly logAuditoria = inject(LogAuditoriaService);
 
     async obtenerPorId(id: number): Promise<Funcion> {
         const { data, error } = await this.supabase
@@ -45,6 +47,11 @@ export class FuncionesService {
             });
 
         if (error) throw error;
+
+        await this.logAuditoria.registrar(
+            'Crear función',
+            `Película ${datos.peliculaId}, sala ${datos.salaId}, horario ${datos.horario}`,
+        );
     }
 
     async obtenerTodas(): Promise<Funcion[]> {

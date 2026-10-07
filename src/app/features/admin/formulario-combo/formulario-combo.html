@@ -17,6 +17,11 @@
             <input type="number" formControlName="precio" />
         </label>
 
+        <label>
+            Imagen (URL, opcional)
+            <input type="text" formControlName="imagenUrl" placeholder="https://..." />
+        </label>
+
         @if (errorMensaje()) {
             <p class="error">{{ errorMensaje() }}</p>
         }

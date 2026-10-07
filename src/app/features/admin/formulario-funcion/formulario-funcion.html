@@ -7,13 +7,26 @@
         <form [formGroup]="formularioFuncion" (ngSubmit)="guardar()">
             <label>
                 Película
-                <select formControlName="peliculaId">
+                <select formControlName="peliculaId" (change)="onPeliculaChange($event)">
                     <option value="">Seleccioná una película</option>
                     @for (pelicula of peliculas(); track pelicula.id) {
                         <option [value]="pelicula.id">{{ pelicula.titulo }}</option>
                     }
                 </select>
             </label>
+
+            @if (peliculaSeleccionada(); as pelicula) {
+                <div class="detalle-pelicula-seleccionada">
+                    <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
+                    <div>
+                        <p class="titulo">{{ pelicula.titulo }}</p>
+                        <p>{{ pelicula.duracionMinutos }} min — {{ pelicula.clasificacion }}</p>
+                        <p class="fecha-estreno">
+                            Estreno: {{ pelicula.fechaEstreno | date: 'dd/MM/yyyy' }}
+                        </p>
+                    </div>
+                </div>
+            }
 
             <label>
                 Sala
@@ -25,10 +38,14 @@
                 </select>
             </label>
 
-            <label>
-                Horario
-                <input type="datetime-local" formControlName="horario" />
-            </label>
+            <div class="campo-horario">
+                <span class="etiqueta-campo">Horario</span>
+                <app-selector-fecha
+                    [conHora]="true"
+                    [valorInicial]="horarioValor()"
+                    (cambio)="onHorarioChange($event)"
+                />
+            </div>
 
             <label>
                 Formato

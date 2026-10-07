@@ -1,0 +1,47 @@
+/* El <label> global (styles.css) es flex-direction: column -- pensado para
+   los campos de arriba (texto de la etiqueta encima, input abajo). Para los
+   checkboxes de generos necesitamos lo contrario: checkbox y texto uno al
+   lado del otro, por eso este fieldset tiene su propio override. */
+fieldset {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    padding: var(--espacio-3);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-2);
+}
+
+legend {
+    padding: 0 var(--espacio-2);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+fieldset label {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--espacio-2);
+    color: inherit;
+    font-size: 0.95rem;
+}
+
+fieldset input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    flex: none;
+}
+
+/* Mismo caso que fieldset arriba: SelectorFecha no es un <label> con un
+   input adentro, asi que no hereda el estilo global de `label` -- lo
+   replicamos aca para que se vea igual que el resto de los campos. */
+.campo-fecha-estreno {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-1);
+}
+
+.etiqueta-campo {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}

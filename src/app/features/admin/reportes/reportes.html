@@ -1,0 +1,83 @@
+<div class="pagina-admin">
+    <div class="cabecera-admin">
+        <h2>Reportes</h2>
+        <a routerLink="/admin">Volver</a>
+    </div>
+
+    <div class="tarjeta-formulario">
+        <div class="tabs-reporte">
+            <button
+                type="button"
+                [class.activo]="tipo() === 'diario'"
+                (click)="elegirTipo('diario')"
+            >
+                Diario
+            </button>
+            <button
+                type="button"
+                [class.activo]="tipo() === 'semanal'"
+                (click)="elegirTipo('semanal')"
+            >
+                Semanal
+            </button>
+        </div>
+
+        <span class="etiqueta-campo">
+            {{ tipo() === 'diario' ? 'Elegí un día' : 'Elegí el primer día de la semana' }}
+        </span>
+        <app-selector-fecha [conHora]="false" [valorInicial]="fecha()" (cambio)="onFechaChange($event)" />
+
+        <button (click)="generar()" [disabled]="cargando()">
+            {{ cargando() ? 'Generando...' : 'Generar reporte' }}
+        </button>
+
+        @if (errorMensaje()) {
+            <p class="error">{{ errorMensaje() }}</p>
+        }
+
+        @if (reporteDiario(); as r) {
+            <div class="resultado-reporte">
+                <p><strong>Fecha:</strong> {{ r.fecha }}</p>
+                <p><strong>Total facturado:</strong> ${{ r.totalFacturado.toLocaleString('es-AR') }}</p>
+                <p><strong>Entradas vendidas:</strong> {{ r.entradasVendidas }}</p>
+
+                <div class="acciones-formulario">
+                    <button (click)="descargarPdf()">Descargar PDF</button>
+                    <button (click)="descargarExcel()">Descargar Excel (CSV)</button>
+                </div>
+            </div>
+        }
+
+        @if (reporteSemanal(); as r) {
+            <div class="resultado-reporte">
+                <p><strong>Semana:</strong> {{ r.desde }} al {{ r.hasta }}</p>
+                <p><strong>Total facturado:</strong> ${{ r.totalFacturado.toLocaleString('es-AR') }}</p>
+                <p><strong>Entradas vendidas:</strong> {{ r.entradasVendidas }}</p>
+
+                <table class="tabla-dias-semana">
+                    <thead>
+                        <tr>
+                            <th>Día</th>
+                            <th>Facturado</th>
+                            <th>Entradas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (dia of r.dias; track dia.fecha) {
+                            <tr>
+                                <td>{{ dia.fecha }}</td>
+                                <td>${{ dia.totalFacturado.toLocaleString('es-AR') }}</td>
+                                <td>{{ dia.entradasVendidas }}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="acciones-formulario">
+                    <button (click)="descargarPdf()">Descargar PDF</button>
+                    <button (click)="descargarExcel()">Descargar Excel (CSV)</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>

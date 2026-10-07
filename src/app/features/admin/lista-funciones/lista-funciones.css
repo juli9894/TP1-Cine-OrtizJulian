@@ -1,0 +1,7 @@
+/* La fila es clickeable (lleva a la seleccion de butacas de esa funcion),
+   asi que necesita el cursor de pointer -- el hover ya lo pone el global
+   .tabla-contenedor tbody tr:hover en styles.css, esto solo agrega la
+   affordance del cursor. */
+.fila-clickeable {
+    cursor: pointer;
+}

@@ -1,15 +1,17 @@
 import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { DatePipe } from '@angular/common';
 import { PeliculasService } from '../../../core/services/peliculas';
 import { SalasService } from '../../../core/services/salas';
 import { FuncionesService } from '../../../core/services/funciones';
 import { Pelicula } from '../../../core/models/pelicula';
 import { Sala } from '../../../core/models/sala';
 import { FormatoFuncion, IdiomaFuncion } from '../../../core/models/funcion';
+import { SelectorFecha } from '../../../shared/selector-fecha/selector-fecha';
 
 @Component({
-    imports: [ReactiveFormsModule, RouterLink],
+    imports: [ReactiveFormsModule, RouterLink, DatePipe, SelectorFecha],
     selector: 'app-formulario-funcion',
     styleUrl: './formulario-funcion.css',
     templateUrl: './formulario-funcion.html',
@@ -29,13 +31,38 @@ export class FormularioFuncion implements OnInit {
     errorCarga = signal('');
     errorFuncion = signal('');
 
+    // Que pelicula esta elegida en el <select> en este momento -- separado
+    // del FormGroup (mismo criterio que onTextoChange/onGeneroChange en
+    // Home) para poder mostrar su detalle (poster, duracion, fecha de
+    // estreno) al lado del formulario sin tener que leer el control del
+    // form directo en el template.
+    peliculaIdSeleccionada = signal<number | null>(null);
+    peliculaSeleccionada = computed(() =>
+        this.peliculas().find((p) => p.id === this.peliculaIdSeleccionada()) ?? null,
+    );
+
+    onPeliculaChange(evento: Event): void {
+        const select = evento.target as HTMLSelectElement;
+        const valor = select.value;
+        this.peliculaIdSeleccionada.set(valor === '' ? null : Number(valor));
+    }
+
     formularioFuncion = this.formBuilder.nonNullable.group({
         peliculaId: ['', Validators.required],
         salaId: ['', Validators.required],
-        horario: ['', Validators.required],
         formato: ['2D' as FormatoFuncion, Validators.required],
         idioma: ['castellano' as IdiomaFuncion, Validators.required],
     });
+
+    // El horario vive aparte del FormGroup reactivo: SelectorFecha no es
+    // un FormControl (no implementa ControlValueAccessor), es un
+    // componente comun que nos avisa los cambios por su output `cambio`.
+    // Lo guardamos en este signal y lo leemos en guardar().
+    horarioValor = signal('');
+
+    onHorarioChange(valor: string): void {
+        this.horarioValor.set(valor);
+    }
 
     async ngOnInit(): Promise<void> {
         try {
@@ -47,10 +74,11 @@ export class FormularioFuncion implements OnInit {
                 this.formularioFuncion.patchValue({
                     peliculaId: String(funcion.peliculaId),
                     salaId: String(funcion.salaId),
-                    horario: aDatetimeLocal(funcion.horario),
                     formato: funcion.formato,
                     idioma: funcion.idioma,
                 });
+                this.horarioValor.set(aDatetimeLocal(funcion.horario));
+                this.peliculaIdSeleccionada.set(funcion.peliculaId);
             }
         } catch (err) {
             this.errorCarga.set('No pudimos cargar los datos del formulario.');
@@ -66,7 +94,7 @@ export class FormularioFuncion implements OnInit {
         const datos = {
             peliculaId: Number(valores.peliculaId),
             salaId: Number(valores.salaId),
-            horario: new Date(valores.horario).toISOString(),
+            horario: new Date(this.horarioValor()).toISOString(),
             formato: valores.formato,
             idioma: valores.idioma,
         };

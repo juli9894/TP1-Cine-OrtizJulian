@@ -271,3 +271,72 @@ main {
     color: var(--color-error);
     border-color: var(--color-error);
 }
+
+/* Fila de producto/combo en el candy bar -- se repite igual en el widget
+   flotante (CandyBar) y en el panel embebido de SeleccionButacas, asi que
+   va al global en vez de duplicar las mismas reglas en los dos .css. */
+.item-candy {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-2);
+}
+
+.imagen-producto {
+    width: 54px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: var(--radio);
+    flex-shrink: 0;
+}
+
+.imagen-producto-placeholder {
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background: var(--color-bg);
+    border-radius: var(--radio);
+    flex-shrink: 0;
+}
+
+/* Nombre + controles (-/+) en la fila de arriba, precio solo debajo --
+   antes iba todo en una sola linea ("Nombre — $precio" + botones al lado),
+   a pedido de Julian para que se lea mas como un menu. */
+.info-candy {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.fila-candy {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espacio-2);
+}
+
+.nombre-candy {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.controles-candy {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-1);
+    flex-shrink: 0;
+}
+
+.controles-candy button {
+    padding: 2px var(--espacio-2);
+}
+
+.precio-candy {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}

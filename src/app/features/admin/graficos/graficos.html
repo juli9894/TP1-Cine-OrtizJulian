@@ -1,0 +1,44 @@
+<div class="pagina-admin">
+    <div class="cabecera-admin">
+        <h2>Gráficos estadísticos</h2>
+        <a routerLink="/admin">Volver</a>
+    </div>
+
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
+
+    <div class="tarjeta-formulario">
+        <h3>Películas más vendidas</h3>
+        <div class="grafico-barras">
+            @for (item of peliculas(); track item.nombre) {
+                <div class="fila-barra">
+                    <span class="etiqueta-barra">{{ item.nombre }}</span>
+                    <div class="pista-barra">
+                        <div class="barra" [style.width.%]="anchoBarra(item.cantidad, peliculas())"></div>
+                    </div>
+                    <span class="valor-barra">{{ item.cantidad }}</span>
+                </div>
+            } @empty {
+                <p>Todavía no hay ventas registradas.</p>
+            }
+        </div>
+    </div>
+
+    <div class="tarjeta-formulario">
+        <h3>Candy bar más vendido</h3>
+        <div class="grafico-barras">
+            @for (item of productos(); track item.nombre) {
+                <div class="fila-barra">
+                    <span class="etiqueta-barra">{{ item.nombre }}</span>
+                    <div class="pista-barra">
+                        <div class="barra" [style.width.%]="anchoBarra(item.cantidad, productos())"></div>
+                    </div>
+                    <span class="valor-barra">{{ item.cantidad }}</span>
+                </div>
+            } @empty {
+                <p>Todavía no hay ventas de candy bar registradas.</p>
+            }
+        </div>
+    </div>
+</div>

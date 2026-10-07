@@ -41,16 +41,12 @@
         @if (misPeliculas().length === 0) {
             <p>Todavía no viste ninguna película con nosotros.</p>
         } @else {
-            <div class="tarjetas">
-                @for (pelicula of misPeliculas(); track pelicula.peliculaId) {
-                    <a [routerLink]="['/peliculas', pelicula.peliculaId]">
-                        <article>
-                            <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
-                            <h4>{{ pelicula.titulo }}</h4>
-                        </article>
-                    </a>
-                }
-            </div>
+            @for (pelicula of misPeliculas(); track pelicula.peliculaId) {
+                <a class="fila-pelicula" [routerLink]="['/peliculas', pelicula.peliculaId]">
+                    <img class="poster-pelicula" [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
+                    <h4>{{ pelicula.titulo }}</h4>
+                </a>
+            }
         }
     </section>
 

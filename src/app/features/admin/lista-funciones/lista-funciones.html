@@ -17,12 +17,12 @@
             </thead>
             <tbody>
                 @for (funcion of funciones(); track funcion.id) {
-                    <tr>
+                    <tr class="fila-clickeable" (click)="verButacas(funcion.id)">
                         <td>{{ nombrePelicula(funcion.peliculaId) }}</td>
                         <td>{{ nombreSala(funcion.salaId) }}</td>
-                        <td>{{ funcion.horario | date: 'short' }}</td>
+                        <td>{{ funcion.horario | date: 'dd/MM/yyyy HH:mm' }}</td>
                         <td>{{ funcion.formato }}</td>
-                        <td>
+                        <td (click)="$event.stopPropagation()">
                             <a [routerLink]="['/admin/funciones', funcion.id, 'editar']">Editar</a>
                             <button (click)="eliminarFuncion(funcion.id)">Eliminar</button>
                         </td>

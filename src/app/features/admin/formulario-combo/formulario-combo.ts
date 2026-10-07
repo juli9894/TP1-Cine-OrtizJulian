@@ -23,6 +23,9 @@ export class FormularioCombo implements OnInit {
         nombre: ['', Validators.required],
         descripcion: ['', Validators.required],
         precio: [0, [Validators.required, Validators.min(0)]],
+        // Opcional, mismo criterio que en productos: no obligamos a
+        // recargar los combos existentes con una imagen.
+        imagenUrl: [''],
     });
 
     async ngOnInit(): Promise<void> {
@@ -32,6 +35,7 @@ export class FormularioCombo implements OnInit {
                 nombre: combo.nombre,
                 descripcion: combo.descripcion,
                 precio: combo.precio,
+                imagenUrl: combo.imagenUrl ?? '',
             });
         }
     }
@@ -42,11 +46,18 @@ export class FormularioCombo implements OnInit {
         const valores = this.formularioCombo.getRawValue();
         this.errorMensaje.set('');
 
+        const datos = {
+            nombre: valores.nombre,
+            descripcion: valores.descripcion,
+            precio: valores.precio,
+            imagenUrl: valores.imagenUrl.trim() === '' ? null : valores.imagenUrl.trim(),
+        };
+
         try {
             if (this.esEdicion()) {
-                await this.combosService.actualizar(Number(this.id()), valores);
+                await this.combosService.actualizar(Number(this.id()), datos);
             } else {
-                await this.combosService.crear(valores);
+                await this.combosService.crear(datos);
             }
 
             this.router.navigateByUrl('/admin/combos');

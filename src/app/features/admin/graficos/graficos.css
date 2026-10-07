@@ -1,0 +1,39 @@
+.grafico-barras {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-2);
+}
+
+.fila-barra {
+    display: grid;
+    grid-template-columns: 140px 1fr 50px;
+    align-items: center;
+    gap: var(--espacio-2);
+}
+
+.etiqueta-barra {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pista-barra {
+    background: var(--color-bg);
+    border-radius: var(--radio);
+    height: 18px;
+    overflow: hidden;
+}
+
+.barra {
+    height: 100%;
+    background: var(--color-accent);
+    border-radius: var(--radio);
+}
+
+.valor-barra {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.85rem;
+}

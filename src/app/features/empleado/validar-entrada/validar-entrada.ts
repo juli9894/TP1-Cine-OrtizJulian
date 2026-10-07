@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnDestroy, inject, signal, viewChild } from '@angular/core';
 import jsQR from 'jsqr';
 import { ReservasService } from '../../../core/services/reservas';
+import { LogAuditoriaService } from '../../../core/services/log-auditoria';
 import { ReservaDetalle } from '../../../core/models/reserva';
 
 @Component({
@@ -10,6 +11,7 @@ import { ReservaDetalle } from '../../../core/models/reserva';
 })
 export class ValidarEntrada implements OnDestroy {
     private readonly reservasService = inject(ReservasService);
+    private readonly logAuditoria = inject(LogAuditoriaService);
 
     // viewChild() en vez de @ViewChild clasico -- misma logica que usamos en
     // los computed(): la referencia al <video>/<canvas> del template queda
@@ -120,6 +122,7 @@ export class ValidarEntrada implements OnDestroy {
             // Paso 2: recien si el paso 1 funciono, traemos los datos para
             // mostrar en pantalla que corresponde entregar.
             this.resultado.set(await this.reservasService.obtenerPorQrCode(codigoLimpio));
+            await this.logAuditoria.registrar('Validación de QR', `Código ${codigoLimpio}`);
         } catch (err) {
             // El mensaje que tira la funcion de Postgres (ej. "Este codigo
             // ya fue validado antes") llega tal cual en err.message -- mismo

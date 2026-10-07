@@ -1,0 +1,198 @@
+/* Mismo patrón que .boton-flotante-candy (candy-bar.css), pero en el borde
+   IZQUIERDO en vez del derecho -- a pedido de Julián, para no chocar con el
+   botón de candy bar. */
+.boton-flotante-proximamente {
+    position: fixed;
+    top: 50%;
+    left: var(--espacio-4);
+    transform: translateY(-50%);
+    z-index: 12;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--espacio-2);
+    padding: var(--espacio-3) var(--espacio-4);
+    font-size: 1.05rem;
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Badge rojo tipo "campanita de notificaciones" (distinto del badge dorado
+   del candy bar, que solo cuenta items del carrito) -- superpuesto en la
+   esquina del botón en vez de in-line, para que se note como una alerta. */
+.badge-notif {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--color-error);
+    color: #fff;
+    border-radius: 999px;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0 0.35rem;
+    box-shadow: 0 0 0 2px var(--color-bg);
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+/* Mismo panel deslizable que .panel-candy, pero sale desde la IZQUIERDA. */
+.panel-proximamente {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: min(360px, 90vw);
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    padding: var(--espacio-4);
+    overflow-y: auto;
+    transition: transform 0.25s ease;
+    z-index: 11;
+    transform: translateX(-100%);
+}
+
+.panel-proximamente.abierto {
+    transform: translateX(0);
+}
+
+.panel-proximamente-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--espacio-1);
+}
+
+.panel-proximamente-header h3 {
+    margin: 0;
+}
+
+.cerrar-proximamente {
+    background: transparent;
+    color: var(--color-text-muted);
+    padding: var(--espacio-1) var(--espacio-2);
+}
+
+.cerrar-proximamente:hover {
+    color: var(--color-text);
+    opacity: 1;
+}
+
+.subtitulo-funcion {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--espacio-3);
+}
+
+/* "Feed" de notificaciones estilo push del celular (ícono + "ahora" arriba,
+   mensaje abajo) -- referencia visual que pidió Julián. */
+.feed-notificaciones {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-2);
+    margin-bottom: var(--espacio-4);
+}
+
+.tarjeta-notificacion {
+    display: block;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    padding: var(--espacio-2) var(--espacio-3);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease;
+}
+
+.tarjeta-notificacion:hover {
+    border-color: var(--color-accent);
+}
+
+.tarjeta-notificacion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.tarjeta-notificacion-header .hace {
+    font-weight: 400;
+    color: var(--color-text-muted);
+}
+
+.tarjeta-notificacion p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.lista-proximamente {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-3);
+}
+
+.item-proximamente {
+    display: flex;
+    gap: var(--espacio-3);
+}
+
+.item-proximamente img {
+    width: 64px;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: var(--radio);
+    flex-shrink: 0;
+}
+
+.info-proximamente {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-1);
+}
+
+.info-proximamente h4 {
+    margin: 0;
+}
+
+.info-proximamente p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.info-proximamente button,
+.info-proximamente a {
+    align-self: flex-start;
+    margin-top: var(--espacio-1);
+}
+
+/* Mismo look que el boton dorado de "Avisarme" -- esta es la version para
+   cuando la pelicula YA esta en preventa, asi queda claro que ahora se
+   puede comprar en vez de solo anotarse para un aviso. */
+.link-ya-en-preventa {
+    background: var(--color-accent);
+    color: var(--color-accent-texto);
+    padding: var(--espacio-2) var(--espacio-3);
+    border-radius: var(--radio);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+
+.link-ya-en-preventa:hover {
+    opacity: 0.85;
+}
+
+.item-resumen.vacio {
+    color: var(--color-text-muted);
+}

@@ -49,6 +49,31 @@ export class ReservasService {
         }, 0);
     }
 
+    // Igual que calcularTotal(), pero para cuando la pelicula esta en
+    // preventa con un precio especial configurado. precioPreventa reemplaza
+    // el precio de la butaca 'normal' (el tipo base), pero NO borra la
+    // diferencia entre tipos de butaca: VIP sigue costando mas que
+    // normal/accesible, por la misma diferencia que tendria en una compra
+    // fuera de preventa (ej. si VIP cuesta $3000 mas que normal siempre,
+    // sigue costando $3000 mas durante la preventa). El recargo por formato
+    // (2D/3D/4D/5D) tambien se sigue sumando igual que siempre.
+    calcularTotalPreventa(
+        funcion: Funcion,
+        butacasSeleccionadas: Butaca[],
+        precioPreventa: number,
+        precios: PrecioButaca[],
+        recargos: RecargoFormato[],
+    ): number {
+        const recargoFormato = recargos.find((r) => r.formato === funcion.formato)?.recargo ?? 0;
+        const precioNormal = precios.find((p) => p.tipo === 'normal')?.precio ?? 0;
+
+        return butacasSeleccionadas.reduce((total, butaca) => {
+            const precioTipo = precios.find((p) => p.tipo === butaca.tipo)?.precio ?? 0;
+            const diferencialTipo = precioTipo - precioNormal;
+            return total + precioPreventa + diferencialTipo + recargoFormato;
+        }, 0);
+    }
+
     calcularTotalCandy(
         productosSeleccionados: ProductoSeleccionado[],
         combosSeleccionados: ComboSeleccionado[],

@@ -1,0 +1,47 @@
+.etiqueta-campo {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--espacio-1);
+}
+
+.tabs-reporte {
+    display: flex;
+    gap: var(--espacio-2);
+    margin-bottom: var(--espacio-3);
+}
+
+.tabs-reporte button {
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+}
+
+.tabs-reporte button.activo {
+    background: var(--color-accent);
+    color: var(--color-accent-texto);
+    border-color: var(--color-accent);
+}
+
+.resultado-reporte {
+    margin-top: var(--espacio-3);
+    padding-top: var(--espacio-3);
+    border-top: 1px solid var(--color-border);
+}
+
+.resultado-reporte p {
+    margin: 0 0 var(--espacio-1);
+}
+
+.tabla-dias-semana {
+    width: 100%;
+    margin: var(--espacio-3) 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.tabla-dias-semana th {
+    text-align: left;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}

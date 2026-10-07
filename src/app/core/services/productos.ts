@@ -1,7 +1,7 @@
 // src/app/core/services/productos.ts
 import { inject, Service } from '@angular/core';
 import { SupabaseClientService } from './supabase-client';
-import { Producto, NuevoProducto } from '../models/producto';
+import { Producto, FilaProducto, mapearProducto, NuevoProducto } from '../models/producto';
 
 @Service()
 export class ProductosService {
@@ -13,9 +13,9 @@ export class ProductosService {
             .select('*')
             .eq('activo', true)
             .order('categoria')
-            .overrideTypes<Producto[], { merge: false }>();
+            .overrideTypes<FilaProducto[], { merge: false }>();
         if (error) throw error;
-        return data ?? [];
+        return (data ?? []).map(mapearProducto);
     }
 
     async obtenerTodos(): Promise<Producto[]> {
@@ -23,29 +23,42 @@ export class ProductosService {
             .from('productos')
             .select('*')
             .order('categoria')
-            .overrideTypes<Producto[], { merge: false }>();
+            .overrideTypes<FilaProducto[], { merge: false }>();
         if (error) throw error;
-        return data ?? [];
+        return (data ?? []).map(mapearProducto);
     }
-    
+
     async obtenerPorId(id: number): Promise<Producto> {
         const { data, error } = await this.supabase
             .from('productos')
             .select('*')
             .eq('id', id)
-            .overrideTypes<Producto[], { merge: false }>();
+            .overrideTypes<FilaProducto[], { merge: false }>();
         if (error) throw error;
         if (!data || data.length === 0) throw new Error('Producto no encontrado');
-        return data[0];
+        return mapearProducto(data[0]);
     }
 
     async crear(datos: NuevoProducto): Promise<void> {
-        const { error } = await this.supabase.from('productos').insert(datos);
+        const { error } = await this.supabase.from('productos').insert({
+            nombre: datos.nombre,
+            categoria: datos.categoria,
+            precio: datos.precio,
+            imagen_url: datos.imagenUrl,
+        });
         if (error) throw error;
     }
 
     async actualizar(id: number, datos: NuevoProducto): Promise<void> {
-        const { error } = await this.supabase.from('productos').update(datos).eq('id', id);
+        const { error } = await this.supabase
+            .from('productos')
+            .update({
+                nombre: datos.nombre,
+                categoria: datos.categoria,
+                precio: datos.precio,
+                imagen_url: datos.imagenUrl,
+            })
+            .eq('id', id);
         if (error) throw error;
     }
 

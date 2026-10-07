@@ -62,6 +62,16 @@
                 {{ sala()?.nombre }} — {{ f.formato }} — {{ f.idioma }}
             </p>
             <p class="subtitulo-funcion">{{ horarioFormateado() }}</p>
+
+            @if (estadoVenta() === 'proximamente') {
+                <p class="aviso-preventa">
+                    🔔 Las entradas salen a la venta el {{ fechaAperturaPreventa() }}. Todavía no se pueden comprar.
+                </p>
+            } @else if (estadoVenta() === 'preventa' && precioPreventaPorEntrada() !== null) {
+                <p class="aviso-preventa">
+                    🎟️ Estás comprando en preventa: ${{ precioPreventaPorEntrada() }} por entrada (butacas VIP, recargo aparte).
+                </p>
+            }
         </section>
 
         <div class="pantalla"></div>
@@ -82,51 +92,53 @@
             </button>
         }
 
-        <div class="sala-contenedor">
-            <div class="sala">
-                @for (fila of filas(); track fila[0].fila) {
-                    <div class="fila-contenedor">
-                        <span class="fila-letra">{{ fila[0].fila }}</span>
-                        <div class="fila" [class.accesible]="fila[0].tipo === 'accesible'">
-                            @for (butaca of fila; track butaca.id) {
-                                <button
-                                    type="button"
-                                    class="butaca"
-                                    [class.accesible]="butaca.tipo === 'accesible'"
-                                    [class.vip]="butaca.tipo === 'vip'"
-                                    [class.ocupada]="idsOcupados().includes(butaca.id)"
-                                    [class.seleccionada]="idsSeleccionados().includes(butaca.id)"
-                                    [disabled]="idsOcupados().includes(butaca.id)"
-                                    [attr.aria-label]="'Fila ' + butaca.fila + ', Butaca ' + butaca.columna"
-                                    [attr.data-tooltip]="butaca.fila + '' + butaca.columna"
-                                    (click)="onClickButaca(butaca)"
-                                ></button>
-                            }
+        @if (estadoVenta() !== 'proximamente') {
+            <div class="sala-contenedor">
+                <div class="sala">
+                    @for (fila of filas(); track fila[0].fila) {
+                        <div class="fila-contenedor">
+                            <span class="fila-letra">{{ fila[0].fila }}</span>
+                            <div class="fila" [class.accesible]="fila[0].tipo === 'accesible'">
+                                @for (butaca of fila; track butaca.id) {
+                                    <button
+                                        type="button"
+                                        class="butaca"
+                                        [class.accesible]="butaca.tipo === 'accesible'"
+                                        [class.vip]="butaca.tipo === 'vip'"
+                                        [class.ocupada]="idsOcupados().includes(butaca.id)"
+                                        [class.seleccionada]="idsSeleccionados().includes(butaca.id)"
+                                        [disabled]="idsOcupados().includes(butaca.id)"
+                                        [attr.aria-label]="'Fila ' + butaca.fila + ', Butaca ' + butaca.columna"
+                                        [attr.data-tooltip]="butaca.fila + '' + butaca.columna"
+                                        (click)="onClickButaca(butaca)"
+                                    ></button>
+                                }
+                            </div>
                         </div>
-                    </div>
-                }
+                    }
+                </div>
             </div>
-        </div>
 
-        <div class="leyenda">
-            <span class="leyenda-item">
-                <span class="leyenda-muestra normal"></span> Disponible
-            </span>
-            <span class="leyenda-item">
-                <span class="leyenda-muestra accesible"></span> Accesible
-            </span>
-            <span class="leyenda-item">
-                <span class="leyenda-muestra vip"></span> VIP
-            </span>
-            <span class="leyenda-item">
-                <span class="leyenda-muestra seleccionada"></span> Seleccionada
-            </span>
-            <span class="leyenda-item">
-                <span class="leyenda-muestra ocupada"></span> Ocupada
-            </span>
-        </div>
+            <div class="leyenda">
+                <span class="leyenda-item">
+                    <span class="leyenda-muestra normal"></span> Disponible
+                </span>
+                <span class="leyenda-item">
+                    <span class="leyenda-muestra accesible"></span> Accesible
+                </span>
+                <span class="leyenda-item">
+                    <span class="leyenda-muestra vip"></span> VIP
+                </span>
+                <span class="leyenda-item">
+                    <span class="leyenda-muestra seleccionada"></span> Seleccionada
+                </span>
+                <span class="leyenda-item">
+                    <span class="leyenda-muestra ocupada"></span> Ocupada
+                </span>
+            </div>
 
-        <p>Butacas seleccionadas: {{ butacasSeleccionadas().length }}</p>
+            <p>Butacas seleccionadas: {{ butacasSeleccionadas().length }}</p>
+        }
 
         @if (candyBarAbierto() || resumenAbierto()) {
             <div class="overlay" (click)="cerrarPaneles()"></div>
@@ -143,10 +155,22 @@
                     <h4>{{ grupo[0] }}</h4>
                     @for (producto of grupo[1]; track producto.id) {
                         <div class="item-candy">
-                            <span>{{ producto.nombre }} — ${{ producto.precio }}</span>
-                            <button (click)="carritoCandy.restarProducto(producto.id)">-</button>
-                            <span>{{ carritoCandy.cantidadesProductos()[producto.id] ?? 0 }}</span>
-                            <button (click)="carritoCandy.sumarProducto(producto.id)">+</button>
+                            @if (producto.imagenUrl) {
+                                <img class="imagen-producto" [src]="producto.imagenUrl" [alt]="producto.nombre" />
+                            } @else {
+                                <span class="imagen-producto-placeholder">🍬</span>
+                            }
+                            <div class="info-candy">
+                                <div class="fila-candy">
+                                    <span class="nombre-candy">{{ producto.nombre }}</span>
+                                    <div class="controles-candy">
+                                        <button (click)="carritoCandy.restarProducto(producto.id)">-</button>
+                                        <span>{{ carritoCandy.cantidadesProductos()[producto.id] ?? 0 }}</span>
+                                        <button (click)="carritoCandy.sumarProducto(producto.id)">+</button>
+                                    </div>
+                                </div>
+                                <span class="precio-candy">${{ producto.precio }}</span>
+                            </div>
                         </div>
                     }
                 }
@@ -155,10 +179,22 @@
                     <h4>Combos</h4>
                     @for (combo of carritoCandy.combos(); track combo.id) {
                         <div class="item-candy">
-                            <span>{{ combo.nombre }} — ${{ combo.precio }}</span>
-                            <button (click)="carritoCandy.restarCombo(combo.id)">-</button>
-                            <span>{{ carritoCandy.cantidadesCombos()[combo.id] ?? 0 }}</span>
-                            <button (click)="carritoCandy.sumarCombo(combo.id)">+</button>
+                            @if (combo.imagenUrl) {
+                                <img class="imagen-producto" [src]="combo.imagenUrl" [alt]="combo.nombre" />
+                            } @else {
+                                <span class="imagen-producto-placeholder">🍬</span>
+                            }
+                            <div class="info-candy">
+                                <div class="fila-candy">
+                                    <span class="nombre-candy">{{ combo.nombre }}</span>
+                                    <div class="controles-candy">
+                                        <button (click)="carritoCandy.restarCombo(combo.id)">-</button>
+                                        <span>{{ carritoCandy.cantidadesCombos()[combo.id] ?? 0 }}</span>
+                                        <button (click)="carritoCandy.sumarCombo(combo.id)">+</button>
+                                    </div>
+                                </div>
+                                <span class="precio-candy">${{ combo.precio }}</span>
+                            </div>
                         </div>
                     }
                 }

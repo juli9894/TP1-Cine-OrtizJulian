@@ -121,6 +121,27 @@ export const routes: Routes = [
         canMatch: [adminGuard],
     },
     {
+        path: 'admin/cupones',
+        loadComponent: () => import('./features/admin/cupones/cupones').then((m) => m.Cupones),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/reportes',
+        loadComponent: () => import('./features/admin/reportes/reportes').then((m) => m.Reportes),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/graficos',
+        loadComponent: () => import('./features/admin/graficos/graficos').then((m) => m.Graficos),
+        canMatch: [adminGuard],
+    },
+    {
+        path: 'admin/auditoria',
+        loadComponent: () =>
+            import('./features/admin/lista-auditoria/lista-auditoria').then((m) => m.ListaAuditoria),
+        canMatch: [adminGuard],
+    },
+    {
         path: 'perfil',
         loadComponent: () => import('./features/perfil-usuario/perfil-usuario').then((m) => m.PerfilUsuario),
     },

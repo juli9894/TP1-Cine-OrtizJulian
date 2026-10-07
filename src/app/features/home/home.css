@@ -66,6 +66,7 @@
 .resultados a {
     text-decoration: none;
     color: inherit;
+    display: flex;
 }
 
 .resultados article {
@@ -74,11 +75,18 @@
     border-radius: var(--radio);
     padding: var(--espacio-3);
     transition: border-color 0.15s ease, transform 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .resultados a:hover article {
     border-color: var(--color-accent);
     transform: translateY(-2px);
+}
+
+.resultados .imagen-resultado {
+    position: relative;
 }
 
 .resultados img {
@@ -89,9 +97,37 @@
     border-radius: var(--radio);
 }
 
+.badge-estreno {
+    position: absolute;
+    top: var(--espacio-2);
+    left: var(--espacio-2);
+    padding: var(--espacio-1) var(--espacio-2);
+    border-radius: var(--radio);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--color-accent-texto);
+    background: var(--color-accent);
+}
+
+.badge-estreno[data-estado="proximamente"] {
+    background: var(--color-text-muted);
+}
+
+/* Reservamos siempre 2 líneas de alto para el título -- así una tarjeta con
+   título corto (Coco) y una con título largo (Avatar 3: Fuego y Ceniza
+   (PRUEBA)) terminan con exactamente la misma altura, en vez de que la de
+   texto más largo "estire" su propia tarjeta. */
 .resultados h3 {
     margin: var(--espacio-2) 0 var(--espacio-1);
     font-size: 1rem;
+    line-height: 1.2;
+    min-height: calc(1.2em * 2);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .resultados p {

@@ -2,10 +2,12 @@ import { inject, Service } from '@angular/core';
 import { SupabaseClientService } from './supabase-client';
 import { RecargoFormato } from '../models/recargo-formato';
 import { FormatoFuncion } from '../models/funcion';
+import { LogAuditoriaService } from './log-auditoria';
 
 @Service()
 export class RecargosFormatoService {
     private readonly supabase = inject(SupabaseClientService).client;
+    private readonly logAuditoria = inject(LogAuditoriaService);
 
     async obtenerTodos(): Promise<RecargoFormato[]> {
         const { data, error } = await this.supabase
@@ -23,5 +25,7 @@ export class RecargosFormatoService {
             .update({ recargo })
             .eq('formato', formato);
         if (error) throw error;
+
+        await this.logAuditoria.registrar('Cambio de precio', `Recargo formato ${formato} -> $${recargo}`);
     }
 }

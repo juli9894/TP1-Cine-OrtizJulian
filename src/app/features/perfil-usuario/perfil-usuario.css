@@ -48,31 +48,37 @@
     margin: var(--espacio-4) 0;
 }
 
-.tarjetas {
+/* Misma fila horizontal que .reserva/.poster-reserva en Mis reservas
+   (mis-reservas.css), para que las dos listas del perfil se vean como
+   parte de la misma pantalla y no como dos componentes distintos. */
+.fila-pelicula {
     display: flex;
+    align-items: center;
     gap: var(--espacio-3);
-    flex-wrap: wrap;
-}
-
-.tarjetas article {
-    flex: 0 1 140px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radio);
-    padding: var(--espacio-2);
+    padding: var(--espacio-3);
+    margin-bottom: var(--espacio-2);
+    text-decoration: none;
+    color: inherit;
 }
 
-.tarjetas img {
-    display: block;
-    width: 100%;
+.fila-pelicula:hover {
+    border-color: var(--color-accent);
+}
+
+.poster-pelicula {
+    width: 100px;
     aspect-ratio: 2 / 3;
     object-fit: cover;
     border-radius: var(--radio);
+    flex-shrink: 0;
 }
 
-.tarjetas h4 {
-    margin: var(--espacio-2) 0 0;
-    font-size: 0.875rem;
+.fila-pelicula h4 {
+    margin: 0;
+    font-size: 1rem;
 }
 
 .canje {
@@ -118,13 +124,4 @@
     color: var(--color-text-muted);
     font-size: 0.875rem;
     margin: var(--espacio-1) 0;
-}
-
-.tarjetas a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.tarjetas a:hover article {
-    border-color: var(--color-accent);
 }

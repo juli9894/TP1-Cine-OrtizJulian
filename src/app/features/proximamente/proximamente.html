@@ -1,0 +1,72 @@
+@if (visible()) {
+    @if (!abierto()) {
+        <button class="boton-flotante-proximamente" (click)="alternarPanel()">
+            🔔 Próximamente
+            @if (badgeCount() > 0) {
+                <span class="badge-notif">{{ badgeCount() }}</span>
+            }
+        </button>
+    }
+
+    @if (abierto()) {
+        <div class="overlay" (click)="cerrarPanel()"></div>
+    }
+
+    <aside class="panel-proximamente" [class.abierto]="abierto()">
+        <div class="panel-proximamente-header">
+            <h3>🔔 Próximamente</h3>
+            <button class="cerrar-proximamente" (click)="cerrarPanel()">✕</button>
+        </div>
+
+        @if (notificacionesPendientes().length > 0) {
+            <div class="feed-notificaciones">
+                @for (notif of notificacionesPendientes(); track notif.alertaId) {
+                    <a
+                        class="tarjeta-notificacion"
+                        [routerLink]="['/peliculas', notif.pelicula.id]"
+                        (click)="cerrarPanel()"
+                    >
+                        <div class="tarjeta-notificacion-header">
+                            <span>🔔 TP Cine</span>
+                            <span class="hace">ahora</span>
+                        </div>
+                        <p>¡Ya podés comprar entradas para {{ notif.pelicula.titulo }}!</p>
+                    </a>
+                }
+            </div>
+        }
+
+        <p class="subtitulo-funcion">
+            Películas que se estrenan próximamente. Activá un aviso para enterarte apenas se puedan comprar.
+        </p>
+
+        <div class="lista-proximamente">
+            @for (pelicula of peliculas(); track pelicula.id) {
+                <div class="item-proximamente">
+                    <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
+                    <div class="info-proximamente">
+                        <h4>{{ pelicula.titulo }}</h4>
+                        <p>Se estrena el {{ pelicula.fechaEstreno | date: 'dd/MM/yyyy' }}</p>
+                        @if (estadoVenta(pelicula) === 'preventa') {
+                            <a
+                                class="link-ya-en-preventa"
+                                [routerLink]="['/peliculas', pelicula.id]"
+                                (click)="cerrarPanel()"
+                            >
+                                🎟️ Ya está en preventa — comprar
+                            </a>
+                        } @else if (authService.usuarioActual()) {
+                            <button type="button" (click)="alternarAlerta(pelicula.id)">
+                                {{ idsConAlerta().includes(pelicula.id) ? 'Aviso activado ✓' : 'Avisarme' }}
+                            </button>
+                        } @else {
+                            <a routerLink="/login" (click)="cerrarPanel()">Iniciá sesión para recibir un aviso</a>
+                        }
+                    </div>
+                </div>
+            } @empty {
+                <p class="item-resumen vacio">No hay estrenos próximos cargados.</p>
+            }
+        </div>
+    </aside>
+}

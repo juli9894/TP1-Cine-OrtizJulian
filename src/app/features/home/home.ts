@@ -4,6 +4,7 @@ import { Pelicula } from '../../core/models/pelicula';
 import { GenerosService } from '../../core/services/generos';
 import { Genero } from '../../core/models/genero';
 import { RouterLink } from '@angular/router';
+import { calcularEstadoVenta, EstadoVentaPelicula } from '../../core/utils/preventa';
 
 
 @Component({
@@ -43,5 +44,14 @@ export class Home implements OnInit {
         const valor = select.value;
         this.generoId.set(valor === '' ? null : Number(valor));
         this.buscarPeliculas();
+    }
+
+    // El buscador mezcla peliculas ya estrenadas con las de Proximamente
+    // (preventa o todavia sin fecha de venta abierta) -- esta funcion le
+    // dice al template que estado tiene cada una para poder mostrar un
+    // distintivo visual, sin la cual se verian identicas a una pelicula
+    // en cartelera normal.
+    estadoVenta(pelicula: Pelicula): EstadoVentaPelicula {
+        return calcularEstadoVenta(pelicula);
     }
 }

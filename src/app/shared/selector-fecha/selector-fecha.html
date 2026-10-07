@@ -1,0 +1,50 @@
+<div class="selector-fecha">
+    <div class="campo campo-dia">
+        <label [attr.for]="'dia-' + idInstancia">Día</label>
+        <select [id]="'dia-' + idInstancia" [value]="dia()" (change)="onDiaChange($event)">
+            @for (d of diasDisponibles; track d) {
+                <option [value]="d">{{ d }}</option>
+            }
+        </select>
+    </div>
+
+    <div class="campo campo-mes">
+        <label [attr.for]="'mes-' + idInstancia">Mes</label>
+        <select [id]="'mes-' + idInstancia" [value]="mes()" (change)="onMesChange($event)">
+            @for (m of mesesDisponibles; track m) {
+                <option [value]="m">{{ m }}</option>
+            }
+        </select>
+    </div>
+
+    <div class="campo campo-anio">
+        <label [attr.for]="'anio-' + idInstancia">Año</label>
+        <select [id]="'anio-' + idInstancia" [value]="anio()" (change)="onAnioChange($event)">
+            @for (a of aniosDisponibles; track a) {
+                <option [value]="a">{{ a }}</option>
+            }
+        </select>
+    </div>
+
+    @if (conHora()) {
+        <span class="separador">a las</span>
+
+        <div class="campo campo-hora">
+            <label [attr.for]="'hora-' + idInstancia">Hora</label>
+            <select [id]="'hora-' + idInstancia" [value]="hora()" (change)="onHoraChange($event)">
+                @for (h of horasDisponibles; track h) {
+                    <option [value]="h">{{ pad(h) }}</option>
+                }
+            </select>
+        </div>
+
+        <div class="campo campo-minuto">
+            <label [attr.for]="'minuto-' + idInstancia">Min</label>
+            <select [id]="'minuto-' + idInstancia" [value]="minuto()" (change)="onMinutoChange($event)">
+                @for (m of minutosDisponibles; track m) {
+                    <option [value]="m">{{ pad(m) }}</option>
+                }
+            </select>
+        </div>
+    }
+</div>

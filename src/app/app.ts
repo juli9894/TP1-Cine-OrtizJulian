@@ -3,9 +3,10 @@ import { RouterOutlet, RouterLink } from '@angular/router';
 import { AuthService } from './core/services/auth';
 import { PerfilesService } from './core/services/perfiles';
 import { CandyBar } from './features/candy-bar/candy-bar';
+import { Proximamente } from './features/proximamente/proximamente';
 
 @Component({
-  imports: [RouterOutlet, RouterLink, CandyBar],
+  imports: [RouterOutlet, RouterLink, CandyBar, Proximamente],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',

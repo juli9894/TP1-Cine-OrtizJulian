@@ -31,6 +31,24 @@ export class PeliculasService {
         return (data ?? []).map(mapearPelicula);
     }
 
+    // Seccion "Proximamente" del Home: peliculas cuya fecha de estreno todavia
+    // no llego. No filtramos por preventa aca -- eso se decide pelicula por
+    // pelicula en la pantalla de compra, comparando fecha_estreno/dias_preventa
+    // contra la fecha de hoy (ver core/utils/preventa.ts).
+    async obtenerProximamente(): Promise<Pelicula[]> {
+        const hoy = new Date().toISOString().slice(0, 10);
+        const { data, error } = await this.supabase
+            .from('peliculas')
+            .select('*')
+            .gt('fecha_estreno', hoy)
+            .order('fecha_estreno')
+            .overrideTypes<FilaPelicula[], { merge: false }>();
+
+        if (error) throw error;
+
+        return (data ?? []).map(mapearPelicula);
+    }
+
     async obtenerPorId(id: number): Promise<Pelicula> {
         const { data, error } = await this.supabase
             .from('peliculas')
@@ -97,6 +115,9 @@ export class PeliculasService {
                 sinopsis: datos.sinopsis,
                 imagen_url: datos.imagenUrl,
                 clasificacion: datos.clasificacion,
+                fecha_estreno: datos.fechaEstreno,
+                dias_preventa: datos.diasPreventa,
+                precio_preventa: datos.precioPreventa,
             })
             .select('id')
             .single();
@@ -115,6 +136,9 @@ export class PeliculasService {
                 sinopsis: datos.sinopsis,
                 imagen_url: datos.imagenUrl,
                 clasificacion: datos.clasificacion,
+                fecha_estreno: datos.fechaEstreno,
+                dias_preventa: datos.diasPreventa,
+                precio_preventa: datos.precioPreventa,
             })
             .eq('id', id);
 

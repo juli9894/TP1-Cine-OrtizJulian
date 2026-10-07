@@ -21,6 +21,7 @@ import { Sala } from '../../../core/models/sala';
 import { Pelicula } from '../../../core/models/pelicula';
 import { ReservaCreada } from '../../../core/models/reserva';
 import { Subscription } from 'rxjs';
+import { calcularEstadoVenta } from '../../../core/utils/preventa';
 
 function calcularEdad(fechaNacimiento: string): number {
     const hoy = new Date();
@@ -99,6 +100,35 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         return 0;
     });
 
+    // Estado de venta de la pelicula (Proximamente / preventa / normal, ver
+    // core/utils/preventa.ts) -- define si se puede comprar y a que precio.
+    estadoVenta = computed(() => {
+        const pelicula = this.pelicula();
+        return pelicula ? calcularEstadoVenta(pelicula) : 'normal';
+    });
+
+    fechaAperturaPreventa = computed(() => {
+        const pelicula = this.pelicula();
+        if (!pelicula) return '';
+        const apertura = new Date(pelicula.fechaEstreno);
+        apertura.setDate(apertura.getDate() - pelicula.diasPreventa);
+        return apertura.toLocaleDateString('es-AR');
+    });
+
+    // Precio BASE (butaca normal) de preventa, ya sumado el recargo de
+    // formato de ESTA funcion -- lo que el cartel de "Estas comprando en
+    // preventa" le muestra al usuario tiene que coincidir con lo que
+    // despues paga por una butaca normal en el subtotal. Las VIP tienen su
+    // propio recargo aparte (ver calcularTotalPreventa en ReservasService),
+    // aclarado en el propio texto del cartel.
+    precioPreventaPorEntrada = computed(() => {
+        const pelicula = this.pelicula();
+        const funcion = this.funcion();
+        if (!pelicula || !funcion || pelicula.precioPreventa === null) return null;
+        const recargoFormato = this.recargos().find((r) => r.formato === funcion.formato)?.recargo ?? 0;
+        return pelicula.precioPreventa + recargoFormato;
+    });
+
     filas = computed(() => {
         const porFila = new Map<string, Butaca[]>();
         for (const butaca of this.butacas()) {
@@ -118,12 +148,34 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     subtotal = computed(() => {
         const funcion = this.funcion();
         if (!funcion) return 0;
-        const totalButacas = this.reservasService.calcularTotal(
-            funcion,
-            this.butacasSeleccionadas(),
-            this.precios(),
-            this.recargos(),
-        );
+
+        const pelicula = this.pelicula();
+        // Durante la preventa, si la pelicula tiene un precio especial
+        // configurado, ese precio reemplaza el precio de la butaca NORMAL
+        // (el tipo base) -- pero tanto el recargo por tipo de butaca (VIP
+        // sigue costando mas que normal/accesible, misma diferencia que
+        // fuera de preventa) como el recargo por formato (2D/3D/4D/5D)
+        // se siguen sumando igual que en una compra normal. Ver
+        // calcularTotalPreventa() en ReservasService. A pedido de Julian,
+        // que probo en vivo y esperaba ver esas dos diferencias reflejadas.
+        const enPreventaConPrecio =
+            pelicula && this.estadoVenta() === 'preventa' && pelicula.precioPreventa !== null;
+
+        const totalButacas = enPreventaConPrecio
+            ? this.reservasService.calcularTotalPreventa(
+                  funcion,
+                  this.butacasSeleccionadas(),
+                  pelicula!.precioPreventa!,
+                  this.precios(),
+                  this.recargos(),
+              )
+            : this.reservasService.calcularTotal(
+                  funcion,
+                  this.butacasSeleccionadas(),
+                  this.precios(),
+                  this.recargos(),
+              );
+
         return totalButacas + this.carritoCandy.subtotal();
     });
 
@@ -241,6 +293,17 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         // desde cualquier otra pantalla), sin elegir butacas.
         if (!funcion || !pelicula || (!hayButacas && !hayCandy)) return;
         this.errorMensaje.set('');
+
+        // Si todavia no abrio la preventa, no se vende ni una entrada para
+        // esta funcion -- el candy bar independiente (sin butacas) si se
+        // puede seguir comprando igual, no depende del estreno de ninguna
+        // pelicula puntual.
+        if (hayButacas && this.estadoVenta() === 'proximamente') {
+            this.errorMensaje.set(
+                `Las entradas de ${pelicula.titulo} salen a la venta el ${this.fechaAperturaPreventa()}.`,
+            );
+            return;
+        }
 
         const edadMinima = this.edadMinima();
         const usuario = this.authService.usuarioActual();

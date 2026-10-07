@@ -19,4 +19,25 @@ export class CuponesService {
 
         return mapearCupon(data[0]);
     }
+
+    async obtenerTodos(): Promise<Cupon[]> {
+        const { data, error } = await this.supabase
+            .from('cupones')
+            .select('*')
+            .order('tipo')
+            .overrideTypes<FilaCupon[], { merge: false }>();
+
+        if (error) throw error;
+
+        return (data ?? []).map(mapearCupon);
+    }
+
+    async actualizar(tipo: string, porcentajeDescuento: number, activo: boolean): Promise<void> {
+        const { error } = await this.supabase
+            .from('cupones')
+            .update({ porcentaje_descuento: porcentajeDescuento, activo })
+            .eq('tipo', tipo);
+
+        if (error) throw error;
+    }
 }

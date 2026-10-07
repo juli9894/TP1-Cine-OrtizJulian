@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FuncionesService } from '../../../core/services/funciones';
 import { PeliculasService } from '../../../core/services/peliculas';
@@ -19,6 +19,7 @@ export class ListaFunciones implements OnInit {
     private readonly funcionesService = inject(FuncionesService);
     private readonly peliculasService = inject(PeliculasService);
     private readonly salasService = inject(SalasService);
+    private readonly router = inject(Router);
 
     funciones = signal<Funcion[]>([]);
     peliculas = signal<Pelicula[]>([]);
@@ -41,6 +42,14 @@ export class ListaFunciones implements OnInit {
 
     nombreSala(salaId: number): string {
         return this.salas().find((s) => s.id === salaId)?.nombre ?? '—';
+    }
+
+    // Click en la fila (no en los botones de Editar/Eliminar) lleva a la
+    // pantalla de seleccion de butacas de esa funcion -- a pedido de
+    // Julian, para poder previsualizarla sin tener que ir a buscarla desde
+    // la cartelera publica.
+    verButacas(funcionId: number): void {
+        this.router.navigate(['/funciones', funcionId, 'butacas']);
     }
 
     async eliminarFuncion(id: number): Promise<void> {

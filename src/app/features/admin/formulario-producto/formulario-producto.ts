@@ -23,6 +23,10 @@ export class FormularioProducto implements OnInit {
         nombre: ['', Validators.required],
         categoria: ['', Validators.required],
         precio: [0, [Validators.required, Validators.min(0)]],
+        // Opcional a proposito: no vamos a obligar a recargar todos los
+        // productos ya existentes con una imagen antes de poder tocar
+        // cualquier otra cosa del catalogo.
+        imagenUrl: [''],
     });
 
     async ngOnInit(): Promise<void> {
@@ -32,6 +36,7 @@ export class FormularioProducto implements OnInit {
                 nombre: producto.nombre,
                 categoria: producto.categoria,
                 precio: producto.precio,
+                imagenUrl: producto.imagenUrl ?? '',
             });
         }
     }
@@ -42,11 +47,18 @@ export class FormularioProducto implements OnInit {
         const valores = this.formularioProducto.getRawValue();
         this.errorMensaje.set('');
 
+        const datos = {
+            nombre: valores.nombre,
+            categoria: valores.categoria,
+            precio: valores.precio,
+            imagenUrl: valores.imagenUrl.trim() === '' ? null : valores.imagenUrl.trim(),
+        };
+
         try {
             if (this.esEdicion()) {
-                await this.productosService.actualizar(Number(this.id()), valores);
+                await this.productosService.actualizar(Number(this.id()), datos);
             } else {
-                await this.productosService.crear(valores);
+                await this.productosService.crear(datos);
             }
 
             this.router.navigateByUrl('/admin/productos');

@@ -1,0 +1,53 @@
+/* Vista previa de la pelicula elegida en el select de arriba -- pensada
+   sobre todo para que se vea la fecha de estreno antes de cargar el
+   horario, asi evitamos a ojo el rechazo del trigger (migracion 0024:
+   no se puede programar una funcion antes del estreno). */
+.detalle-pelicula-seleccionada {
+    display: flex;
+    gap: var(--espacio-3);
+    align-items: center;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radio);
+    padding: var(--espacio-2) var(--espacio-3);
+    margin-top: calc(var(--espacio-3) * -1);
+}
+
+.detalle-pelicula-seleccionada img {
+    width: 48px;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: var(--radio);
+    flex-shrink: 0;
+}
+
+.detalle-pelicula-seleccionada p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.detalle-pelicula-seleccionada .titulo {
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.detalle-pelicula-seleccionada .fecha-estreno {
+    color: var(--color-accent);
+}
+
+/* SelectorFecha no es un <label> con un input adentro (no es un
+   FormControl), asi que no hereda el estilo global de `label` -- lo
+   replicamos aca para que se vea igual que el resto de los campos del
+   formulario. */
+.campo-horario {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-1);
+}
+
+.etiqueta-campo {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}

@@ -1,0 +1,66 @@
+<div class="pagina-admin">
+    <a class="volver" routerLink="/admin">← Volver al panel</a>
+
+    <h2>Cupones y puntos</h2>
+
+    <div class="grupo-formularios">
+        <div class="tarjeta-formulario">
+            <h3>Cupones automáticos</h3>
+
+            <form [formGroup]="formularioCupones" (ngSubmit)="guardarCupones()">
+                <fieldset formGroupName="bienvenida">
+                    <legend>Bienvenida (1ª compra)</legend>
+
+                    <label>
+                        Descuento (%)
+                        <input type="number" formControlName="porcentaje" />
+                    </label>
+
+                    <label class="checkbox">
+                        <input type="checkbox" formControlName="activo" />
+                        Activo
+                    </label>
+                </fieldset>
+
+                <fieldset formGroupName="mayor50">
+                    <legend>Mayores de 50 años</legend>
+
+                    <label>
+                        Descuento (%)
+                        <input type="number" formControlName="porcentaje" />
+                    </label>
+
+                    <label class="checkbox">
+                        <input type="checkbox" formControlName="activo" />
+                        Activo
+                    </label>
+                </fieldset>
+
+                <button type="submit" [disabled]="formularioCupones.invalid">Guardar</button>
+            </form>
+        </div>
+
+        <div class="tarjeta-formulario">
+            <h3>Canje de puntos</h3>
+
+            <form [formGroup]="formularioPuntos" (ngSubmit)="guardarPuntos()">
+                <label>
+                    Valor de cada punto (en pesos)
+                    <input type="number" step="0.01" formControlName="valorPorPunto" />
+                </label>
+
+                <p class="ayuda">Se canjea el saldo completo de puntos por crédito, a esta tasa.</p>
+
+                <button type="submit" [disabled]="formularioPuntos.invalid">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
+
+    @if (mensajeExito()) {
+        <p class="exito">{{ mensajeExito() }}</p>
+    }
+</div>

@@ -34,6 +34,25 @@
                 </select>
             </label>
 
+            <div class="campo-fecha-estreno">
+                <span class="etiqueta-campo">Fecha de estreno</span>
+                <app-selector-fecha
+                    [conHora]="false"
+                    [valorInicial]="fechaEstrenoValor()"
+                    (cambio)="onFechaEstrenoChange($event)"
+                />
+            </div>
+
+            <label>
+                Preventa: días antes del estreno
+                <input type="number" formControlName="diasPreventa" />
+            </label>
+
+            <label>
+                Precio especial de preventa (vacío = precio normal)
+                <input type="number" formControlName="precioPreventa" />
+            </label>
+
             <fieldset>
                 <legend>Géneros</legend>
                 @for (genero of generos(); track genero.id) {

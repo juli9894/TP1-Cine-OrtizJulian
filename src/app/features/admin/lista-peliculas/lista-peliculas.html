@@ -13,21 +13,22 @@
     <div class="tabla-contenedor">
         <table>
             <thead>
-                <tr><th>Título</th><th>Duración</th><th>Clasificación</th><th></th></tr>
+                <tr><th>Título</th><th>Duración</th><th>Clasificación</th><th>Estreno</th><th></th></tr>
             </thead>
             <tbody>
                 @for (pelicula of peliculas(); track pelicula.id) {
-                    <tr>
+                    <tr class="fila-clickeable" (click)="verDetalle(pelicula.id)">
                         <td>{{ pelicula.titulo }}</td>
                         <td>{{ pelicula.duracionMinutos }} min</td>
                         <td>{{ pelicula.clasificacion }}</td>
-                        <td>
+                        <td>{{ pelicula.fechaEstreno | date: 'dd/MM/yyyy' }}</td>
+                        <td (click)="$event.stopPropagation()">
                             <a [routerLink]="['/admin/peliculas', pelicula.id, 'editar']">Editar</a>
                             <button (click)="eliminarPelicula(pelicula.id)">Eliminar</button>
                         </td>
                     </tr>
                 } @empty {
-                    <tr><td colspan="4">No hay películas cargadas.</td></tr>
+                    <tr><td colspan="5">No hay películas cargadas.</td></tr>
                 }
             </tbody>
         </table>

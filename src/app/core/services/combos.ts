@@ -1,7 +1,7 @@
 // src/app/core/services/combos.ts
 import { inject, Service } from '@angular/core';
 import { SupabaseClientService } from './supabase-client';
-import { Combo, NuevoCombo } from '../models/combo';
+import { Combo, FilaCombo, mapearCombo, NuevoCombo } from '../models/combo';
 
 @Service()
 export class CombosService {
@@ -12,18 +12,18 @@ export class CombosService {
             .from('combos')
             .select('*')
             .eq('activo', true)
-            .overrideTypes<Combo[], { merge: false }>();
+            .overrideTypes<FilaCombo[], { merge: false }>();
         if (error) throw error;
-        return data ?? [];
+        return (data ?? []).map(mapearCombo);
     }
 
     async obtenerTodos(): Promise<Combo[]> {
         const { data, error } = await this.supabase
             .from('combos')
             .select('*')
-            .overrideTypes<Combo[], { merge: false }>();
+            .overrideTypes<FilaCombo[], { merge: false }>();
         if (error) throw error;
-        return data ?? [];
+        return (data ?? []).map(mapearCombo);
     }
 
     async obtenerPorId(id: number): Promise<Combo> {
@@ -31,19 +31,32 @@ export class CombosService {
             .from('combos')
             .select('*')
             .eq('id', id)
-            .overrideTypes<Combo[], { merge: false }>();
+            .overrideTypes<FilaCombo[], { merge: false }>();
         if (error) throw error;
         if (!data || data.length === 0) throw new Error('Combo no encontrado');
-        return data[0];
+        return mapearCombo(data[0]);
     }
 
     async crear(datos: NuevoCombo): Promise<void> {
-        const { error } = await this.supabase.from('combos').insert(datos);
+        const { error } = await this.supabase.from('combos').insert({
+            nombre: datos.nombre,
+            descripcion: datos.descripcion,
+            precio: datos.precio,
+            imagen_url: datos.imagenUrl,
+        });
         if (error) throw error;
     }
 
     async actualizar(id: number, datos: NuevoCombo): Promise<void> {
-        const { error } = await this.supabase.from('combos').update(datos).eq('id', id);
+        const { error } = await this.supabase
+            .from('combos')
+            .update({
+                nombre: datos.nombre,
+                descripcion: datos.descripcion,
+                precio: datos.precio,
+                imagen_url: datos.imagenUrl,
+            })
+            .eq('id', id);
         if (error) throw error;
     }
 

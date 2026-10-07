@@ -1,0 +1,37 @@
+<div class="pagina-admin">
+    <div class="cabecera-admin">
+        <h2>Log de auditoría</h2>
+        <a routerLink="/admin">Volver</a>
+    </div>
+
+    @if (errorMensaje()) {
+        <p class="error">{{ errorMensaje() }}</p>
+    }
+
+    <div class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha y hora</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (log of logs(); track log.id) {
+                    <tr>
+                        <td>{{ log.createdAt | date: 'short' }}</td>
+                        <td>{{ log.usuarioEmail ?? '—' }}</td>
+                        <td>{{ log.accion }}</td>
+                        <td>{{ log.detalle ?? '—' }}</td>
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td colspan="4">Todavía no hay acciones registradas.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
