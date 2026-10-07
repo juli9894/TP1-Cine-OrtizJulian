@@ -7,8 +7,7 @@ export interface DatosTicket {
     // butacas ni función elegida) no tiene ninguno de estos datos.
     pelicula?: string;
     // Si viene y no es 'ATP', el ticket aclara la edad mínima y que un
-    // menor necesita acompañamiento adulto -- es la "entrada" que pide el
-    // enunciado, no solo la pantalla de compra.
+    // menor necesita acompañamiento adulto. Si es 'ATP' o no viene, no se imprime nada.
     clasificacion?: 'ATP' | '+13' | '+18';
     sala?: string;
     horario?: string;
@@ -18,10 +17,6 @@ export interface DatosTicket {
     items: string[];
     total: number;
     qrCode: string;
-    // Desglose opcional de cómo se llegó al total -- sin esto, una compra
-    // pagada con cupón/crédito solo mostraba "Total pagado: $0" sin
-    // explicar por qué. Si no se pasa (ej. entradas viejas sin este dato
-    // guardado todavía), el ticket se ve exactamente igual que antes.
     subtotal?: number;
     descuento?: number;
     creditoAplicado?: number;
@@ -32,8 +27,7 @@ const GRIS_OSCURO: [number, number, number] = [30, 30, 35];
 const GRIS_MEDIO: [number, number, number] = [120, 120, 125];
 
 export async function generarTicketPdf(datos: DatosTicket): Promise<void> {
-    // width: 300 -- misma razón que en mis-reservas.ts: mejor generarlo ya
-    // grande que depender de que jsPDF agrande una imagen chica al insertarla.
+    // width: 300 genado grande para no depender de que jsPDF agrande una imagen chica al insertarla.
     const qrDataUrl = await QRCode.toDataURL(datos.qrCode, { width: 300 });
 
     const doc = new jsPDF();

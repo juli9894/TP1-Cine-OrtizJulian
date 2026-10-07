@@ -41,10 +41,7 @@ export class ReportesService {
     private readonly supabase = inject(SupabaseClientService).client;
 
     // Facturacion y entradas vendidas de un dia puntual (00:00 a 23:59:59
-    // locales). Mismo patron de dos consultas encadenadas que ya usa
-    // ButacasService.obtenerIdsOcupados(): primero se resuelven las
-    // reservas del dia, despues se cuentan las butacas asociadas a esas
-    // reservas -- reserva_butacas no tiene una columna de fecha propia.
+    // locales).
     async facturacionDiaria(fecha: string): Promise<ReporteFacturacion> {
         const desde = `${fecha}T00:00:00`;
         const hasta = `${fecha}T23:59:59`;
@@ -75,12 +72,7 @@ export class ReportesService {
     }
 
     // Igual que facturacionDiaria, pero para una semana completa (7 dias
-    // a partir de fechaInicio) -- a pedido de Julian, un reporte de un
-    // solo dia quedaba "pobre" para mostrar en la defensa. En vez de
-    // llamar 7 veces a facturacionDiaria (7 ida y vueltas a la base), se
-    // trae TODA la semana en una sola consulta y se reparte por dia en
-    // el cliente con un Map -- mismo criterio de "una sola consulta en
-    // vez de un loop" que ya se uso en productosMasVendidos().
+    // a partir de fechaInicio).
     async facturacionSemanal(fechaInicio: string): Promise<ReporteSemanal> {
         const dias = diasDeLaSemana(fechaInicio);
         const fechaFin = dias[dias.length - 1];
@@ -183,8 +175,7 @@ export class ReportesService {
 
 // 7 fechas 'YYYY-MM-DD' consecutivas a partir de fechaInicio, armadas a
 // mano (sin pasar por Date() para el calculo final) para no repetir el
-// mismo bug de timezone que ya encontramos y corregimos en SelectorFecha:
-// partimos fechaInicio con un "T00:00:00" explicito para que Date lo
+// mismo bug de timezone partimos fechaInicio con un "T00:00:00" explicito para que Date lo
 // interprete en hora LOCAL, no UTC.
 function diasDeLaSemana(fechaInicio: string): string[] {
     const inicio = new Date(`${fechaInicio}T00:00:00`);

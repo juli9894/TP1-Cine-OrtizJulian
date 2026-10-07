@@ -10,14 +10,10 @@ alter table reservas
     add column if not exists cancelada boolean not null default false;
 
 -- Cancela una reserva y acredita su total como credito interno, todo en
--- una sola transaccion de Postgres (no en dos pasos separados desde
--- Angular) para que nunca pueda quedar "cancelada pero sin acreditar" si
--- algo falla en el medio -- mismo motivo por el que sumar_puntos
--- (migracion 0012) corre en la base en vez de leer/escribir el saldo
--- desde el cliente. El chequeo de las 2 horas se repite aca tambien
--- (ademas de en Angular, para feedback inmediato) para que la regla sea
--- imposible de saltear sin importar desde donde se llame -- mismo
--- criterio que el trigger de solapamiento de horarios (migracion 0005).
+-- una sola transaccion de Postgres para que nunca pueda quedar "cancelada pero sin acreditar" si
+-- algo falla en el medio.
+-- Se repite el chequeo de las 2 horas.
+
 create or replace function cancelar_reserva(p_reserva_id integer, p_usuario_id uuid)
 returns void as $$
 declare

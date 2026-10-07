@@ -1,7 +1,5 @@
--- Dos pedidos de Julian, 6 oct:
--- 1) Las reservas de "solo candy" (funcion_id null, migracion 0018) no se
---    podian cancelar nunca: cancelar_reserva hacia un INNER JOIN contra
---    funciones, y una reserva sin funcion simplemente no aparecia en el
+-- 1) Las reservas de "solo candy" no se podian cancelar nunca: cancelar_reserva 
+--    hacia un INNER JOIN contra funciones, y una reserva sin funcion simplemente no aparecia en el
 --    resultado (quedaba "sin usuario", y tiraba "no pertenece a este
 --    usuario"). Se cambia a LEFT JOIN, y el chequeo de las 2 horas se
 --    saltea cuando no hay horario (no hay funcion de la cual depender).
@@ -36,8 +34,7 @@ begin
         raise exception 'Esta reserva ya fue validada (entrada usada o candy entregado) y no se puede cancelar';
     end if;
 
-    -- Sin funcion asociada (compra de solo candy) no hay horario contra el
-    -- cual medir las 2 horas -- el candy se puede cancelar en cualquier
+    -- Sin funcion asociada, el candy se puede cancelar en cualquier
     -- momento mientras no haya sido entregado (qr_validado, chequeado arriba).
     if v_horario is not null and v_horario - now() < interval '2 hours' then
         raise exception 'Ya no se puede cancelar: faltan menos de 2 horas para la funcion';

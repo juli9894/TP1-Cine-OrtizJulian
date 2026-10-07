@@ -123,12 +123,6 @@ export class FormularioFuncion implements OnInit, ComponenteConCambiosSinGuardar
         }
     }
 
-    // Lo usa confirmarSalidaGuard (canDeactivate) para decidir si hay que
-    // preguntar antes de abandonar esta pantalla. 'dirty' es una propiedad
-    // que Angular mantiene sola en cualquier FormGroup/FormControl: se pone
-    // en true apenas el usuario toca un campo, y volvemos a false a mano con
-    // markAsPristine() justo antes de navegar tras guardar con exito (arriba),
-    // para no preguntar '¿salir sin guardar?' justo despues de guardar.
     hayCambiosSinGuardar(): boolean {
         return this.formularioFuncion.dirty;
     }

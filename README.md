@@ -50,7 +50,7 @@ supabase/migrations/          # una migración SQL por cambio de esquema, en ord
 - Selector de fecha/hora nativo del navegador, no uno hecho a mano.
 - Productos y combos se desactivan, no se borran — si ya se vendieron, quedan en el historial. Salas/Funciones/Películas sí se borran.
 - Sumar puntos se hace con una función directo en la base, no leyendo y reescribiendo desde la app — para que dos compras al mismo tiempo no se pisen.
-- RLS (seguridad por fila de Supabase) quedó pendiente a propósito — no era algo pedido puntualmente para este TP, se priorizó terminar lo funcional.
+- RLS (seguridad por fila de Supabase) quedó pendiente a propósito.
 
 ## Qué está hecho
 
@@ -63,9 +63,6 @@ supabase/migrations/          # una migración SQL por cambio de esquema, en ord
 - Restricción de edad por clasificación de película
 - Entrada en PDF con QR
 - Deploy automático
-
-## Falta
-
 - Cancelaciones (hasta 2hs antes) con crédito en vez de reembolso
 - Rol de Empleado: escanear QR o cargarlo a mano
 - Canje de puntos e historial

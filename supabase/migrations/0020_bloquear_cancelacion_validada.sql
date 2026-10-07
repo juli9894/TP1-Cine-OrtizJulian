@@ -1,9 +1,6 @@
--- Bug encontrado por Julian probando el rol Empleado: una reserva ya
--- VALIDADA (entrada escaneada / candy ya entregado, ver migracion 0019)
--- todavia se podia cancelar desde "Mis reservas", acreditando credito
--- interno como si el cliente nunca hubiese usado lo que compro. Mismo
--- criterio que el chequeo de las 2 horas (migracion 0013): la regla se
--- valida en la base, no solo en Angular, para que sea imposible de
+-- Bug encontrado Julian probando el rol Empleado: una reserva ya
+-- VALIDADA (entrada escaneada / candy ya entregado)
+--la regla se valida en la base, no solo en Angular, para que sea imposible de
 -- saltear sin importar desde donde se llame a cancelar_reserva.
 create or replace function cancelar_reserva(p_reserva_id integer, p_usuario_id uuid)
 returns void as $$

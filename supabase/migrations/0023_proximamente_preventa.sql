@@ -1,4 +1,4 @@
--- "Proximamente" + alertas + preventa (mail del cliente, ver TP).
+-- "Proximamente" + alertas + preventa.
 -- Una pelicula ahora tiene fecha de estreno. Mientras falte mucho para esa
 -- fecha, no se vende (aparece en "Proximamente"); en la ventana de preventa
 -- (configurable por pelicula, dias_preventa) se vende a un precio especial
@@ -12,10 +12,7 @@ alter table peliculas
     add column if not exists dias_preventa integer not null default 7,
     add column if not exists precio_preventa numeric null;
 
--- Alertas de "avisame cuando salga a la venta". Simplificadas a nivel base
--- de datos (sin push real -- eso necesitaria Service Worker + backend que
--- dispare el push, que es la feature de PWA que quedo para el final, ver
--- seguimiento de horas): una fila por usuario+pelicula, con un flag para
+-- Alertas de "avisame cuando salga a la venta". Una fila por usuario+pelicula, con un flag para
 -- saber si ya se le mostro el aviso una vez que la preventa abrio.
 create table if not exists alertas_proximamente (
     id bigint generated always as identity primary key,

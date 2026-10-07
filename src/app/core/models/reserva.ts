@@ -51,8 +51,8 @@ export interface FilaReservaDetalle {
 
 export function mapearReservaDetalle(fila: FilaReservaDetalle): ReservaDetalle {
     // El candy bar de una reserva puede venir de dos tablas distintas
-    // (productos sueltos y combos armados) — acá los juntamos en una sola
-    // lista de textos, igual que hace itemsSeleccionados() en el carrito.
+    // (productos sueltos y combos armados) — los junto en una sola
+    // lista de textos.
     const itemsProductos = fila.reserva_productos
         .filter((rp) => rp.productos !== null)
         .map((rp) => `${rp.productos!.nombre} x${rp.cantidad}`);
@@ -61,8 +61,7 @@ export function mapearReservaDetalle(fila: FilaReservaDetalle): ReservaDetalle {
         .map((rc) => `${rc.combos!.nombre} x${rc.cantidad}`);
 
     // Mis reservas muestra las butacas agrupadas por fila ("Fila A: Butaca 5,
-    // Butaca 6") en vez de una lista plana -- agrupamos acá, una sola vez,
-    // en lugar de parsear strings ya formateadas en el componente.
+    // Butaca 6") agrupo una sola vez, para no parsear strings ya formateadas en el componente.
     const butacasPorFilaMap = new Map<string, number[]>();
     for (const rb of fila.reserva_butacas) {
         if (!rb.butacas) continue;

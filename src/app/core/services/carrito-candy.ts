@@ -5,23 +5,13 @@ import { ReservasService, ProductoSeleccionado, ComboSeleccionado } from './rese
 import { Producto } from '../models/producto';
 import { Combo } from '../models/combo';
 
-// Por qué esto es un service y no una signal local de cada componente: el
-// carrito de candy bar tiene que ser EL MISMO sin importar desde qué pantalla
-// se lo mire (home, selección de butacas, etc.). Un service con
-// `providedIn: 'root'` crea una única instancia para toda la app — Angular
-// se la inyecta a cualquier componente que la pida, siempre la misma
-// instancia. Como las cantidades viven en signals DENTRO de esa instancia
-// compartida, sumar un pochoclo desde el widget flotante del Home y después
-// entrar a seleccionar butacas muestra ese mismo pochoclo ya cargado: no hay
-// que pasar datos entre componentes, los dos leen la misma fuente de verdad.
 @Injectable({ providedIn: 'root' })
 export class CarritoCandyService {
     private readonly productosService = inject(ProductosService);
     private readonly combosService = inject(CombosService);
     private readonly reservasService = inject(ReservasService);
 
-    // No es una signal a propósito: es un dato interno de "¿ya pedí el
-    // catálogo?", no algo que la pantalla necesite leer de forma reactiva.
+    // Verificamos si ya cargamos el catálogo de productos y combos, para no volver a cargarlo en la misma sesión.
     private catalogoCargado = false;
 
     productos = signal<Producto[]>([]);
@@ -84,10 +74,7 @@ export class CarritoCandyService {
         return [...nombresProductos, ...nombresCombos];
     });
 
-    // La primera pantalla que necesita el catálogo (productos/combos) lo
-    // pide a Supabase; cualquier otra pantalla que se abra después (este
-    // mismo service, siempre la misma instancia) ya lo encuentra cargado y
-    // no repite la consulta.
+    // Carga de catalogo, una sola vez por sesion. 
     async cargarCatalogoSiHaceFalta(): Promise<void> {
         if (this.catalogoCargado) return;
         this.catalogoCargado = true;
@@ -116,9 +103,6 @@ export class CarritoCandyService {
         this.cantidadesCombos.update((actual) => ({ ...actual, [id]: Math.max(0, (actual[id] ?? 0) - 1) }));
     }
 
-    // Se llama después de confirmar una compra (desde cualquiera de los dos
-    // flujos: el widget flotante o la compra combinada con butacas) para que
-    // el carrito vuelva a empezar vacío.
     vaciar(): void {
         this.cantidadesProductos.set({});
         this.cantidadesCombos.set({});

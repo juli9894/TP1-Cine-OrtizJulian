@@ -3,10 +3,7 @@
 -- validaba en seleccion-butacas.ts (confirmarCompra), es decir, en el
 -- navegador. Cualquiera con las herramientas de desarrollador podia saltear
 -- esa pantalla y llamar directo a la API de Supabase para crear la reserva
--- igual. Mismo criterio que ya se uso para el solapamiento de funciones
--- (migracion 0005) y el saldo de credito (aplicar_credito, migracion 0016):
--- las reglas de negocio importantes se validan en la base, no solo en
--- Angular, porque Angular corre en la computadora del usuario y la base no.
+-- igual. 
 create or replace function validar_edad_minima()
 returns trigger as $$
 declare
@@ -42,7 +39,7 @@ begin
     -- enunciado): no hay perfil del cual sacar fecha de nacimiento, asi que
     -- no hay forma de validar la edad en la base para este caso -- queda
     -- cubierto por la aclaracion de "requiere acompañamiento adulto" en la
-    -- entrada, como pide el enunciado.
+    -- entrada.
     if new.usuario_id is null then
         return new;
     end if;

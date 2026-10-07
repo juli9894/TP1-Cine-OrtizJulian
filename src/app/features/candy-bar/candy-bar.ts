@@ -137,7 +137,7 @@ export class CandyBar implements OnInit, OnDestroy {
     }
 
     alternarPanel(evento: MouseEvent): void {
-        // Sin este stopPropagation, el mismo click que abre el panel seguiria
+        // Sin stopPropagation, el mismo click que abre el panel seguiria
         // burbujeando hasta document, donde ClickFueraDirective lo tomaria como
         // un click 'afuera' del panel (el boton esta fuera del <aside>) y lo
         // cerraria al toque -- el panel 'nunca se abriria' a la vista del usuario.

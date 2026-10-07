@@ -20,10 +20,6 @@ export class AuthService {
         });
     }
 
-    // Al cargar la app, usuarioActual() arranca en null hasta que getSession()
-    // resuelve (es una promesa). Un guard que lee el signal de forma sincronica
-    // justo despues de un hard reload puede ver null aunque haya sesion guardada
-    // -- este metodo espera la resolucion real antes de decidir.
     async obtenerUsuarioActual(): Promise<User | null> {
         const actual = this.usuarioActual();
         if (actual !== null) {

@@ -16,9 +16,6 @@ export interface FilaCombo {
     imagen_url: string | null;
 }
 
-// Mismo patron que Producto/FilaProducto/mapearProducto: la unica columna
-// de mas de una palabra (imagen_url) es la que obliga a mapear en vez de
-// tipar la fila de la base directo como Combo.
 export function mapearCombo(fila: FilaCombo): Combo {
     return {
         id: fila.id,

@@ -46,10 +46,7 @@ export class SeleccionButacas implements OnInit, OnDestroy, ComponenteConCambios
     private readonly funcionesService = inject(FuncionesService);
     private readonly butacasService = inject(ButacasService);
     private readonly reservasService = inject(ReservasService);
-    // Carrito de candy bar: es el MISMO service (y las mismas signals) que usa
-    // el widget flotante de app.html. Por eso lo que el usuario cargó en el
-    // candy bar desde el Home sigue estando acá — no son dos carritos, es
-    // uno solo compartido entre pantallas.
+    // Carrito de candy bar: es el MISMO service que usa el widget flotante de app.html. 
     protected readonly carritoCandy = inject(CarritoCandyService);
     private readonly peliculasService = inject(PeliculasService);
     private readonly perfilesService = inject(PerfilesService);
@@ -79,16 +76,10 @@ export class SeleccionButacas implements OnInit, OnDestroy, ComponenteConCambios
     private suscripcion?: Subscription;
 
     // Foto de lo que había en el carrito de candy en el momento exacto de
-    // confirmar la compra. Hace falta porque, apenas se confirma, vaciamos
-    // el carrito compartido (carritoCandy.vaciar()) para que quede listo
-    // para la próxima compra — así que la pantalla de "¡Compra confirmada!"
-    // no puede seguir leyendo el carrito en vivo, tiene que leer esta copia.
+    // confirmar la compra. Antes de vaciar el carrito compartido (carritoCandy.vaciar())
     itemsUltimaCompra = signal<string[]>([]);
 
-    // Misma idea que itemsUltimaCompra: subtotal()/descuento()/creditoAplicado()
-    // dependen de carritoCandy.subtotal(), que cambia apenas se vacía el carrito
-    // al confirmar -- sin esta foto, la pantalla de "¡Compra confirmada!" (y el
-    // PDF) mostrarían un desglose recalculado mal (candy en $0) en vez del real.
+    // Misma idea que itemsUltimaCompra:
     resumenUltimaCompra = signal<{ subtotal: number; descuento: number; creditoAplicado: number } | null>(null);
 
     // Referencia directa a la función -- se usa desde el template.
@@ -422,14 +413,14 @@ export class SeleccionButacas implements OnInit, OnDestroy, ComponenteConCambios
             await generarTicketPdf({
                 ...(huboButacas
                     ? {
-                          pelicula: pelicula.titulo,
-                          clasificacion: pelicula.clasificacion,
-                          sala: this.sala()?.nombre ?? '',
-                          horario: this.horarioFormateado(),
-                          formato: funcion.formato,
-                          idioma: funcion.idioma,
-                          butacas: this.butacasTextos(),
-                      }
+                            pelicula: pelicula.titulo,
+                            clasificacion: pelicula.clasificacion,
+                            sala: this.sala()?.nombre ?? '',
+                            horario: this.horarioFormateado(),
+                            formato: funcion.formato,
+                            idioma: funcion.idioma,
+                            butacas: this.butacasTextos(),
+                        }
                     : {}),
                 items: this.itemsUltimaCompra(),
                 total: reserva.total,

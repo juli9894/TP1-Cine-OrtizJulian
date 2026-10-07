@@ -1,8 +1,5 @@
 -- Catalogo de canje de puntos (valores configurables) + historial de
 -- canjes. El canje acredita el valor equivalente como saldo_credito --
--- se reutiliza el mismo mecanismo de credito interno ya construido para
--- las cancelaciones (migracion 0013), en vez de modelar una "entrada
--- canjeada" o un "candy canjeado" como una entidad aparte.
 
 create table catalogo_puntos (
     id serial primary key,
@@ -25,13 +22,6 @@ create table historial_canjes (
     created_at timestamptz not null default now()
 );
 
--- El canje es intransferible por diseno: siempre descuenta del
--- saldo_puntos del mismo usuario que lo pide (p_usuario_id), nunca de
--- otra cuenta -- no hace falta una columna ni una regla aparte para
--- "intransferible", es consecuencia directa de como esta escrita la
--- funcion. Atomico por el mismo motivo que sumar_puntos/cancelar_reserva:
--- descontar puntos y acreditar el credito tienen que pasar los dos juntos
--- o ninguno de los dos.
 create or replace function canjear_puntos(p_usuario_id uuid, p_catalogo_id integer)
 returns void as $$
 declare

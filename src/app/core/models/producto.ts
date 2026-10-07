@@ -16,10 +16,6 @@ export interface FilaProducto {
     imagen_url: string | null;
 }
 
-// Primera columna de mas de una palabra que tiene Producto (imagen_url) --
-// hasta ahora nombre/categoria/precio/activo no necesitaban el patron
-// Fila/mapear() porque ya eran una sola palabra, igual en snake_case y en
-// camelCase.
 export function mapearProducto(fila: FilaProducto): Producto {
     return {
         id: fila.id,

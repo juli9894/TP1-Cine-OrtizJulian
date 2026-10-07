@@ -49,14 +49,10 @@ export class ReservasService {
         }, 0);
     }
 
-    // Igual que calcularTotal(), pero para cuando la pelicula esta en
-    // preventa con un precio especial configurado. precioPreventa reemplaza
+    // Igual que calcularTotal(), precioPreventa reemplaza
     // el precio de la butaca 'normal' (el tipo base), pero NO borra la
     // diferencia entre tipos de butaca: VIP sigue costando mas que
-    // normal/accesible, por la misma diferencia que tendria en una compra
-    // fuera de preventa (ej. si VIP cuesta $3000 mas que normal siempre,
-    // sigue costando $3000 mas durante la preventa). El recargo por formato
-    // (2D/3D/4D/5D) tambien se sigue sumando igual que siempre.
+    // normal/accesible
     calcularTotalPreventa(
         funcion: Funcion,
         butacasSeleccionadas: Butaca[],
@@ -122,16 +118,7 @@ export class ReservasService {
         descuento: number,
     ): Promise<ReservaCreada> {
         // Orden importante: el crédito se descuenta ANTES de crear la
-        // reserva. Esto NO es una transacción -- son llamadas HTTP separadas
-        // y Supabase no revierte solas las anteriores si una falla más
-        // adelante -- pero así, si no alcanza el crédito (aplicar_credito
-        // tiene su propia validación en la base, ver migración 0016), no se
-        // llega a crear nada: ni reserva, ni puntos, ni butacas reservadas.
-        // Antes el insert de la reserva iba primero, y si aplicar_credito
-        // fallaba después, quedaba una reserva fantasma con el total ya
-        // rebajado por un crédito que en realidad nunca se descontó del
-        // saldo del usuario -- exactamente el bug que encontramos probando
-        // la compra de candy.
+        // reserva.
         if (usuarioId) {
             if (montoCreditoAplicado > 0) {
                 const { error: errorCredito } = await this.supabase.rpc('aplicar_credito', {
@@ -224,7 +211,7 @@ export class ReservasService {
         if (error) throw error;
     }
 
-    // Rol Empleado: marca el QR como usado (ver migracion 0019). Si el
+    // Rol Empleado: marca el QR como usado. Si el
     // codigo no existe, la reserva esta cancelada, o ya fue validado antes,
     // la funcion de Postgres tira una excepcion con un mensaje legible --
     // ese mensaje llega tal cual en error.message, listo para mostrar en
@@ -234,10 +221,8 @@ export class ReservasService {
         if (error) throw error;
     }
 
-    // Trae los datos de UNA reserva por su codigo QR (no por id de usuario,
-    // como obtenerDeUsuario) -- para que la pantalla de Empleado pueda
-    // mostrar que corresponde entregar (entradas y/o candy) despues de
-    // validar un codigo. Mismo select anidado que obtenerDeUsuario.
+    // Trae los datos de UNA reserva por su codigo QR-- la pantalla de Empleado
+    // muestra que corresponde entregar despues de validar un codigo.
     async obtenerPorQrCode(qrCode: string): Promise<ReservaDetalle> {
         const { data, error } = await this.supabase
             .from('reservas')
@@ -258,14 +243,7 @@ export class ReservasService {
     }
 
     // Mis reservas necesita enterarse de cambios aunque no haya ninguna
-    // acción del propio usuario de por medio en esa pantalla: una compra de
-    // candy desde el widget flotante (vive fuera del router-outlet, así que
-    // el componente de Mis reservas nunca se recrea ni vuelve a disparar
-    // ngOnInit), o un Empleado validando el QR desde otro dispositivo. Mismo
-    // patrón de Supabase Realtime que ButacasService ya usa para butacas
-    // ocupadas -- avisamos y el componente vuelve a pedir todo con
-    // obtenerDeUsuario(); la lista de un usuario es chica, no vale la pena
-    // complicarse parcheando filas sueltas.
+    // acción del propio usuario de por medio en esa pantalla.
     suscribirseACambios(usuarioId: string): Observable<void> {
         return new Observable<void>((observador) => {
             const canal = this.supabase

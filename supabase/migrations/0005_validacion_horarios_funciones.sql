@@ -37,8 +37,6 @@ begin
 end;
 $$ language plpgsql;
 
--- "drop if exists" antes del create: hace que este script se pueda
--- correr las veces que haga falta sin tirar error de "ya existe".
 drop trigger if exists trigger_validar_solapamiento on funciones;
 
 create trigger trigger_validar_solapamiento

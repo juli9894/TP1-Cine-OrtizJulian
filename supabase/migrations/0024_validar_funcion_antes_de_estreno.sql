@@ -1,15 +1,8 @@
 -- Le suma una validacion mas al trigger de funciones de la migracion 0005:
 -- ademas de evitar el solapamiento de horarios en la misma sala, ahora
 -- tambien rechaza crear/editar una funcion con un horario anterior a la
--- fecha de estreno de la pelicula -- no tiene sentido vender entradas para
--- una funcion de una pelicula que todavia no se estreno (podria ni estar
--- vendiendose: ver 'proximamente'/'preventa' en core/utils/preventa.ts).
---
--- Se redefine la funcion con el mismo nombre y firma de siempre
--- (create or replace), asi el trigger que ya existe (trigger_validar_solapamiento,
--- migracion 0005) sigue apuntando a esta version nueva sin tener que
--- tocarlo -- mismo criterio ya usado en la migracion 0020 con
--- cancelar_reserva().
+-- fecha de estreno de la pelicula
+
 create or replace function validar_solapamiento_funcion()
 returns trigger as $$
 declare
@@ -24,8 +17,7 @@ begin
     where id = new.pelicula_id;
 
     -- 2. Validacion nueva: el horario de la funcion no puede caer en un dia
-    -- anterior a la fecha de estreno (comparando solo la fecha, sin la
-    -- hora -- una funcion el mismo dia del estreno es valida).
+    -- anterior a la fecha de estreno.
     if new.horario::date < fecha_estreno_pelicula then
         raise exception 'No se puede programar una funcion antes de la fecha de estreno de la película (%).', fecha_estreno_pelicula;
     end if;

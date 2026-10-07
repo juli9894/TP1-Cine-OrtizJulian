@@ -15,8 +15,7 @@ export const empleadoGuard: CanMatchFn = async () => {
 
     try {
         const perfil = await perfilesService.obtenerPorId(usuario.id);
-        // Un admin tambien puede validar entradas -- no hace falta una
-        // cuenta separada de tipo "empleado" para probarlo en la defensa.
+
         if (perfil.rol !== 'empleado' && perfil.rol !== 'admin') {
             return router.createUrlTree(['/']);
         }

@@ -1,8 +1,4 @@
--- Fix chico sobre la migracion 0024: el mensaje de error mostraba la fecha
--- de estreno en formato ISO (2026-10-31, el formato nativo en el que
--- Postgres interpola un valor "date" dentro de un string), inconsistente
--- con el DD/MM/AAAA que se usa en toda la UI. to_char() le pide a Postgres
--- que formatee la fecha como texto ANTES de interpolarla en el mensaje.
+--Cambio de formato de fecha en la validacion de solapamiento de funciones, para que sea mas claro para el usuario final.
 create or replace function validar_solapamiento_funcion()
 returns trigger as $$
 declare
