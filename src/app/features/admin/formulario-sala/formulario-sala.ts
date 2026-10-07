@@ -2,6 +2,7 @@ import { Component, inject, input, OnInit, signal, computed } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SalasService } from '../../../core/services/salas';
+import { ComponenteConCambiosSinGuardar } from '../../../core/guards/confirmar-salida-guard';
 
 @Component({
     imports: [ReactiveFormsModule, RouterLink],
@@ -9,7 +10,7 @@ import { SalasService } from '../../../core/services/salas';
     styleUrl: './formulario-sala.css',
     templateUrl: './formulario-sala.html',
 })
-export class FormularioSala implements OnInit {
+export class FormularioSala implements OnInit, ComponenteConCambiosSinGuardar {
     private readonly salasService = inject(SalasService);
     private readonly router = inject(Router);
     private readonly formBuilder = inject(FormBuilder);
@@ -43,9 +44,21 @@ export class FormularioSala implements OnInit {
                 await this.salasService.crear(valores.nombre);
             }
 
+            this.formularioSala.markAsPristine();
+
             this.router.navigateByUrl('/admin/salas');
         } catch (err) {
             this.errorMensaje.set('No pudimos guardar la sala. Probá de nuevo.');
         }
+    }
+
+    // Lo usa confirmarSalidaGuard (canDeactivate) para decidir si hay que
+    // preguntar antes de abandonar esta pantalla. 'dirty' es una propiedad
+    // que Angular mantiene sola en cualquier FormGroup/FormControl: se pone
+    // en true apenas el usuario toca un campo, y volvemos a false a mano con
+    // markAsPristine() justo antes de navegar tras guardar con exito (arriba),
+    // para no preguntar '¿salir sin guardar?' justo despues de guardar.
+    hayCambiosSinGuardar(): boolean {
+        return this.formularioSala.dirty;
     }
 }

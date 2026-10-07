@@ -1,6 +1,6 @@
 @if (visible()) {
     @if (!abierto()) {
-        <button class="boton-flotante-proximamente" (click)="alternarPanel()">
+        <button class="boton-flotante-proximamente" (click)="alternarPanel($event)">
             🔔 Próximamente
             @if (badgeCount() > 0) {
                 <span class="badge-notif">{{ badgeCount() }}</span>
@@ -9,10 +9,10 @@
     }
 
     @if (abierto()) {
-        <div class="overlay" (click)="cerrarPanel()"></div>
+        <div class="overlay"></div>
     }
 
-    <aside class="panel-proximamente" [class.abierto]="abierto()">
+    <aside class="panel-proximamente" [class.abierto]="abierto()" appClickFuera (clicFuera)="cerrarPanel()">
         <div class="panel-proximamente-header">
             <h3>🔔 Próximamente</h3>
             <button class="cerrar-proximamente" (click)="cerrarPanel()">✕</button>

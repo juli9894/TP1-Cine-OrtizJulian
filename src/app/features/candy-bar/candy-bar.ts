@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ReservasService } from '../../core/services/reservas';
+import { ClickFueraDirective } from '../../core/directives/click-fuera';
 import { CarritoCandyService } from '../../core/services/carrito-candy';
 import { PerfilesService } from '../../core/services/perfiles';
 import { CuponesService } from '../../core/services/cupones';
@@ -43,7 +44,7 @@ function debeOcultarseEn(ruta: string): boolean {
 }
 
 @Component({
-    imports: [RouterLink],
+    imports: [RouterLink, ClickFueraDirective],
     selector: 'app-candy-bar',
     styleUrl: './candy-bar.css',
     templateUrl: './candy-bar.html',
@@ -135,7 +136,12 @@ export class CandyBar implements OnInit, OnDestroy {
         this.suscripcionRouter?.unsubscribe();
     }
 
-    alternarPanel(): void {
+    alternarPanel(evento: MouseEvent): void {
+        // Sin este stopPropagation, el mismo click que abre el panel seguiria
+        // burbujeando hasta document, donde ClickFueraDirective lo tomaria como
+        // un click 'afuera' del panel (el boton esta fuera del <aside>) y lo
+        // cerraria al toque -- el panel 'nunca se abriria' a la vista del usuario.
+        evento.stopPropagation();
         this.abierto.update((valor) => !valor);
     }
 

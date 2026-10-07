@@ -9,6 +9,7 @@ import { Pelicula } from '../../../core/models/pelicula';
 import { Sala } from '../../../core/models/sala';
 import { FormatoFuncion, IdiomaFuncion } from '../../../core/models/funcion';
 import { SelectorFecha } from '../../../shared/selector-fecha/selector-fecha';
+import { ComponenteConCambiosSinGuardar } from '../../../core/guards/confirmar-salida-guard';
 
 @Component({
     imports: [ReactiveFormsModule, RouterLink, DatePipe, SelectorFecha],
@@ -16,7 +17,7 @@ import { SelectorFecha } from '../../../shared/selector-fecha/selector-fecha';
     styleUrl: './formulario-funcion.css',
     templateUrl: './formulario-funcion.html',
 })
-export class FormularioFuncion implements OnInit {
+export class FormularioFuncion implements OnInit, ComponenteConCambiosSinGuardar {
     private readonly peliculasService = inject(PeliculasService);
     private readonly salasService = inject(SalasService);
     private readonly funcionesService = inject(FuncionesService);
@@ -105,6 +106,7 @@ export class FormularioFuncion implements OnInit {
             } else {
                 await this.funcionesService.crear(datos);
             }
+            this.formularioFuncion.markAsPristine();
             this.router.navigateByUrl('/admin/funciones');
         } catch (err) {
             if (
@@ -119,6 +121,16 @@ export class FormularioFuncion implements OnInit {
                 this.errorFuncion.set('No pudimos guardar la función. Probá de nuevo.');
             }
         }
+    }
+
+    // Lo usa confirmarSalidaGuard (canDeactivate) para decidir si hay que
+    // preguntar antes de abandonar esta pantalla. 'dirty' es una propiedad
+    // que Angular mantiene sola en cualquier FormGroup/FormControl: se pone
+    // en true apenas el usuario toca un campo, y volvemos a false a mano con
+    // markAsPristine() justo antes de navegar tras guardar con exito (arriba),
+    // para no preguntar '¿salir sin guardar?' justo despues de guardar.
+    hayCambiosSinGuardar(): boolean {
+        return this.formularioFuncion.dirty;
     }
 }
 

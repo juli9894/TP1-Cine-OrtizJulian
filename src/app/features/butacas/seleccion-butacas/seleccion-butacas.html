@@ -77,14 +77,14 @@
         <div class="pantalla"></div>
 
         @if (!resumenAbierto()) {
-            <button class="abrir-resumen" (click)="alternarResumen()">
+            <button class="abrir-resumen" (click)="alternarResumen($event)">
                 🎟️ Mi compra
                 <span class="badge-candy">${{ total() }}</span>
             </button>
         }
 
         @if (!candyBarAbierto()) {
-            <button class="abrir-candy" (click)="alternarCandyBar()">
+            <button class="abrir-candy" (click)="alternarCandyBar($event)">
                 🍿 Candy bar
                 @if (carritoCandy.cantidadTotal() > 0) {
                     <span class="badge-candy">{{ carritoCandy.cantidadTotal() }}</span>
@@ -141,13 +141,13 @@
         }
 
         @if (candyBarAbierto() || resumenAbierto()) {
-            <div class="overlay" (click)="cerrarPaneles()"></div>
+            <div class="overlay"></div>
         }
 
-        <aside class="panel-candy" [class.abierto]="candyBarAbierto()">
+        <aside class="panel-candy" [class.abierto]="candyBarAbierto()" appClickFuera (clicFuera)="cerrarPaneles()">
             <div class="panel-candy-header">
                 <h3>Candy bar</h3>
-                <button class="cerrar-candy" (click)="alternarCandyBar()">✕</button>
+                <button class="cerrar-candy" (click)="alternarCandyBar($event)">✕</button>
             </div>
 
             <div class="panel-candy-contenido">
@@ -201,10 +201,10 @@
             </div>
         </aside>
 
-        <aside class="panel-resumen" [class.abierto]="resumenAbierto()">
+        <aside class="panel-resumen" [class.abierto]="resumenAbierto()" appClickFuera (clicFuera)="cerrarPaneles()">
             <div class="panel-resumen-header">
                 <h3>Mi compra</h3>
-                <button class="cerrar-candy" (click)="alternarResumen()">✕</button>
+                <button class="cerrar-candy" (click)="alternarResumen($event)">✕</button>
             </div>
 
             <p class="subtitulo-resumen">Entradas</p>

@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { soloInvitadoGuard } from './core/guards/solo-invitado-guard';
 import { adminGuard } from './core/guards/admin-guard';
 import { empleadoGuard } from './core/guards/empleado-guard';
+import { confirmarSalidaGuard } from './core/guards/confirmar-salida-guard';
 
 export const routes: Routes = [
     {
@@ -44,12 +45,14 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./features/admin/formulario-funcion/formulario-funcion').then((m) => m.FormularioFuncion),
         canMatch: [adminGuard],
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin/funciones/:id/editar',
         loadComponent: () =>
             import('./features/admin/formulario-funcion/formulario-funcion').then((m) => m.FormularioFuncion),
         canMatch: [adminGuard],
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin/funciones',
@@ -60,11 +63,13 @@ export const routes: Routes = [
         path: 'admin/salas/nueva',
         loadComponent: () => import('./features/admin/formulario-sala/formulario-sala').then((m) => m.FormularioSala),
         canMatch: [adminGuard],
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin/salas/:id/editar',
         loadComponent: () => import('./features/admin/formulario-sala/formulario-sala').then((m) => m.FormularioSala),
         canMatch: [adminGuard],
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin/salas',
@@ -76,12 +81,14 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./features/admin/formulario-pelicula/formulario-pelicula').then((m) => m.FormularioPelicula),
         canMatch: [adminGuard],
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin/peliculas/:id/editar',
         loadComponent: () =>
             import('./features/admin/formulario-pelicula/formulario-pelicula').then((m) => m.FormularioPelicula),
         canMatch: [adminGuard],
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin/peliculas',
@@ -93,12 +100,14 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./features/admin/formulario-producto/formulario-producto').then((m) => m.FormularioProducto),
         canMatch: [adminGuard],
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin/productos/:id/editar',
         loadComponent: () =>
             import('./features/admin/formulario-producto/formulario-producto').then((m) => m.FormularioProducto),
         canMatch: [adminGuard],
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin/productos',
@@ -109,11 +118,13 @@ export const routes: Routes = [
         path: 'admin/combos/nuevo',
         loadComponent: () => import('./features/admin/formulario-combo/formulario-combo').then((m) => m.FormularioCombo),
         canMatch: [adminGuard],
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin/combos/:id/editar',
         loadComponent: () => import('./features/admin/formulario-combo/formulario-combo').then((m) => m.FormularioCombo),
         canMatch: [adminGuard],
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin/combos',

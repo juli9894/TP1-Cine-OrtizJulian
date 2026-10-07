@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { ClickFueraDirective } from '../../core/directives/click-fuera';
 import { Subscription } from 'rxjs';
 import { PeliculasService } from '../../core/services/peliculas';
 import { AlertasProximamenteService } from '../../core/services/alertas-proximamente';
@@ -25,7 +26,7 @@ function debeOcultarseEn(ruta: string): boolean {
 }
 
 @Component({
-    imports: [RouterLink, DatePipe],
+    imports: [RouterLink, DatePipe, ClickFueraDirective],
     selector: 'app-proximamente',
     styleUrl: './proximamente.css',
     templateUrl: './proximamente.html',
@@ -84,7 +85,10 @@ export class Proximamente implements OnInit, OnDestroy {
         this.suscripcionRouter?.unsubscribe();
     }
 
-    alternarPanel(): void {
+    alternarPanel(evento: MouseEvent): void {
+        // Mismo motivo que en CandyBar.alternarPanel(): sin esto, el click que
+        // abre el panel se cerraria solo al llegar a document.
+        evento.stopPropagation();
         this.abierto.update((valor) => !valor);
 
         if (this.abierto() && this.notificacionesPendientes().length > 0 && !this.vistasEnEstaSesion()) {

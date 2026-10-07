@@ -6,6 +6,7 @@ import { GenerosService } from '../../../core/services/generos';
 import { Genero } from '../../../core/models/genero';
 import { ClasificacionPelicula } from '../../../core/models/pelicula';
 import { SelectorFecha } from '../../../shared/selector-fecha/selector-fecha';
+import { ComponenteConCambiosSinGuardar } from '../../../core/guards/confirmar-salida-guard';
 
 @Component({
     imports: [ReactiveFormsModule, RouterLink, SelectorFecha],
@@ -13,7 +14,7 @@ import { SelectorFecha } from '../../../shared/selector-fecha/selector-fecha';
     styleUrl: './formulario-pelicula.css',
     templateUrl: './formulario-pelicula.html',
 })
-export class FormularioPelicula implements OnInit {
+export class FormularioPelicula implements OnInit, ComponenteConCambiosSinGuardar {
     private readonly peliculasService = inject(PeliculasService);
     private readonly generosService = inject(GenerosService);
     private readonly formBuilder = inject(FormBuilder);
@@ -107,9 +108,20 @@ export class FormularioPelicula implements OnInit {
             } else {
                 await this.peliculasService.crear(datos, this.generosSeleccionados());
             }
+            this.formularioPelicula.markAsPristine();
             this.router.navigateByUrl('/admin/peliculas');
         } catch (err) {
             this.errorPelicula.set('No pudimos guardar la película. Probá de nuevo.');
         }
+    }
+
+    // Lo usa confirmarSalidaGuard (canDeactivate) para decidir si hay que
+    // preguntar antes de abandonar esta pantalla. 'dirty' es una propiedad
+    // que Angular mantiene sola en cualquier FormGroup/FormControl: se pone
+    // en true apenas el usuario toca un campo, y volvemos a false a mano con
+    // markAsPristine() justo antes de navegar tras guardar con exito (arriba),
+    // para no preguntar '¿salir sin guardar?' justo despues de guardar.
+    hayCambiosSinGuardar(): boolean {
+        return this.formularioPelicula.dirty;
     }
 }

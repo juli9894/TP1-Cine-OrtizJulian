@@ -1,6 +1,6 @@
 @if (visible()) {
     @if (!abierto()) {
-        <button class="boton-flotante-candy" (click)="alternarPanel()">
+        <button class="boton-flotante-candy" (click)="alternarPanel($event)">
             🍿 Candy bar
             @if (carritoCandy.cantidadTotal() > 0) {
                 <span class="badge-candy">{{ carritoCandy.cantidadTotal() }}</span>
@@ -9,10 +9,10 @@
     }
 
     @if (abierto()) {
-        <div class="overlay" (click)="cerrarPanel()"></div>
+        <div class="overlay"></div>
     }
 
-    <aside class="panel-candy" [class.abierto]="abierto()">
+    <aside class="panel-candy" [class.abierto]="abierto()" appClickFuera (clicFuera)="cerrarPanel()">
         <div class="panel-candy-header">
             <h3>🍿 Candy bar</h3>
             <button class="cerrar-candy" (click)="cerrarPanel()">✕</button>

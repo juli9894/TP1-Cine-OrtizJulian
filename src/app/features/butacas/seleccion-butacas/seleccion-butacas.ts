@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, OnInit, signal, OnDestroy, NgZone } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ClickFueraDirective } from '../../../core/directives/click-fuera';
 import { FuncionesService } from '../../../core/services/funciones';
 import { ButacasService } from '../../../core/services/butacas';
 import { ReservasService } from '../../../core/services/reservas';
@@ -35,7 +36,7 @@ function calcularEdad(fechaNacimiento: string): number {
 }
 
 @Component({
-    imports: [RouterLink],
+    imports: [RouterLink, ClickFueraDirective],
     selector: 'app-seleccion-butacas',
     styleUrl: './seleccion-butacas.css',
     templateUrl: './seleccion-butacas.html',
@@ -263,12 +264,17 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         );
     }
 
-    alternarCandyBar(): void {
+    alternarCandyBar(evento: MouseEvent): void {
+        // stopPropagation: evita que este mismo click, al seguir burbujeando
+        // hasta document, dispare ClickFueraDirective del panel de candy (el
+        // boton que lo abre esta FUERA del <aside>) y lo cierre apenas se abre.
+        evento.stopPropagation();
         this.resumenAbierto.set(false);
         this.candyBarAbierto.update((abierto) => !abierto);
     }
 
-    alternarResumen(): void {
+    alternarResumen(evento: MouseEvent): void {
+        evento.stopPropagation();
         this.candyBarAbierto.set(false);
         this.resumenAbierto.update((abierto) => !abierto);
     }
