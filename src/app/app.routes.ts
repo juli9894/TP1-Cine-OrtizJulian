@@ -29,6 +29,7 @@ export const routes: Routes = [
         path: 'funciones/:id/butacas',
         loadComponent: () =>
             import('./features/butacas/seleccion-butacas/seleccion-butacas').then((m) => m.SeleccionButacas),
+        canDeactivate: [confirmarSalidaGuard],
     },
     {
         path: 'admin',
@@ -159,6 +160,13 @@ export const routes: Routes = [
     {
         path: 'mis-reservas',
         loadComponent: () => import('./features/mis-reservas/mis-reservas').then((m) => m.MisReservas),
+    },
+    {
+        // Pública (sin canActivate): la usa quien compró sin iniciar sesión
+        // para reclamar su compra con el código del comprobante.
+        path: 'reclamar',
+        loadComponent: () =>
+            import('./features/reclamar-compra/reclamar-compra').then((m) => m.ReclamarCompra),
     },
     {   path: '', 
         loadComponent: () => import('./features/home/home').then((m) => m.Home), pathMatch: 'full' },

@@ -149,6 +149,13 @@ export class CandyBar implements OnInit, OnDestroy {
         this.abierto.set(false);
     }
 
+    // Vaciar todo de una vez en lugar de ir restando item por item -- mismo
+    // vaciar() que ya usa el flujo post-compra, ahora también a mano.
+    vaciarCandy(): void {
+        if (!confirm('¿Vaciar el carrito de candy bar?')) return;
+        this.carritoCandy.vaciar();
+    }
+
     onToggleCredito(evento: Event): void {
         this.usarCredito.set((evento.target as HTMLInputElement).checked);
     }

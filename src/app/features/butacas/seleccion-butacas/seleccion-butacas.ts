@@ -23,6 +23,7 @@ import { Pelicula } from '../../../core/models/pelicula';
 import { ReservaCreada } from '../../../core/models/reserva';
 import { Subscription } from 'rxjs';
 import { calcularEstadoVenta } from '../../../core/utils/preventa';
+import { ComponenteConCambiosSinGuardar } from '../../../core/guards/confirmar-salida-guard';
 
 function calcularEdad(fechaNacimiento: string): number {
     const hoy = new Date();
@@ -41,7 +42,7 @@ function calcularEdad(fechaNacimiento: string): number {
     styleUrl: './seleccion-butacas.css',
     templateUrl: './seleccion-butacas.html',
 })
-export class SeleccionButacas implements OnInit, OnDestroy {
+export class SeleccionButacas implements OnInit, OnDestroy, ComponenteConCambiosSinGuardar {
     private readonly funcionesService = inject(FuncionesService);
     private readonly butacasService = inject(ButacasService);
     private readonly reservasService = inject(ReservasService);
@@ -288,6 +289,24 @@ export class SeleccionButacas implements OnInit, OnDestroy {
         this.usarCredito.set((evento.target as HTMLInputElement).checked);
     }
 
+    // Lo que usa confirmarSalidaGuard (mismo guard genérico que ya protege
+    // los formularios del admin) para decidir si hay que avisar antes de
+    // salir de esta pantalla. Una vez confirmada la compra ya no hay nada
+    // que perder, así que no preguntamos aunque sigan "seleccionadas" en el
+    // estado (reservaConfirmada corta el flujo antes de llegar hasta aquí
+    // en la práctica, pero lo chequeamos igual por si se navega después).
+    hayCambiosSinGuardar(): boolean {
+        return !this.reservaConfirmada() && this.butacasSeleccionadas().length > 0;
+    }
+
+    // Vaciar todo el carrito de candy de una sola acción en vez de tener
+    // que restar item por item -- mismo método vaciar() que ya usa el flujo
+    // de post-compra, ahora disparado también a mano desde el template.
+    vaciarCandy(): void {
+        if (!confirm('¿Vaciar el carrito de candy bar?')) return;
+        this.carritoCandy.vaciar();
+    }
+
     async confirmarCompra(): Promise<void> {
         const funcion = this.funcion();
         const pelicula = this.pelicula();
@@ -311,18 +330,22 @@ export class SeleccionButacas implements OnInit, OnDestroy {
             return;
         }
 
-        const edadMinima = this.edadMinima();
         const usuario = this.authService.usuarioActual();
         const perfil = this.perfil();
 
-        // La restricción de edad es por la película: solo aplica si
-        // realmente se están comprando entradas para esa función.
-        if (hayButacas && edadMinima > 0 && perfil) {
+        // La restricción de edad es por la película y SOLO bloquea la
+        // compra en +18 (corrección pedida por el cliente: antes +13
+        // también bloqueaba, pero ahora un menor de 13 tiene que poder
+        // comprar igual para esas funciones -- el aviso de que hay que ir
+        // acompañado por un adulto se muestra siempre en el template, sin
+        // importar la edad ni si hay sesión iniciada). Un invitado (sin
+        // perfil) nunca se bloquea porque no hay forma de conocer su edad.
+        if (hayButacas && pelicula.clasificacion === '+18' && perfil) {
             const edad = calcularEdad(perfil.fecha_nacimiento);
 
-            if (edad < edadMinima) {
+            if (edad < 18) {
                 this.errorMensaje.set(
-                    `Esta función es ${pelicula.clasificacion}: no podés comprar entradas (edad mínima ${edadMinima} años).`,
+                    'Esta función es +18: no podés comprar entradas (edad mínima 18 años).',
                 );
                 return;
             }

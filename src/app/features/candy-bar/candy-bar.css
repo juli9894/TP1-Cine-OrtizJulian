@@ -62,6 +62,27 @@
     margin: 0;
 }
 
+.acciones-panel-candy {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-1);
+}
+
+.vaciar-candy {
+    background: transparent;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--color-text-muted);
+}
+
+.vaciar-candy:hover {
+    color: var(--color-error);
+    text-decoration: underline;
+    opacity: 1;
+}
+
 .cerrar-candy {
     background: transparent;
     color: var(--color-text-muted);

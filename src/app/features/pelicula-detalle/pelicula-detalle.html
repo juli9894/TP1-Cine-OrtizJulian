@@ -9,10 +9,15 @@
                 {{ p.duracionMinutos }} min —
                 <span class="badge-clasificacion" [attr.data-clasificacion]="p.clasificacion">{{ p.clasificacion }}</span>
             </p>
-            @if (p.clasificacion !== 'ATP') {
+            @if (p.clasificacion === '+18') {
                 <p class="aviso-clasificacion">
-                    Apta para mayores de {{ p.clasificacion === '+18' ? '18' : '13' }} años. Menores de esa edad no
-                    pueden comprar entradas para esta función; en la entrada se aclara si requiere acompañamiento adulto.
+                    Apta para mayores de 18 años. Menores de esa edad no pueden comprar entradas para esta
+                    función.
+                </p>
+            } @else if (p.clasificacion === '+13') {
+                <p class="aviso-clasificacion">
+                    Apta para mayores de 13 años. Se puede comprar igual siendo menor, pero hay que concurrir
+                    acompañado por un adulto.
                 </p>
             }
             <p>{{ p.sinopsis }}</p>

@@ -15,7 +15,12 @@
     <aside class="panel-candy" [class.abierto]="abierto()" appClickFuera (clicFuera)="cerrarPanel()">
         <div class="panel-candy-header">
             <h3>🍿 Candy bar</h3>
-            <button class="cerrar-candy" (click)="cerrarPanel()">✕</button>
+            <div class="acciones-panel-candy">
+                @if (carritoCandy.hayAlgoSeleccionado() && !reservaConfirmada()) {
+                    <button type="button" class="vaciar-candy" (click)="vaciarCandy()">Vaciar carrito</button>
+                }
+                <button class="cerrar-candy" (click)="cerrarPanel()">✕</button>
+            </div>
         </div>
 
         <p class="subtitulo-funcion">Pochoclos, bebidas y combos — sin elegir película ni función.</p>

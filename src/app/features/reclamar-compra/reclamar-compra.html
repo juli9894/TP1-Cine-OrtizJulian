@@ -1,0 +1,100 @@
+<h2>Reclamar mi compra</h2>
+
+<p class="ayuda">
+    ¿Compraste sin iniciar sesión? Ingresá el código de tu compra (el mismo que figura en el comprobante) para
+    ver el detalle y volver a descargar el PDF.
+</p>
+
+<div class="carga-manual">
+    <label>
+        Código de la compra
+        <input
+            type="text"
+            [value]="codigo()"
+            (input)="onCodigoChange($event)"
+            (keyup.enter)="buscar()"
+            placeholder="Pegá o escribí el código"
+        />
+    </label>
+    <button type="button" (click)="buscar()" [disabled]="buscando() || !codigo().trim()">
+        {{ buscando() ? 'Buscando...' : 'Buscar' }}
+    </button>
+</div>
+
+@if (errorMensaje()) {
+    <p class="error">{{ errorMensaje() }}</p>
+}
+
+@if (reserva(); as r) {
+    <div class="detalle-reclamo" [class.cancelada]="r.cancelada">
+        @if (r.peliculaId) {
+            <div class="reserva-fila">
+                <img class="poster-reserva" [src]="r.peliculaImagenUrl" [alt]="r.peliculaTitulo" />
+                <div class="info-reserva">
+                    <h3>{{ r.peliculaTitulo }}</h3>
+                    <p class="datos-funcion">{{ r.formato }} — {{ r.idioma }} — {{ r.sala }}</p>
+                    <p class="datos-funcion">{{ r.horario | date: 'dd/MM/yyyy HH:mm' }}</p>
+                </div>
+            </div>
+
+            @if (r.butacasPorFila.length > 0) {
+                <p class="etiqueta-detalle">Butacas:</p>
+                <ul class="lista-detalle">
+                    @for (grupo of r.butacasPorFila; track grupo.fila) {
+                        <li>Fila {{ grupo.fila }}: {{ formatearButacas(grupo.columnas) }}</li>
+                    }
+                </ul>
+            }
+        } @else {
+            <h3>Compra Candy bar</h3>
+        }
+
+        @if (r.candyItems.length > 0) {
+            <p class="etiqueta-detalle">Candy bar:</p>
+            <ul class="lista-detalle">
+                @for (item of r.candyItems; track item) {
+                    <li>{{ item }}</li>
+                }
+            </ul>
+        }
+
+        @if (r.descuento > 0 || r.creditoAplicado > 0) {
+            <p>Subtotal: ${{ r.subtotal }}</p>
+            @if (r.descuento > 0) {
+                <p>Descuento aplicado: -${{ r.descuento }}</p>
+            }
+            @if (r.creditoAplicado > 0) {
+                <p>Crédito usado: -${{ r.creditoAplicado }}</p>
+            }
+        }
+
+        <p class="total-final">
+            Total: ${{ r.total }}
+            <span class="nota-total">{{ notaTotalPagado(r.descuento, r.creditoAplicado, r.total) }}</span>
+        </p>
+
+        @if (r.cancelada) {
+            <p class="estado">Esta compra fue cancelada.</p>
+        } @else {
+            <p class="etiqueta-detalle">Código:</p>
+            <p class="codigo-reserva">{{ r.qrCode }}</p>
+
+            @if (qrImagen()) {
+                <img class="qr-detalle" [src]="qrImagen()" alt="Código QR de la compra" />
+                <p class="nota">
+                    {{
+                        r.qrValidado
+                            ? 'Este código ya fue validado.'
+                            : 'Mostrá este código en caja para retirar tu entrada/candy.'
+                    }}
+                </p>
+            }
+
+            <button type="button" (click)="descargar()" [disabled]="generandoPdf()">
+                {{ generandoPdf() ? 'Generando PDF...' : 'Descargar comprobante (PDF)' }}
+            </button>
+        }
+    </div>
+}
+
+<a class="volver" routerLink="/">← Volver al inicio</a>

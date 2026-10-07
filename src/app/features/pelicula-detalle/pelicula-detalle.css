@@ -143,3 +143,11 @@ section form textarea {
 .estrellas button.activa {
     color: var(--color-accent);
 }
+.aviso-clasificacion {
+    margin-top: var(--espacio-2);
+    padding: 0.6rem 1rem;
+    border-radius: var(--radio);
+    background: color-mix(in srgb, var(--color-error) 15%, transparent);
+    border: 1px solid var(--color-error);
+    font-weight: 600;
+}

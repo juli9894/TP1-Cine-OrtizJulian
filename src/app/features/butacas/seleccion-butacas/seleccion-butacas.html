@@ -63,6 +63,17 @@
             </p>
             <p class="subtitulo-funcion">{{ horarioFormateado() }}</p>
 
+            @if (edadMinima() > 0) {
+                <p class="aviso-clasificacion">
+                    ⚠️ Función {{ pelicula()?.clasificacion }}:
+                    @if (edadMinima() === 18) {
+                        no se permite el ingreso a menores de 18 años.
+                    } @else {
+                        se puede comprar igual, pero los menores deben concurrir acompañados por un adulto.
+                    }
+                </p>
+            }
+
             @if (estadoVenta() === 'proximamente') {
                 <p class="aviso-preventa">
                     🔔 Las entradas salen a la venta el {{ fechaAperturaPreventa() }}. Todavía no se pueden comprar.
@@ -147,7 +158,12 @@
         <aside class="panel-candy" [class.abierto]="candyBarAbierto()" appClickFuera (clicFuera)="cerrarPaneles()">
             <div class="panel-candy-header">
                 <h3>Candy bar</h3>
-                <button class="cerrar-candy" (click)="alternarCandyBar($event)">✕</button>
+                <div class="acciones-panel-candy">
+                    @if (carritoCandy.hayAlgoSeleccionado()) {
+                        <button type="button" class="vaciar-candy" (click)="vaciarCandy()">Vaciar carrito</button>
+                    }
+                    <button class="cerrar-candy" (click)="alternarCandyBar($event)">✕</button>
+                </div>
             </div>
 
             <div class="panel-candy-contenido">
